@@ -34,5 +34,5 @@ class Partnership(models.Model):
 
 
 class Parent(models.Model):
-    parent = models.ForeignKey('Parent', on_delete=models.DO_NOTHING, related_name='+')
+    parent = models.ForeignKey('Person', on_delete=models.DO_NOTHING, related_name='+')
     biological = models.BooleanField()
