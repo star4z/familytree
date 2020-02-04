@@ -1,15 +1,27 @@
 from django.db import models
 
+prefix_choices = tuple()
+
 
 class Name(models.Model):
-    # Needs either some parsing or more fields for better lookup and display
-    name = models.TextField()
-    nickname = models.TextField()
-    alternate_name = models.TextField()
+    prefix = models.CharField(max_length=7, choices=prefix_choices)
+    first_name = models.TextField()
+    middle_name = models.TextField()
+    last_name = models.TextField()
+    suffix = models.CharField(max_length=6)
+
+
+class LegalName(Name):
+    pass
+
+
+class AlternateName(Name):
+    person = models.ForeignKey('Person', on_delete=models.DO_NOTHING)
 
 
 class Person(models.Model):
-    name = models.OneToOneField(Name, on_delete=models.CASCADE)
+    name = models.OneToOneField(LegalName, on_delete=models.CASCADE)
+    preferred_name = models.TextField()
     birth_date = models.DateField()
     death_date = models.DateField()
     birth_location = models.TextField() #TODO: change to location class
@@ -23,8 +35,8 @@ class Person(models.Model):
 
 
 class Partnership(models.Model):
-    partner = models.ForeignKey('Person', on_delete=models.DO_NOTHING, related_name='+')
-    children = models.ManyToManyField('Person', related_name='+')
+    partner = models.ForeignKey(Person, on_delete=models.DO_NOTHING, related_name='+', null=True)
+    children = models.ManyToManyField(Person, related_name='+')
     married = models.BooleanField()
     marriage_date = models.DateField()
     divorced = models.BooleanField()
@@ -34,5 +46,6 @@ class Partnership(models.Model):
 
 
 class Parent(models.Model):
-    parent = models.ForeignKey('Person', on_delete=models.DO_NOTHING, related_name='+')
+    parent = models.ForeignKey(Person, on_delete=models.DO_NOTHING)
     biological = models.BooleanField()
+    notes = models.TextField()
