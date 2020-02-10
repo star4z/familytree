@@ -12,19 +12,16 @@ class Name(models.Model):
     last_name = models.TextField(blank=True, default='')
     suffix = models.CharField(max_length=6, blank=True, default='')
 
+    def __str__(self):
+        return f'{self.first_name} {self.last_name}'
+
 
 class LegalName(Name):
     person = models.OneToOneField('Person', on_delete=models.CASCADE)
 
-    def __str__(self):
-        return f'{self.first_name} {self.last_name}'
-
 
 class AlternateName(Name):
     person = models.ForeignKey('Person', on_delete=models.DO_NOTHING)
-
-    def __str__(self):
-        return f'{self.first_name} {self.last_name}'
 
 
 class Person(models.Model):
@@ -40,6 +37,9 @@ class Person(models.Model):
     partnerships = models.ManyToManyField('Partnership', blank=True) 
     parents = models.ManyToManyField('Parent', blank=True)
 
+    def __str__(self):
+        return f'{LegalName.objects.filter(person=self)[0]}'
+
 
 class Partnership(models.Model):
     partner = models.ForeignKey(Person, on_delete=models.DO_NOTHING, related_name='+', null=True)
@@ -51,8 +51,14 @@ class Partnership(models.Model):
     notes = models.TextField(blank=True, default='')
     current = models.BooleanField()
 
+    def __str__(self):
+        return str(self.partner)
+
 
 class Parent(models.Model):
     parent = models.ForeignKey(Person, on_delete=models.DO_NOTHING)
     biological = models.NullBooleanField(default=None) #Could change back on using booleanField if we only want yes or no 
     notes = models.TextField(blank=True, default='')
+
+    def __str__(self):
+        return str(self.parent)
