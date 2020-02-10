@@ -292,19 +292,6 @@ class Location(models.Model):
 
 class Person(models.Model):
     name = models.OneToOneField(LegalName, on_delete=models.CASCADE)
-<<<<<<< HEAD
-    preferred_name = models.TextField(blank=True, default='')
-    birth_date = models.DateField(null=True, blank=True)
-    death_date = models.DateField(null=True, blank=True)
-    birth_location = models.TextField(blank=True, default='') #TODO: change to location class
-    death_location = models.TextField(blank=True, default='') #TODO: change to location class
-    living = models.BooleanField(default=True)
-    gender = models.CharField(max_length=100, default='') #Should gender be optional?
-    notes = models.TextField(blank=True, default='')
-    occupations = models.TextField(blank=True, default='')
-    partnerships = models.ManyToManyField('Partnership', blank=True) 
-    parents = models.ManyToManyField('Parent', blank=True)
-=======
     preferred_name = models.TextField(blank=True, default='')
     birth_date = models.DateField(null=True, blank=True)
     death_date = models.DateField(null=True, blank=True)
@@ -327,7 +314,6 @@ class Person(models.Model):
     occupations = models.TextField(blank=True, default='')
     partnerships = models.ManyToManyField('Partnership', blank=True) 
     parents = models.ManyToManyField('Parent', blank=True)
->>>>>>> tri-location-model
 
 
 class Partnership(models.Model):
