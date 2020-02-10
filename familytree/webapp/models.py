@@ -14,15 +14,20 @@ class Name(models.Model):
 
 
 class LegalName(Name):
-    pass
+    person = models.OneToOneField('Person', on_delete=models.CASCADE)
+
+    def __str__(self):
+        return f'{self.first_name} {self.last_name}'
 
 
 class AlternateName(Name):
     person = models.ForeignKey('Person', on_delete=models.DO_NOTHING)
 
+    def __str__(self):
+        return f'{self.first_name} {self.last_name}'
+
 
 class Person(models.Model):
-    name = models.OneToOneField(LegalName, on_delete=models.CASCADE)
     preferred_name = models.TextField(blank=True, default='')
     birth_date = models.DateField(null=True, blank=True)
     death_date = models.DateField(null=True, blank=True)
