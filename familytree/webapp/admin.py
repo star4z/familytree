@@ -2,6 +2,7 @@ from django.contrib import admin
 from django.db import models
 from django.forms import TextInput
 
+<<<<<<< HEAD
 from .models import Location, Name, Partnership, Person
 
 class PersonInline(admin.TabularInline):
@@ -35,3 +36,10 @@ get_partners.short_description = 'Partners'
 @admin.register(Partnership)
 class PartnershipAdmin(admin.ModelAdmin):
     list_display = (get_partners, 'married', 'current')
+=======
+from .models import Location
+from .models import Person
+
+admin.site.register(Location)
+admin.site.register(Person)
+>>>>>>> tri-location-model
