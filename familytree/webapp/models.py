@@ -1,9 +1,8 @@
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 
-prefix_choices = tuple()
 
-#Changes where First name and gender(?) has to be mandatory
+prefix_choices = tuple()
 
 
 class Name(models.Model):
@@ -12,17 +11,11 @@ class Name(models.Model):
     middle_name = models.TextField(blank=True, default='')
     last_name = models.TextField(blank=True, default='')
     suffix = models.CharField(max_length=6, blank=True, default='')
+    person = models.ForeignKey('Person', on_delete=models.DO_NOTHING)
 
     def __str__(self):
         return f'{self.first_name} {self.last_name}'
-
-
-class LegalName(Name):
-    person = models.OneToOneField('Person', on_delete=models.CASCADE)
-
-
-class AlternateName(Name):
-    person = models.ForeignKey('Person', on_delete=models.DO_NOTHING)
+    
 
 class Location(models.Model):
     city = models.CharField(
@@ -293,38 +286,36 @@ class Location(models.Model):
         blank=True,
     )
 
+    def __str__(self):
+        return f'{self.city}, {self.state}, {self.country}'
+
+
 class Person(models.Model):
+    prefix = models.CharField(max_length=7, choices=prefix_choices, blank=True,
+        default='') 
+    first_name = models.TextField(default='')
+    middle_name = models.TextField(blank=True, default='')
+    last_name = models.TextField(blank=True, default='')
+    suffix = models.CharField(max_length=6, blank=True, default='')
+    
     preferred_name = models.TextField(blank=True, default='')
     birth_date = models.DateField(null=True, blank=True)
     death_date = models.DateField(null=True, blank=True)
-
-    birth_location = models.OneToOneField(
-        Location,
-        related_name="birth_location", 
-        on_delete=models.CASCADE
-    )
-
-    death_location = models.OneToOneField(
-        Location, 
-        related_name="death_location",
-        on_delete=models.CASCADE
-    )
+    birth_location = models.ForeignKey(Location, related_name="birth_location", blank=True, on_delete=models.DO_NOTHING, null=True)
+    death_location = models.ForeignKey(Location, related_name="death_location", blank=True, on_delete=models.DO_NOTHING, null=True)
     
     living = models.BooleanField(default=True)
     gender = models.CharField(max_length=100, default='') #Should gender be optional?
     notes = models.TextField(blank=True, default='')
     occupations = models.TextField(blank=True, default='')
-    partnerships = models.ManyToManyField('Partnership', blank=True) 
-    parents = models.ManyToManyField('Parent', blank=True)
+    partnerships = models.ManyToManyField('Partnership', blank=True)
 
     def __str__(self):
-        return f'{LegalName.objects.filter(person=self)[0]}'
+        return f'{self.first_name} {self.last_name}'
 
 
 class Partnership(models.Model):
-    partner = models.ForeignKey(Person, on_delete=models.DO_NOTHING, 
-        related_name='+', null=True)
-    children = models.ManyToManyField(Person, related_name='+')
+    children = models.ManyToManyField(Person, related_name='children')
     married = models.BooleanField(default=False)
     marriage_date = models.DateField(null=True, blank =True)
     divorced = models.BooleanField(default=False)
@@ -333,13 +324,4 @@ class Partnership(models.Model):
     current = models.BooleanField()
 
     def __str__(self):
-        return str(self.partner)
-
-
-class Parent(models.Model):
-    parent = models.ForeignKey(Person, on_delete=models.DO_NOTHING)
-    biological = models.NullBooleanField(default=None) #Could change back on using booleanField if we only want yes or no 
-    notes = models.TextField(blank=True, default='')
-
-    def __str__(self):
-        return str(self.parent)
+        return ', '.join(str(person) for person in Person.objects.filter(partnerships=self))

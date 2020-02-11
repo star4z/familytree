@@ -1,32 +1,37 @@
 from django.contrib import admin
+from django.db import models
+from django.forms import TextInput
 
-from .models import AlternateName, LegalName, Parent, Partnership, Person
+from .models import Location, Name, Partnership, Person
 
 class PersonInline(admin.TabularInline):
     model = Person
     extra = 1
 
-class LegalNameInline(admin.TabularInline):
-    model = LegalName
-    extra = 1
 
-class AlternateNameInline(admin.TabularInline):
-    model = AlternateName
+class NameInline(admin.TabularInline):
+    model = Name
     extra = 1
+    formfield_overrides = {
+        models.TextField: {'widget': TextInput(attrs={'size':'20'})},
+    }
 
-class PartnershipInline(admin.TabularInline):
-    model = Partnership
-    extra = 1
-
-class ParentInline(admin.TabularInline):
-    model = Parent
-    extra = 1
-
-def legal_name(obj):
-    return LegalName.objects.filter(person=obj)[0]
-legal_name.short_description = 'Name'
+@admin.register(Location)
+class LocationAdmin(admin.ModelAdmin):
+    pass
 
 @admin.register(Person)
 class PersonAdmin(admin.ModelAdmin):
-    inlines = [LegalNameInline, AlternateNameInline, PartnershipInline, ParentInline]
-    list_display = (legal_name, 'birth_date', 'living', 'gender')
+    inlines = [NameInline]
+    list_display = ('first_name', 'last_name', 'birth_date', 'living', 'gender')
+    formfield_overrides = {
+        models.TextField: {'widget': TextInput(attrs={'size':'20'})},
+    }
+
+def get_partners(obj):
+    return ', '.join(str(person) for person in Person.objects.filter(partnerships=obj))
+get_partners.short_description = 'Partners'
+
+@admin.register(Partnership)
+class PartnershipAdmin(admin.ModelAdmin):
+    list_display = (get_partners, 'married', 'current')
