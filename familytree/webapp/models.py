@@ -25,14 +25,14 @@ class Person(models.Model):
     birth_date = models.DateField(null=True, blank=True)
     death_date = models.DateField(null=True, blank=True)
 
-    birth_location = models.OneToOneField(
+    birth_location = models.ForeignKey(
         Location,
         related_name="birth_location", 
         on_delete=models.CASCADE
     )
 
-    death_location = models.OneToOneField(
-        Location, 
+    death_location = models.ForeignKey(
+        Location,
         related_name="death_location",
         on_delete=models.CASCADE
     )
