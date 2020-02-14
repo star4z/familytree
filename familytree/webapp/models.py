@@ -10,7 +10,7 @@ class Name(models.Model):
     middle_name = models.TextField(blank=True, default='')
     last_name = models.TextField(blank=True, default='')
     suffix = models.CharField(max_length=6, blank=True, default='')
-    person = models.ForeignKey('Person', on_delete=models.DO_NOTHING)
+    person = models.ForeignKey('Person', on_delete=models.DO_NOTHING, related_name='alternate_name')
 
     def __str__(self):
         return f'{self.first_name} {self.last_name}'

@@ -12,6 +12,8 @@ class PersonInline(admin.TabularInline):
 
 class NameInline(admin.TabularInline):
     model = Name
+    verbose_name = 'Alternate Name'
+    verbose_name_plural = 'Alternate Names'
     extra = 1
     formfield_overrides = {
         models.TextField: {'widget': TextInput(attrs={'size': '40'})},
