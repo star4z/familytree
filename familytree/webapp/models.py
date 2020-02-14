@@ -43,7 +43,7 @@ class Person(models.Model):
 
 
 class Partnership(models.Model):
-    children = models.ManyToManyField(Person, related_name='children', null=True)
+    children = models.ManyToManyField(Person, related_name='children', blank=True)
     married = models.BooleanField(default=False)
     marriage_date = models.DateField(null=True, blank=True)
     divorced = models.BooleanField(default=False)
