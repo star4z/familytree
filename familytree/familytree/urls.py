@@ -21,7 +21,7 @@ from django.views.generic import RedirectView
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('webapp/', include('webapp.urls')),
-    path('',RedirectView.as_view(url='webapp/', permanent=True))
+    #path('',RedirectView.as_view(url='webapp/', permanent=True))
  ] 
 
 # Use static() to add url mapping to serve static files during development (only)

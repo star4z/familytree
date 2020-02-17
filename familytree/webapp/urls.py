@@ -18,4 +18,7 @@ from . import views
 
 urlpatterns = [
 	path('', views.index, name='index'),
+	path('person/', views.PersonListView.as_view(), name='person'),
+	path('partnership/', views.PartnershipListView.as_view(), name='partnership'),
+	#path('people/<int:pk>', views.BookDetailView.as_view(), name='book-detail'),
 ]
