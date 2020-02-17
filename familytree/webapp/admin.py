@@ -2,9 +2,14 @@ from django.contrib import admin
 from django.db import models
 from django.forms import TextInput
 
-from .models import Location, Name, Partnership, Person
+from .models import Location, Name, Partnership, Person, Tree
 
 text_input_size = 40
+
+
+@admin.register(Tree)
+class TreeAdmin(admin.ModelAdmin):
+    list_display = ('title',)
 
 
 class PersonInline(admin.TabularInline):
@@ -44,10 +49,10 @@ class PersonAdmin(admin.ModelAdmin):
             'fields': ('partnerships',)
         }),
         (None, {
-            'fields': ('occupations', 'notes')
+            'fields': ('occupations', 'notes', 'tree')
         })
     )
-    list_display = ('first_name', 'last_name', 'birth_date', 'living', 'gender')
+    list_display = ('first_name', 'last_name', 'birth_date', 'living', 'gender', 'tree')
     formfield_overrides = {
         models.TextField: {'widget': TextInput(attrs={'size': text_input_size})},
         models.CharField: {'widget': TextInput(attrs={'size': text_input_size})},

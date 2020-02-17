@@ -1,23 +1,34 @@
 from django.db import models
+from django.contrib.auth.models import User
 from .submodels.location_model import Location
 
-prefix_choices = tuple()
+
+class Tree(models.Model):
+    title = models.CharField(max_length=50)
+    creator = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
+    authorized_users = models.ManyToManyField(User, related_name='authorized_users', blank=True, null=True)
+    notes = models.TextField(blank=True)
+
+    def __str__(self):
+        return f'{self.title}'
 
 
 class Name(models.Model):
-    prefix = models.CharField(max_length=7, choices=prefix_choices, blank=True, default='')
+    prefix = models.CharField(max_length=7, blank=True, default='')
     first_name = models.TextField(default='')
     middle_name = models.TextField(blank=True, default='')
     last_name = models.TextField(blank=True, default='')
     suffix = models.CharField(max_length=6, blank=True, default='')
     person = models.ForeignKey('Person', on_delete=models.DO_NOTHING, related_name='alternate_name')
 
+    tree = models.ForeignKey('Tree', on_delete=models.CASCADE, null=True)
+
     def __str__(self):
         return f'{self.first_name} {self.last_name}'
 
 
 class Person(models.Model):
-    prefix = models.CharField(max_length=7, choices=prefix_choices, blank=True,
+    prefix = models.CharField(max_length=7, blank=True,
                               default='')
     first_name = models.TextField(default='')
     middle_name = models.TextField(blank=True, default='')
@@ -38,6 +49,8 @@ class Person(models.Model):
     occupations = models.TextField(blank=True, default='')
     partnerships = models.ManyToManyField('Partnership', blank=True)
 
+    tree = models.ForeignKey('Tree', on_delete=models.CASCADE, null=True)
+
     def __str__(self):
         return f'{self.first_name} {self.last_name}'
 
@@ -50,6 +63,8 @@ class Partnership(models.Model):
     divorce_date = models.DateField(null=True, blank=True)
     notes = models.TextField(blank=True, default='')
     current = models.BooleanField(default=False)
+
+    tree = models.ForeignKey('Tree', on_delete=models.CASCADE, null=True)
 
     def __str__(self):
         return ', '.join(str(person) for person in Person.objects.filter(partnerships=self))
