@@ -29,7 +29,7 @@ class NameInline(admin.TabularInline):
 
 @admin.register(Location)
 class LocationAdmin(admin.ModelAdmin):
-    pass
+    list_display = ('city', 'state', 'country')
 
 
 @admin.register(Person)
