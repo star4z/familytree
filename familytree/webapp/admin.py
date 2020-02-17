@@ -4,6 +4,8 @@ from django.forms import TextInput
 
 from .models import Location, Name, Partnership, Person
 
+text_input_size = 40
+
 
 class PersonInline(admin.TabularInline):
     model = Person
@@ -16,7 +18,7 @@ class NameInline(admin.TabularInline):
     verbose_name_plural = 'Alternate Names'
     extra = 1
     formfield_overrides = {
-        models.TextField: {'widget': TextInput(attrs={'size': '40'})},
+        models.TextField: {'widget': TextInput(attrs={'size': text_input_size})},
     }
 
 
@@ -28,20 +30,27 @@ class LocationAdmin(admin.ModelAdmin):
 @admin.register(Person)
 class PersonAdmin(admin.ModelAdmin):
     inlines = [NameInline]
-    fields = [
-        ('prefix', 'first_name', 'middle_name', 'last_name', 'suffix'),
-        'preferred_name',
-        ('living', 'birth_date', 'death_date'),
-        ('birth_location', 'death_location'),
-        'gender',
-        'occupations',
-        'partnerships',
-        'notes'
-    ]
+    fieldsets = (
+        ('Name', {
+            'fields': ('prefix', 'first_name', 'middle_name', 'last_name', 'suffix', 'preferred_name')
+        }),
+        (None, {
+            'fields': (('birth_date', 'birth_location', 'living'), ('death_date', 'death_location'))
+        }),
+        (None, {
+            'fields': ('gender',)
+        }),
+        ('Partnerships', {
+            'fields': ('partnerships',)
+        }),
+        (None, {
+            'fields': ('occupations', 'notes')
+        })
+    )
     list_display = ('first_name', 'last_name', 'birth_date', 'living', 'gender')
     formfield_overrides = {
-        models.TextField: {'widget': TextInput(attrs={'size': '20'})},
-        models.CharField: {'widget': TextInput(attrs={'size': '20'})},
+        models.TextField: {'widget': TextInput(attrs={'size': text_input_size})},
+        models.CharField: {'widget': TextInput(attrs={'size': text_input_size})},
     }
 
 
