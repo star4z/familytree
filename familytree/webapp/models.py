@@ -1,11 +1,41 @@
 from django.db import models
-from .submodels.location_model import Location
+from django.utils.translation import gettext_lazy as _
 
-prefix_choices = tuple()
+from .submodels.location_model import Location
 
 
 class Name(models.Model):
-    prefix = models.CharField(max_length=7, choices=prefix_choices, blank=True, default='')
+    class Prefixes(models.TextChoices):
+        MR = 'Mr', _('Mr')
+        MRS = 'Mrs', _('Mrs')
+        MS = 'Ms', _('Ms')
+        DR = 'Dr', _('Doctor')
+        FIRST_LT = '1st Lt', _('First Lieutenant')
+        ADM = 'Adm', _('Admiral')
+        ATTY = 'Atty', _('Attorney')
+        BROTHER = 'Brother', _('Brother (religious)')
+        CAPT = 'Capt', _('Captain')
+        CHIEF = 'Chief', _('Chief')
+        CMDR = 'Cmdr', _('Commander')
+        COL = 'Col', _('Colonel')
+        DEAN = 'Dean', _('University Dean (includes Assistant and Associate)')
+        ELDER = 'Elder', _('Elder (religious)')
+        FATHER = 'Father', _('Father (religious)')
+        GEN = 'Gen', _('General')
+        GOV = 'Gov', _('Governor')
+        HON = 'Hon', _(
+            'Honorable (Cabinet Officer, Commissioner, Congressman, Judge, Supreme Court, United Nations US Delegate, '
+            'Major, Senator, and Representative)')
+        LT_COL = 'Lt Col', _('Lieutenant Colonel')
+        MAJ = 'Maj', _('Major')
+        MSGT = 'MSgt', _('Major/Master Sergeant')
+        PRINCE = 'Prince', _('Prince')
+        PROF = 'Prof', _('Professor (includes Assistant and Associate')
+        RABBI = 'Rabbi', _('Rabbi (religious)')
+        REV = 'Rev', _('Reverend (religious)')
+        SISTER = 'Sister', _('Sister (religious)')
+
+    prefix = models.CharField(max_length=7, choices=Prefixes.choices, blank=True, default='')
     first_name = models.TextField(default='')
     middle_name = models.TextField(blank=True, default='')
     last_name = models.TextField(blank=True, default='')
@@ -17,7 +47,7 @@ class Name(models.Model):
 
 
 class Person(models.Model):
-    prefix = models.CharField(max_length=7, choices=prefix_choices, blank=True,
+    prefix = models.CharField(max_length=7, choices=Name.Prefixes.choices, blank=True,
                               default='')
     first_name = models.TextField(default='')
     middle_name = models.TextField(blank=True, default='')
