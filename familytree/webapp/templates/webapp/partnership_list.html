@@ -8,7 +8,7 @@
       <li>
         <b>Partners:</b> 
         {% for people in partnership.person_set.all %}
-          {{ people.legal_name }}[<strong>id: </strong>{{people.id}}]
+          <a href="{{ people.get_absolute_url }}">{{ people.legal_name }}</a>[<strong>id: </strong>{{people.id}}]
         {% endfor %}
         <br>Married: {{partnership.married}}
         <br>Current: {{partnership.current}}
@@ -16,6 +16,7 @@
         <a href="{{ people.get_absolute_url }}">{{ people.first_name }} ({{people.last_name}})</a>
         -->
       </li>
+      <br>
     {% endfor %}
   </ul>
   {% else %}

@@ -1,6 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import User
 from .submodels.location_model import Location
+from django.urls import reverse  # To generate URLS by reversing URL patterns
 
 
 class Tree(models.Model):
@@ -60,6 +61,10 @@ class Person(models.Model):
 
     def __str__(self):
         return f'{self.legal_name.first_name} {self.legal_name.last_name}'
+
+    def get_absolute_url(self):
+        """Returns the url to access a particular book instance."""
+        return reverse('person_detail', args=[str(self.id)])
 
 
 class Partnership(models.Model):

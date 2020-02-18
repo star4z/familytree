@@ -6,7 +6,7 @@
   <ul>
     {% for person in person_list %}
       <li>
-        <a href="{{ people.get_absolute_url }}">{{ person.legal_name}}</a> [<strong>id: </strong>{{person.id}}]
+        <a href="{{ person.get_absolute_url }}">{{ person.legal_name}}</a> [<strong>id: </strong>{{person.id}}]
         <!-- 
         <b>Gender:</b> {{ person.gender}}
         <a href="{{ people.get_absolute_url }}">{{ people.first_name }} ({{people.last_name}})</a>
