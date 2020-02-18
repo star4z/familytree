@@ -6,7 +6,7 @@ from .submodels.location_model import Location
 class Tree(models.Model):
     title = models.CharField(max_length=50)
     creator = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
-    authorized_users = models.ManyToManyField(User, related_name='authorized_users', blank=True, null=True)
+    authorized_users = models.ManyToManyField(User, related_name='authorized_users', blank=True)
     notes = models.TextField(blank=True)
 
     def __str__(self):
@@ -19,21 +19,27 @@ class Name(models.Model):
     middle_name = models.TextField(blank=True, default='')
     last_name = models.TextField(blank=True, default='')
     suffix = models.CharField(max_length=6, blank=True, default='')
-    person = models.ForeignKey('Person', on_delete=models.DO_NOTHING, related_name='alternate_name')
 
     tree = models.ForeignKey('Tree', on_delete=models.CASCADE, null=True)
 
     def __str__(self):
         return f'{self.first_name} {self.last_name}'
 
+    class Meta:
+        abstract = True
+
+
+class LegalName(Name):
+    pass
+
+
+class AlternateName(Name):
+    person = models.ForeignKey('Person', on_delete=models.DO_NOTHING, related_name='alternate_name')
+
 
 class Person(models.Model):
-    prefix = models.CharField(max_length=7, blank=True,
-                              default='')
-    first_name = models.TextField(default='')
-    middle_name = models.TextField(blank=True, default='')
-    last_name = models.TextField(blank=True, default='')
-    suffix = models.CharField(max_length=6, blank=True, default='')
+    legal_name = models.OneToOneField('LegalName', on_delete=models.CASCADE, related_name='legal_name', blank='true',
+                                      default='')
 
     preferred_name = models.TextField(blank=True, default='')
     birth_date = models.DateField(null=True, blank=True)
@@ -51,7 +57,7 @@ class Person(models.Model):
     tree = models.ForeignKey('Tree', on_delete=models.CASCADE, null=True)
 
     def __str__(self):
-        return f'{self.first_name} {self.last_name}'
+        return f'{self.legal_name.first_name} {self.legal_name.last_name}'
 
 
 class Partnership(models.Model):
