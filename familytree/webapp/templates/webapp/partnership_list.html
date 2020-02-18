@@ -1,0 +1,20 @@
+{% extends "base_generic.html" %}
+
+{% block content %}
+  <h1>Partnership List</h1>
+  {% if partnership_list %}
+  <ul>
+    {% for partnership in partnership_list %}
+      <li>
+      {{ partnership.first_name }} {{partnership.last_name}}
+      Married: {{partnership.married}}
+       <!-- 
+       <a href="{{ people.get_absolute_url }}">{{ people.first_name }} ({{people.last_name}})</a>
+       -->
+      </li>
+    {% endfor %}
+  </ul>
+  {% else %}
+    <p>There are no partnerships in the library.</p>
+  {% endif %}       
+{% endblock %}
