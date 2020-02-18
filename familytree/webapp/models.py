@@ -38,19 +38,21 @@ class AlternateName(Name):
 
 
 class Person(models.Model):
-    legal_name = models.OneToOneField('LegalName', on_delete=models.CASCADE, related_name='legal_name', blank='true',
-                                      default='')
+    GENDER_CHOICES = [
+        ('MALE', 'Male'),
+        ('FEMALE', 'Female'),
+        ('INTERSEX', 'Intersex'),
+        ('OTHER', 'Other'),
+    ]
 
+    legal_name = models.OneToOneField('LegalName', on_delete=models.CASCADE, related_name='legal_name', default='')
     preferred_name = models.TextField(blank=True, default='')
     birth_date = models.DateField(null=True, blank=True)
     death_date = models.DateField(null=True, blank=True)
-    birth_location = models.ForeignKey(Location, related_name="birth_location", blank=True, on_delete=models.DO_NOTHING,
-                                       null=True)
-    death_location = models.ForeignKey(Location, related_name="death_location", blank=True, on_delete=models.DO_NOTHING,
-                                       null=True)
-
+    birth_location = models.ForeignKey(Location, related_name="birth_location", on_delete=models.DO_NOTHING, null=True, blank=True)
+    death_location = models.ForeignKey(Location, related_name="death_location", on_delete=models.DO_NOTHING, null=True, blank=True)
     living = models.BooleanField(default=True)
-    gender = models.CharField(max_length=100, default='')  # Should gender be optional?
+    gender = models.CharField(max_length=8, choices=GENDER_CHOICES)
     partnerships = models.ManyToManyField('Partnership', blank=True)
     notes = models.TextField(blank=True, default='')
 
