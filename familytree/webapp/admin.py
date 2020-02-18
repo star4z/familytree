@@ -9,12 +9,12 @@ text_input_size = 40
 
 @admin.register(Tree)
 class TreeAdmin(admin.ModelAdmin):
-    list_display = ('title',)
+    list_display = ('id', 'title',)
 
 
 @admin.register(LegalName)
 class LegalNameAdmin(admin.ModelAdmin):
-    list_display = ('first_name', 'middle_name', 'last_name')
+    list_display = ('id', 'first_name', 'middle_name', 'last_name')
     formfield_overrides = {
         models.TextField: {'widget': TextInput(attrs={'size': text_input_size})},
         models.CharField: {'widget': TextInput(attrs={'size': text_input_size})},
@@ -87,7 +87,7 @@ class PersonAdmin(admin.ModelAdmin):
             'fields': ('notes', 'tree')
         })
     )
-    list_display = (get_first_name, get_middle_name, get_last_name, 'birth_date', 'living', 'gender', 'tree')
+    list_display = ('id', get_first_name, get_middle_name, get_last_name, 'birth_date', 'living', 'gender', 'tree')
     formfield_overrides = {
         models.TextField: {'widget': TextInput(attrs={'size': text_input_size})},
         models.CharField: {'widget': TextInput(attrs={'size': text_input_size})},
@@ -103,4 +103,4 @@ get_partners.short_description = 'Partners'
 
 @admin.register(Partnership)
 class PartnershipAdmin(admin.ModelAdmin):
-    list_display = (get_partners, 'married', 'current')
+    list_display = ('id', get_partners, 'married', 'current')
