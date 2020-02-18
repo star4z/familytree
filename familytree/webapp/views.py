@@ -23,6 +23,8 @@ class PartnershipListView(generic.ListView):
 	model = Partnership
 	paginate_by = 10
 
+class PersonDetailView(generic.DetailView):
+	model = Person
 """
 	 def get_context_data(self, **kwargs):
         # Call the base implementation first to get the context

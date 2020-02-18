@@ -1,0 +1,28 @@
+{% extends "base_generic.html" %}
+{% load static %}
+{% block head %}
+  <style></style>
+{% endblock %}
+
+{% block content %}
+  <p><h3 style ="display: inline;"><u>Name</u>: {{ person.legal_name }}</h3>[<strong>id: </strong>{{person.id}}]</p>
+  <p><strong>Gender:</strong> {{ person.gender }}</p>
+  <p><strong>Born:</strong> {{ person.birth_date }} &nbsp; <strong>Location:</strong>{{person.birth_location}} </p> 
+  {% if person.living != True %}
+    <p><strong>Died:</strong> {{ person.death_date }} &nbsp; <strong>Location:</strong> {{person.death_location}}</p>
+  {% endif %}
+  <p ><strong>Notes:</strong> {{ person.notes }}</p>
+
+ <!-- 
+  <li>
+    <strong>Partners:</strong> 
+    {% for people in partnership.person_set.all %}
+      {{ people.legal_name }}[<strong>id: </strong>{{people.id}}]
+    {% endfor %}
+    <br><strong>Married:</strong> {{partnership.married}}
+    <br><strong>Divorced:</strong> {{partnership.divorced}}
+    <br><strong>Current:</strong> {{partnership.current}}
+  </li>
+-->
+ 
+{% endblock %}
