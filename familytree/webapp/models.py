@@ -45,9 +45,8 @@ class Person(models.Model):
 
     living = models.BooleanField(default=True)
     gender = models.CharField(max_length=100, default='')  # Should gender be optional?
-    notes = models.TextField(blank=True, default='')
-    occupations = models.TextField(blank=True, default='')
     partnerships = models.ManyToManyField('Partnership', blank=True)
+    notes = models.TextField(blank=True, default='')
 
     tree = models.ForeignKey('Tree', on_delete=models.CASCADE, null=True)
 
@@ -61,8 +60,8 @@ class Partnership(models.Model):
     marriage_date = models.DateField(null=True, blank=True)
     divorced = models.BooleanField(default=False)
     divorce_date = models.DateField(null=True, blank=True)
-    notes = models.TextField(blank=True, default='')
     current = models.BooleanField(default=False)
+    notes = models.TextField(blank=True, default='')
 
     tree = models.ForeignKey('Tree', on_delete=models.CASCADE, null=True)
 

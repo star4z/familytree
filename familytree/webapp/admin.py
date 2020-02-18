@@ -49,7 +49,7 @@ class PersonAdmin(admin.ModelAdmin):
             'fields': ('partnerships',)
         }),
         (None, {
-            'fields': ('occupations', 'notes', 'tree')
+            'fields': ('notes', 'tree')
         })
     )
     list_display = ('first_name', 'last_name', 'birth_date', 'living', 'gender', 'tree')
