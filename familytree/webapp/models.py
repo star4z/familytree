@@ -24,7 +24,7 @@ class Name(models.Model):
     tree = models.ForeignKey('Tree', on_delete=models.CASCADE, null=True)
 
     def __str__(self):
-        return f'{self.first_name} {self.last_name}'
+        return f'[{self.id}] {self.first_name} {self.last_name}'
 
     class Meta:
         abstract = True
@@ -60,7 +60,7 @@ class Person(models.Model):
     tree = models.ForeignKey('Tree', on_delete=models.CASCADE, null=True)
 
     def __str__(self):
-        return f'{self.legal_name.first_name} {self.legal_name.last_name}'
+        return f'[{self.id}] {self.legal_name.first_name} {self.legal_name.last_name}'
 
     def get_absolute_url(self):
         """Returns the url to access a particular book instance."""
