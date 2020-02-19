@@ -8,8 +8,9 @@
       <li>
         <b>Partners:</b> 
         {% for people in partnership.person_set.all %}
-          <a href="{{ people.get_absolute_url }}">{{ people.legal_name }}</a>[<strong>id: </strong>{{people.id}}]
+          <a href="{{ people.get_absolute_url }}">{{ people.legal_name }}</a>
         {% endfor %}
+        {% comment %} {{partnership.person_set.all|join:','}} {% endcomment %}
         <br>Married: {{partnership.married}}
         <br>Current: {{partnership.current}}
         <!-- 
