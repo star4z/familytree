@@ -94,8 +94,9 @@ class PersonAdmin(admin.ModelAdmin):
     }
 
 
-def get_partners(obj):
-    return ', '.join(str(person) for person in Person.objects.filter(partnerships=obj))
+def get_partners(obj: Partnership):
+    # return ', '.join(f'{person.legal_name.first_name} {person.legal_name.last_name}' for person in obj.partners())
+    return obj.partners_str()
 
 
 get_partners.short_description = 'Partners'

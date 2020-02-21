@@ -50,8 +50,10 @@ class Person(models.Model):
     preferred_name = models.TextField(blank=True, default='')
     birth_date = models.DateField(null=True, blank=True)
     death_date = models.DateField(null=True, blank=True)
-    birth_location = models.ForeignKey(Location, related_name="birth_location", on_delete=models.DO_NOTHING, null=True, blank=True)
-    death_location = models.ForeignKey(Location, related_name="death_location", on_delete=models.DO_NOTHING, null=True, blank=True)
+    birth_location = models.ForeignKey(Location, related_name="birth_location", on_delete=models.DO_NOTHING, null=True,
+                                       blank=True)
+    death_location = models.ForeignKey(Location, related_name="death_location", on_delete=models.DO_NOTHING, null=True,
+                                       blank=True)
     living = models.BooleanField(default=True)
     gender = models.CharField(max_length=8, choices=GENDER_CHOICES)
     partnerships = models.ManyToManyField('Partnership', blank=True)
@@ -78,5 +80,14 @@ class Partnership(models.Model):
 
     tree = models.ForeignKey('Tree', on_delete=models.CASCADE, null=True)
 
+    def partners(self):
+        return Person.objects.filter(partnerships=self)
+
+    def partners_str(self):
+        partners = self.partners()
+        partners_list = ', '.join(
+            f'{person.legal_name.first_name} {person.legal_name.last_name}' for person in partners)
+        return partners_list if partners else '(empty)'
+
     def __str__(self):
-        return ', '.join(str(person) for person in Person.objects.filter(partnerships=self))
+        return f'[{self.id}] ' + self.partners_str()
