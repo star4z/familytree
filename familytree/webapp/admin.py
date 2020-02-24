@@ -21,11 +21,6 @@ class LegalNameAdmin(admin.ModelAdmin):
     }
 
 
-class PersonInline(admin.TabularInline):
-    model = Person
-    extra = 1
-
-
 class AlternateNameInline(admin.TabularInline):
     model = AlternateName
     verbose_name = 'alternate name'
@@ -67,9 +62,24 @@ get_middle_name.short_description = 'middle name'
 get_last_name.short_description = 'last name'
 
 
+class PartnershipInline(admin.TabularInline):
+    model = Person.partnerships.through
+    model.fields = ['id']
+    extra = 1
+    verbose_name = 'partnership'
+    verbose_name_plural = 'partnerships'
+
+
+class PersonInline(admin.TabularInline):
+    model = Person.partnerships.through
+    extra = 1
+    verbose_name = 'person'
+    verbose_name_plural = 'persons'
+
+
 @admin.register(Person)
 class PersonAdmin(admin.ModelAdmin):
-    inlines = [AlternateNameInline]
+    inlines = [AlternateNameInline, PartnershipInline]
     fieldsets = (
         ('Name', {
             'fields': ('legal_name',)
@@ -79,9 +89,6 @@ class PersonAdmin(admin.ModelAdmin):
         }),
         (None, {
             'fields': ('gender',)
-        }),
-        ('Partnerships', {
-            'fields': ('partnerships',)
         }),
         (None, {
             'fields': ('notes', 'tree')
@@ -103,4 +110,5 @@ get_partners.short_description = 'Partners'
 
 @admin.register(Partnership)
 class PartnershipAdmin(admin.ModelAdmin):
+    inlines = [PersonInline]
     list_display = ('id', get_partners, 'married', 'current')
