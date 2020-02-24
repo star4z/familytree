@@ -31,15 +31,6 @@ class AlternateNameInline(admin.TabularInline):
     }
 
 
-class LegalNameInline(admin.TabularInline):
-    model = LegalName
-    verbose_name = 'legal name'
-    verbose_name_plural = 'legal_names'
-    formfield_overrides = {
-        models.TextField: {'widget': TextInput(attrs={'size': text_input_size})},
-    }
-
-
 @admin.register(Location)
 class LocationAdmin(admin.ModelAdmin):
     list_display = ('city', 'state', 'country')
@@ -64,7 +55,6 @@ get_last_name.short_description = 'last name'
 
 class PartnershipInline(admin.TabularInline):
     model = Person.partnerships.through
-    model.fields = ['id']
     extra = 1
     verbose_name = 'partnership'
     verbose_name_plural = 'partnerships'
