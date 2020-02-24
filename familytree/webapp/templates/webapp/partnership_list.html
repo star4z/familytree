@@ -8,7 +8,7 @@
       <li>
         <b>Partners:</b> 
         {% for people in partnership.person_set.all %}
-          <a href="{{ people.get_absolute_url }}">{{ people.legal_name }}</a>{% include "comma.html" %}
+          <a href="{{ people.get_absolute_url }}">{{ people.legal_name }}</a>{% if not forloop.last %}, {% endif %}
         {% endfor %}
         <br>Married: {{partnership.married}}
         <br>Current: {{partnership.current}}
