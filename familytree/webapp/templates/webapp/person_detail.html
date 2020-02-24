@@ -26,18 +26,17 @@
     </ul>
     <p><strong>Gender:</strong> {{ person.gender }}</p>
     <p><strong>Born:</strong> {{ person.birth_date }} &nbsp; <strong>Location:</strong> {{ person.birth_location }} </p>
-    <p>Living: {{ person.living }}</p>
+    <p><strong>Living:</strong> {{ person.living }}</p>
     {% if not person.living %}
         <p><strong>Died:</strong> {{ person.death_date }} &nbsp; <strong>Location:</strong> {{ person.death_location }}
         </p>
     {% endif %}
     <p><strong>Notes:</strong> {{ person.notes }}</p>
 
-    <h6>Partnerships</h6>
+    <p><strong>Partnerships</strong></p>
     <ul>
         {% for partnership in person.partnerships.all %}
             <li>
-                Partnership {{ partnership.id }}<br>
                 Partners:
                 <ul>
                     {% for partner in partnership.partners %}
