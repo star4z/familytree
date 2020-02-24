@@ -40,10 +40,10 @@ class AlternateName(Name):
 
 class Person(models.Model):
     GENDER_CHOICES = [
-        ('MALE', 'Male'),
-        ('FEMALE', 'Female'),
-        ('INTERSEX', 'Intersex'),
-        ('OTHER', 'Other'),
+        ('Male', 'Male'),
+        ('Female', 'Female'),
+        ('Intersex', 'Intersex'),
+        ('Other', 'Other'),
     ]
 
     legal_name = models.OneToOneField('LegalName', on_delete=models.CASCADE, related_name='legal_name', default='')
