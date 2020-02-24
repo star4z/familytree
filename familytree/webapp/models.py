@@ -56,7 +56,7 @@ class Person(models.Model):
                                        blank=True)
     living = models.BooleanField(default=True)
     gender = models.CharField(max_length=8, choices=GENDER_CHOICES)
-    partnerships = models.ManyToManyField('Partnership', blank=True)
+    partnerships = models.ManyToManyField('Partnership', blank=True, through='PersonPartnership')
     notes = models.TextField(blank=True, default='')
 
     tree = models.ForeignKey('Tree', on_delete=models.CASCADE, null=True)
@@ -91,3 +91,11 @@ class Partnership(models.Model):
 
     def __str__(self):
         return f'[{self.id}] ' + self.partners_str()
+
+
+class PersonPartnership(models.Model):
+    person = models.ForeignKey('Person', on_delete=models.CASCADE)
+    partnership = models.ForeignKey('Partnership', on_delete=models.CASCADE)
+
+    def __str__(self):
+        return ''
