@@ -1,4 +1,13 @@
-from django import forms
+from django.forms import ModelForm
+from webapp.models import Person, LegalName
 
-class NameForm(forms.Form):
-    your_name = forms.CharField(label='Your name', max_length=100)
+class NameForm(ModelForm):
+    class Meta:
+        model = LegalName
+        fields = ['prefix', 'first_name', 'middle_name', 'last_name', 'suffix',]
+        exclude = ['tree']
+
+class addPersonForm(ModelForm):
+    class Meta:
+        model = Person
+        exclude =['legal_name', 'tree']
