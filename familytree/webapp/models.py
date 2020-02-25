@@ -40,10 +40,10 @@ class AlternateName(Name):
 
 class Person(models.Model):
     GENDER_CHOICES = [
-        ('MALE', 'Male'),
-        ('FEMALE', 'Female'),
-        ('INTERSEX', 'Intersex'),
-        ('OTHER', 'Other'),
+        ('Male', 'Male'),
+        ('Female', 'Female'),
+        ('Intersex', 'Intersex'),
+        ('Other', 'Other'),
     ]
 
     legal_name = models.OneToOneField('LegalName', on_delete=models.CASCADE, related_name='legal_name', default='')
@@ -67,6 +67,32 @@ class Person(models.Model):
     def get_absolute_url(self):
         """Returns the url to access a particular book instance."""
         return reverse('person_detail', args=[str(self.id)])
+
+    def get_generation(self, offset=0):
+        if offset < -1:
+            queryset = Person.objects.none()
+            for person in self.get_generation(offset + 1):
+                for partnership in person.partnerships.all():
+                    queryset |= partnership.children.all()
+            return queryset
+        elif offset == -1:
+            queryset = Person.objects.none()
+            for partnership in self.partnerships.all():
+                queryset |= partnership.children.all()
+            return queryset
+        elif offset == 0:
+            return Person.objects.filter(pk=self.pk)
+        elif offset == 1:
+            return self.parents()
+        else:
+            queryset = Partnership.objects.none()
+            for partnership in self.parents():
+                for partner in partnership.partners():
+                    queryset |= partner.get_generation(offset - 1)
+            return queryset
+
+    def parents(self):
+        return Partnership.objects.filter(children=self)
 
 
 class Partnership(models.Model):

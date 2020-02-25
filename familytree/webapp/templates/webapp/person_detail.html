@@ -1,28 +1,68 @@
 {% extends "base_generic.html" %}
 {% load static %}
 {% block head %}
-  <style></style>
+    <style></style>
 {% endblock %}
 
 {% block content %}
-  <p><h3 style ="display: inline;"><u>Name</u>: {{ person.legal_name }}</h3></p>
-  <p><strong>Gender:</strong> {{ person.gender }}</p>
-  <p><strong>Born:</strong> {{ person.birth_date }} &nbsp; <strong>Location:</strong>{{person.birth_location}} </p> 
-  {% if person.living != True %}
-    <p><strong>Died:</strong> {{ person.death_date }} &nbsp; <strong>Location:</strong> {{person.death_location}}</p>
-  {% endif %}
-  <p ><strong>Notes:</strong> {{ person.notes }}</p>
+    <p>
+    <h3>
+        {{ person.legal_name.prefix }}
+        {{ person.legal_name.first_name }}
+        {{ person.legal_name.middle_name }}
+        {{ person.legal_name.last_name }}{% if person.legal_name.suffix %}, {{ person.legal_name.suffix }}{% endif %}
+        [{{ person.id }}]
+    </h3>
+    <p><strong>Alternate names:</strong></p>
+    <ul>
+        {% for name in person.alternate_name.all %}
+            <li>
+                {{ name.prefix }}
+                {{ name.first_name }}
+                {{ name.middle_name }}
+                {{ name.last_name }}{% if name.suffix %}, {{ name.suffix }}{% endif %}
+            </li>
+        {% endfor %}
+    </ul>
+    <p><strong>Gender:</strong> {{ person.gender }}</p>
+    <p><strong>Born:</strong> {{ person.birth_date }} &nbsp; <strong>Location:</strong> {{ person.birth_location }} </p>
+    <p><strong>Living:</strong> {{ person.living }}</p>
+    {% if not person.living %}
+        <p><strong>Died:</strong> {{ person.death_date }} &nbsp; <strong>Location:</strong> {{ person.death_location }}
+        </p>
+    {% endif %}
+    <p><strong>Notes:</strong> {{ person.notes }}</p>
 
- <!-- 
-  <li>
-    <strong>Partners:</strong> 
-    {% for people in partnership.person_set.all %}
-      {{ people.legal_name }}[<strong>id: </strong>{{people.id}}]
-    {% endfor %}
-    <br><strong>Married:</strong> {{partnership.married}}
-    <br><strong>Divorced:</strong> {{partnership.divorced}}
-    <br><strong>Current:</strong> {{partnership.current}}
-  </li>
--->
- 
+    <p><strong>Partnerships</strong></p>
+    <ul>
+        {% for partnership in person.partnerships.all %}
+            <li>
+                Partners:
+                <ul>
+                    {% for partner in partnership.partners %}
+                        {% if person != partner %}
+                            <li><a href="{{ partner.get_absolute_url }}">{{ partner }}</a></li>
+                        {% endif %}
+                    {% endfor %}
+                </ul>
+                Current: {{ partnership.current }}<br>
+                Married: {{ partnership.married }}
+                {% if partnership.married %}
+                    ({{ partnership.marriage_date }})
+                {% endif %}
+                <br>
+                Divorced: {{ partnership.divorced }}
+                {% if partnership.divorced %}
+                    ({{ partnership.divorce_date }})
+                {% endif %}
+                <br>
+                Children:
+                <ul>
+                    {% for child in partnership.children.all %}
+                        <li><a href="{{ child.get_absolute_url }}">{{ child }}</a></li>
+                    {% endfor %}
+                </ul>
+            </li>
+        {% endfor %}
+    </ul>
 {% endblock %}
