@@ -65,4 +65,12 @@
             </li>
         {% endfor %}
     </ul>
+    <p><strong>Parents:</strong></p>
+    <ul>
+        {% for partnership in person.parents %}
+            {% for parent in partnership.partners %}
+                <li><a href="{{ parent.get_absolute_url }}">{{ parent.legal_name }}</a></li>
+            {% endfor %}
+        {% endfor %}
+    </ul>
 {% endblock %}
