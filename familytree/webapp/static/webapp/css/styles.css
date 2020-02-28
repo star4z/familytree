@@ -1,5 +1,48 @@
+html, body {
+    height: 100%;
+}
+
+.container-fluid {
+    height: 100%;
+    overflow-y: hidden;
+}
+
+.row {
+    height: 100%;
+    overflow: hidden;
+}
+
+.sidebar {
+    height: 100%;
+    overflow: hidden;
+    background-color: rosybrown;
+}
+
 .sidebar-nav {
+    height: 100%;
+    overflow-y: auto;
     margin-top: 20px;
     padding: 0;
     list-style: none;
+}
+
+.sidebar a:link {
+    color: white;
+}
+
+.sidebar a:visited {
+    color: white;
+}
+
+.sidebar a:hover {
+    color: lightgrey;
+}
+
+.sidebar a:active {
+    color: darkgray;
+}
+
+.content {
+    height: 100%;
+    overflow-y: auto;
 }
