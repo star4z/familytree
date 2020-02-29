@@ -1,8 +1,5 @@
 {% extends "base_generic.html" %}
 {% load static %}
-{% block head %}
-    <style></style>
-{% endblock %}
 
 {% block content %}
     <p>
@@ -26,7 +23,9 @@
     </ul>
     <p><strong>Gender:</strong> {{ person.gender }}</p>
     <p><strong>Born:</strong> {{ person.birth_date }} &nbsp; <strong>Location:</strong> {{ person.birth_location }} </p>
-    <p><strong>Living:</strong> {{ person.living }}</p>
+    <label><strong>Living</strong>
+        <input type="checkbox" {% if person.living %}checked{% endif %} disabled>
+    </label>
     {% if not person.living %}
         <p><strong>Died:</strong> {{ person.death_date }} &nbsp; <strong>Location:</strong> {{ person.death_location }}
         </p>
@@ -45,13 +44,12 @@
                         {% endif %}
                     {% endfor %}
                 </ul>
-                Current: {{ partnership.current }}<br>
-                Married: {{ partnership.married }}
+                {% include "webapp/boolean_checkbox.html" with key="Current" value=partnership.current %}<br>
+                {% include "webapp/boolean_checkbox.html" with key="Married" value=partnership.married %}<br>
                 {% if partnership.married %}
                     ({{ partnership.marriage_date }})
                 {% endif %}
-                <br>
-                Divorced: {{ partnership.divorced }}
+                {% include "webapp/boolean_checkbox.html" with key="Divorced" value=partnership.divorced %}<br>
                 {% if partnership.divorced %}
                     ({{ partnership.divorce_date }})
                 {% endif %}
