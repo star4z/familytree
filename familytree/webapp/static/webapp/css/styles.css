@@ -36,10 +36,12 @@ html, body {
 
 .sidebar a:hover {
     color: lightgrey;
+    text-decoration: none;
 }
 
 .sidebar a:active {
     color: darkgray;
+    text-decoration: none;
 }
 
 .content {
