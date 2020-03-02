@@ -4,6 +4,7 @@ from django.shortcuts import redirect
 from django.http import HttpResponseRedirect
 from webapp.models import Person, Partnership
 from webapp.forms import addPersonForm, NameForm
+from django.views.decorators.http import require_POST
 
 def addPerson(request):
     # if this is a POST request we need to process the form data
@@ -25,6 +26,12 @@ def addPerson(request):
         name_form = NameForm()
         person_form = addPersonForm()
     return render(request, 'webapp/createPerson.html', {'name_form': name_form, 'person_form': person_form})
+
+@require_POST
+def delete_person(request,pk):
+    query = Person.objects.get(pk=pk)
+    query.delete()
+    return redirect('person')
 
 def index(request):
 	# Generate counts of person
