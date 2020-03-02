@@ -22,4 +22,5 @@ urlpatterns = [
 	path('partnership/', views.PartnershipListView.as_view(), name='partnership'),
 	path('person/<int:pk>', views.PersonDetailView.as_view(), name='person_detail'),
 	path('add/', views.addPerson, name='add'),
+	path('person/delete/<int:pk>/', views.delete_person, name="delete_person")
 ]
