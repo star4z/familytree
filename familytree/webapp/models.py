@@ -94,6 +94,9 @@ class Person(models.Model):
     def parents(self):
         return Partnership.objects.filter(children=self)
 
+    def siblings(self):
+        return [child for parents in self.parents() for child in parents.children.all() if child != self]
+
 
 class Partnership(models.Model):
     children = models.ManyToManyField(Person, related_name='children', blank=True)
