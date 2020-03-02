@@ -70,29 +70,26 @@ class Person(models.Model):
 
     def get_generation(self, offset=0):
         if offset < -1:
-            queryset = Person.objects.none()
+            generation = []
             for person in self.get_generation(offset + 1):
                 for partnership in person.partnerships.all():
-                    queryset |= partnership.children.all()
-            return queryset
+                    generation += partnership.children.all()
+            return generation
         elif offset == -1:
-            queryset = Person.objects.none()
-            for partnership in self.partnerships.all():
-                queryset |= partnership.children.all()
-            return queryset
+            return [child for partnership in self.partnerships.all() for child in partnership.children.all()]
         elif offset == 0:
-            return Person.objects.filter(pk=self.pk)
+            return [self]
         elif offset == 1:
             return self.parents()
         else:
-            queryset = Partnership.objects.none()
+            generation = []
             for partnership in self.parents():
                 for partner in partnership.partners():
-                    queryset |= partner.get_generation(offset - 1)
-            return queryset
+                    generation += partner.get_generation(offset - 1)
+            return generation
 
     def parents(self):
-        return Partnership.objects.filter(children=self)
+        return [partnership for partnership in Partnership.objects.filter(children=self)]
 
     def siblings(self):
         return [child for parents in self.parents() for child in parents.children.all() if child != self]

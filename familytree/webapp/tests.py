@@ -32,10 +32,8 @@ class PersonTestCase(TestCase):
         partnerships[4].children.add(self.john)  # John is Elizabeth and Kassandra's child
         partnerships[4].children.add(self.violet)  # Violet is Elizabeth and Kassandra's child
 
-        # self.person = persons[4] (became self.philip)
-
-        self.gen2 = partnerships[0:1]
-        self.gen1 = partnerships[1:2]
+        self.gen2 = [partnerships[0]]
+        self.gen1 = [partnerships[1]]
         self.gen0 = [self.philip]
         self.genN1 = [self.akito, self.elizabeth]
         self.genN2 = [self.colin, self.akira, self.john, self.violet]
@@ -58,24 +56,28 @@ class PersonTestCase(TestCase):
         partnership.save()
         return partnership
 
+    def test_get_parents(self):
+        parents = self.philip.parents()
+        self.assertListEqual(self.gen1, parents)
+
     def test_get_gen_two(self):
-        generation = list(self.philip.get_generation(2).all())
+        generation = self.philip.get_generation(2)
         self.assertListEqual(self.gen2, generation)
 
     def test_get_gen_one(self):
-        generation = list(self.philip.get_generation(1).all())
+        generation = self.philip.get_generation(1)
         self.assertListEqual(self.gen1, generation)
 
     def test_get_gen_zero(self):
-        generation = list(self.philip.get_generation(0).all())
+        generation = self.philip.get_generation(0)
         self.assertListEqual(self.gen0, generation)
 
     def test_get_gen_neg_one(self):
-        generation = list(self.philip.get_generation(-1).all())
+        generation = self.philip.get_generation(-1)
         self.assertListEqual(self.genN1, generation)
 
     def test_get_gen_neg_two(self):
-        generation = list(self.philip.get_generation(-2).all())
+        generation = self.philip.get_generation(-2)
         self.assertListEqual(self.genN2, generation)
 
     def test_get_siblings(self):
