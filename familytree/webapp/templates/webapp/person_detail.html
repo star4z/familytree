@@ -10,7 +10,7 @@
         {{ person.legal_name.last_name }}{% if person.legal_name.suffix %}, {{ person.legal_name.suffix }}{% endif %}
         [{{ person.id }}]
     </h3>
-    <p><strong>Alternate names:</strong></p>
+    <p><strong>Alternate names</strong></p>
     <ul>
         {% for name in person.alternate_name.all %}
             <li>
@@ -21,22 +21,24 @@
             </li>
         {% endfor %}
     </ul>
-    <p><strong>Gender:</strong> {{ person.gender }}</p>
-    <p><strong>Born:</strong> {{ person.birth_date }} &nbsp; <strong>Location:</strong> {{ person.birth_location }} </p>
+    <p><strong>Gender</strong> {{ person.gender }}</p>
+    <p><strong>Birth date</strong> {{ person.birth_date }} &nbsp; <strong>Birth
+        location</strong> {{ person.birth_location }} </p>
     <label><strong>Living</strong>
         <input type="checkbox" {% if person.living %}checked{% endif %} disabled>
     </label>
     {% if not person.living %}
-        <p><strong>Died:</strong> {{ person.death_date }} &nbsp; <strong>Location:</strong> {{ person.death_location }}
+        <p><strong>Death date</strong> {{ person.death_date }} &nbsp;
+            <strong>Death location</strong> {{ person.death_location }}
         </p>
     {% endif %}
-    <p><strong>Notes:</strong> {{ person.notes }}</p>
+    <p><strong>Notes</strong> {{ person.notes|default:"None" }}</p>
 
     <p><strong>Partnerships</strong></p>
     <ul>
         {% for partnership in person.partnerships.all %}
             <li>
-                Partners:
+                Partners
                 <ul>
                     {% for partner in partnership.partners %}
                         {% if person != partner %}
@@ -53,8 +55,7 @@
                 {% if partnership.divorced %}
                     ({{ partnership.divorce_date }})
                 {% endif %}
-                <br>
-                Children:
+                Children
                 <ul>
                     {% for child in partnership.children.all %}
                         <li><a href="{{ child.get_absolute_url }}">{{ child }}</a></li>
@@ -63,12 +64,26 @@
             </li>
         {% endfor %}
     </ul>
-    <p><strong>Parents:</strong></p>
-    <ul>
-        {% for partnership in person.parents %}
-            {% for parent in partnership.partners %}
-                <li><a href="{{ parent.get_absolute_url }}">{{ parent.legal_name }}</a></li>
+    <p><strong>Parents</strong></p>
+    {% if person.parents %}
+        <ul>
+            {% for partnership in person.parents %}
+                {% for parent in partnership.partners %}
+                    <li><a href="{{ parent.get_absolute_url }}">{{ parent.legal_name }}</a></li>
+                {% endfor %}
             {% endfor %}
-        {% endfor %}
-    </ul>
+        </ul>
+    {% else %}
+        <p>None</p>
+    {% endif %}
+    <p><strong>Siblings</strong></p>
+    {% if person.siblings %}
+        <ul>
+            {% for sibling in person.siblings %}
+                <li><a href="{{ sibling.get_absolute_url }}">{{ sibling.legal_name }}</a></li>
+            {% endfor %}
+        </ul>
+    {% else %}
+    {% endif %}
+
 {% endblock %}
