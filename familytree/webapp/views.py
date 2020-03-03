@@ -85,9 +85,6 @@ class PartnershipListView(generic.ListView):
 
 
 class PersonDetailView(generic.DetailView):
-<<<<<<< HEAD
-    model = Person
-=======
 	model = Person
 
 '''
@@ -95,4 +92,3 @@ class LocationCreateView(CreateView):
     model = Location
     fields = '__all__'
 '''
->>>>>>> tri-person-form
