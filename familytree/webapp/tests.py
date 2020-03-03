@@ -1,3 +1,6 @@
+import datetime
+from dateutil.relativedelta import relativedelta
+
 from django.test import TestCase
 from webapp import models
 
@@ -10,8 +13,10 @@ class PersonTestCase(TestCase):
         self.beth = self.create_person('Beth', 'F', [1])
         self.dave = self.create_person('Dave', 'M', [2])
         self.jeanine = self.create_person('Jeanine', 'F', [2])
-        self.philip = self.create_person('Philip', 'M', [3])
-        self.megumi = self.create_person('Megumi', 'F', [3])
+        birth_date = datetime.date(1900, 1, 1)
+        death_date = datetime.date(1980, 1, 1)
+        self.philip = self.create_person('Philip', 'M', [3], birth_date=birth_date, death_date=death_date, living=False)
+        self.megumi = self.create_person('Megumi', 'F', [3], birth_date=birth_date, living=False)
         self.akito = self.create_person('Akito', 'M', [4])
         self.nala = self.create_person('Nala', 'F', [4])
         self.colin = self.create_person('Colin', 'M')
@@ -19,8 +24,9 @@ class PersonTestCase(TestCase):
         self.elizabeth = self.create_person('Elizabeth', 'F', [5])
         self.kassandra = self.create_person('Kassandra', 'F', [5])
         self.john = self.create_person('John', 'M')
-        self.violet = self.create_person('Violet', 'F')
-        self.pablo = self.create_person('Pablo', 'M', )
+        self.violet = self.create_person('Violet', 'F', living=True)
+        birth_date = datetime.date(2000, 1, 1)
+        self.pablo = self.create_person('Pablo', 'M', birth_date=birth_date, living=True)
 
         self.get_partnership(1).children.add(self.dave)  # Dave is Abe and Beth's child
         self.get_partnership(2).children.add(self.philip)  # Philip is Dave and Jeanine's child
@@ -37,11 +43,11 @@ class PersonTestCase(TestCase):
         self.genN1 = [self.akito, self.elizabeth]
         self.genN2 = [self.colin, self.akira, self.john, self.violet]
 
-    def create_person(self, first_name, gender, partnership_ids=None):
+    def create_person(self, first_name, gender, partnership_ids=None, **kwargs):
         genders = {'M': 'Male', 'F': 'Female'}
         legal_name = models.LegalName.objects.create(first_name=first_name)
         legal_name.save()
-        p = models.Person.objects.create(tree=self.tree, legal_name=legal_name, gender=genders[gender])
+        p = models.Person.objects.create(tree=self.tree, legal_name=legal_name, gender=genders[gender], **kwargs)
         p.save()
         if partnership_ids:
             for pid in partnership_ids:
@@ -88,3 +94,21 @@ class PersonTestCase(TestCase):
         expected = []
         actual = self.philip.siblings()
         self.assertListEqual(expected, actual)
+
+    def test_age_dead_with_death_date(self):
+        expected = relativedelta(years=80)
+        actual = self.philip.age()
+        self.assertEqual(expected, actual)
+
+    def test_age_dead_without_death_date(self):
+        with self.assertRaises(models.Person.IllegalAgeError):
+            self.megumi.age()
+
+    def test_age_living_with_birth_date(self):
+        expected = relativedelta(datetime.date.today(), self.pablo.birth_date)
+        actual = self.pablo.age()
+        self.assertEqual(expected, actual)
+
+    def test_age_without_birth_date(self):
+        with self.assertRaises(models.Person.IllegalAgeError):
+            self.violet.age()

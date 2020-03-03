@@ -1,3 +1,7 @@
+import datetime
+
+from dateutil.relativedelta import relativedelta
+from django.core.exceptions import ValidationError
 from django.db import models
 from django.contrib.auth.models import User
 from .submodels.location_model import Location
@@ -93,6 +97,21 @@ class Person(models.Model):
 
     def siblings(self):
         return [child for parents in self.parents() for child in parents.children.all() if child != self]
+
+    class IllegalAgeError(ValidationError):
+        def __init__(self):
+            self.message = 'Invalid '
+
+    def age(self):
+        if self.birth_date:
+            if self.living:
+                return relativedelta(datetime.date.today(), self.birth_date)
+            elif self.death_date:
+                return relativedelta(self.death_date, self.birth_date)
+            else:
+                raise self.IllegalAgeError()
+        else:
+            raise self.IllegalAgeError()
 
 
 class Partnership(models.Model):
