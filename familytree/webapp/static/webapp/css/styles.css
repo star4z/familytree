@@ -49,6 +49,14 @@ html, body {
     overflow-y: auto;
 }
 
+.location-form label {
+    margin-right: 10px;
+}
+
+.person-form label {
+    margin-right: 10px;
+}
+
 button {
     color: grey;
     padding: 0px 20px;
