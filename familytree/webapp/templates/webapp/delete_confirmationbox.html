@@ -1,0 +1,15 @@
+<button onclick="document.getElementById('id01').style.display='block'">Delete</button>
+
+  <div id="id01" class="modal">
+    <form class="modal-content" action="{%  url 'delete_person' person.id %}" method = "POST">
+      {% csrf_token %}
+      <span onclick="document.getElementById('id01').style.display='none'" class="close" title="Close Modal">&times;</span>
+      <div class="container">
+        <br>Are you sure you want to delete <i>{{ person.legal_name }}</i>?
+        <div class="clearfix">
+          <button type="button" class="cancelbtn" onclick="document.getElementById('id01').style.display='none'" class="close" title="Close Modal">Cancel</button>
+          <button type="submit" class="deletebtn">Delete</button>
+        </div>
+      </div>
+    </form>
+  </div>

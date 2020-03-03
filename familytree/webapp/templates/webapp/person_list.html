@@ -10,18 +10,7 @@
                     {% if person.birth_date %}
                         ({{ person.birth_date.year }} - {{ person.death_date.year }})
                     {% endif %}
-                    <form action="{%  url 'delete_person' person.id %}" method="POST" style="display: inline;" onsubmit="window.mytest()">
-                      {% csrf_token %}
-                      <button type="submit">Delete</button>
-                  </form>
-                  <script type="text/javascript">window.mytest = function() { 
-                    var isValid = confirm('Are you sure ?');
-                    if (!isValid) { 
-                      event.preventDefault();  
-                      alert("Not deleted!");
-                    }
-                  }
-                  </script>
+                    {% include "webapp/delete_confirmationbox.html" %}
                 </li>
             {% endfor %}
         </ul>

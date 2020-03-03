@@ -2,13 +2,14 @@
 
 {% block content %}
     <p>
-    <h3>
+    <h3 style = "display:inline">
         {{ person.legal_name.prefix }}
         {{ person.legal_name.first_name }}
         {{ person.legal_name.middle_name }}
         {{ person.legal_name.last_name }}{% if person.legal_name.suffix %}, {{ person.legal_name.suffix }}{% endif %}
         [{{ person.id }}]
     </h3>
+    {% include "webapp/delete_confirmationbox.html" %}
     <p><strong>Alternate names</strong></p>
     {% with alternate_names=person.alternate_name.all %}
         {% if alternate_names %}
