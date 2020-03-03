@@ -112,3 +112,10 @@ class PersonTestCase(TestCase):
     def test_age_without_birth_date(self):
         with self.assertRaises(models.Person.IllegalAgeError):
             self.violet.age()
+
+    def test_illegal_age_range_raises_error(self):
+        with self.assertRaises(models.ValidationError):
+            birth_date = datetime.date(2000, 1, 2)
+            death_date = datetime.date(2000, 1, 1)
+            instance = self.create_person('default', 'M', birth_date=birth_date, death_date=death_date)
+            instance.clean()
