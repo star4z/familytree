@@ -2,10 +2,10 @@ from django.db import models
 from django.utils.translation import gettext_lazy as _
 
 class Location(models.Model):
-    city = models.CharField(verbose_name='city/town/village', max_length=50, 
+    city = models.CharField(verbose_name='City/Town/Village', max_length=50, 
         blank=True)
 
-    state = models.CharField(verbose_name='state/province/region', 
+    state = models.CharField(verbose_name='State/Province/Region', 
         max_length=50, blank=True)
 
     class Country(models.TextChoices):
@@ -262,7 +262,7 @@ class Location(models.Model):
         blank=True)
 
     class Meta:
-        unique_together = ["city", "state"]
+        unique_together = ["city", "state", "country"]
 
     def __str__(self):
-        return (self.city, self.city + ', ')[bool(self.city)] + (self.state, self.state + ', ')[bool(self.state)] + self.country
+        return self.city + ', ' + self.state + ', ' + self.country
