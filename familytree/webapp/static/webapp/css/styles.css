@@ -60,7 +60,7 @@ html, body {
 button {
     color: grey;
     background-color: white;
-    padding: 0px 20px;
+    padding: 0 20px;
     margin: 8px 0;
     border: none;
     cursor: pointer;
@@ -74,11 +74,9 @@ button:hover {
 
 /* Float cancel and delete buttons  */
 .cancelbtn, .deletebtn {
-    float: center;
     background-color: white;
     color: grey;
-    padding: 0px 5px;
-    padding-bottom: 15px;
+    padding: 0 5px 15px;
 }
 
 /* center-align text to the container */

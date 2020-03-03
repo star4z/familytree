@@ -1,4 +1,4 @@
-<button onclick="document.getElementById('id01').style.display='block'">Delete</button>
+<button onclick="document.getElementById('id01').style.display='block'">delete</button>
 
   <div id="id01" class="modal">
     <form class="modal-content" action="{%  url 'delete_person' person.id %}" method = "POST">
@@ -7,7 +7,7 @@
       <div class="container">
         <br>Are you sure you want to delete <i>{{ person.legal_name }}</i>?
         <div class="clearfix">
-          <button type="button" class="cancelbtn" onclick="document.getElementById('id01').style.display='none'" class="close" title="Close Modal">Cancel</button>
+          <button type="button" class="cancelbtn close" onclick="document.getElementById('id01').style.display='none'" title="Close Modal">Cancel</button>
           <button type="submit" class="deletebtn">Delete</button>
         </div>
       </div>
