@@ -5,13 +5,25 @@ from webapp.models import Person, LegalName, Location
 class NameForm(ModelForm):
     class Meta:
         model = LegalName
-        fields = ['prefix', 'first_name', 'middle_name', 'last_name', 'suffix',]
         exclude = ['tree']
+        widgets = {
+            'prefix': forms.TextInput(attrs={'size': '4'}),
+            'first_name': forms.TextInput(attrs={'size': '30'}),
+            'middle_name': forms.TextInput(attrs={'size': '30'}),
+            'last_name': forms.TextInput(attrs={'size': '30'}),
+            'suffix': forms.TextInput(attrs={'size': '3'})
+        }
 
-class addPersonForm(ModelForm):
+class AddPersonForm(ModelForm):
     class Meta:
         model = Person
-        exclude =['legal_name', 'tree']
+        exclude = ['legal_name', 'tree']
+        widgets = {
+            'birth_date': forms.DateInput(attrs={'type': 'date'}),
+            'death_date': forms.DateInput(attrs={'type': 'date'}),
+            'preferred_name': forms.TextInput(attrs={'size': '40'}),
+            'notes': forms.Textarea(attrs={'rows': 10, 'cols': '50'})
+        }
 
 # Defines a Location form based on the Location model.
 # Includes every attribute.

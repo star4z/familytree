@@ -3,29 +3,36 @@ from django.views import generic
 from django.shortcuts import redirect
 from django.http import HttpResponseRedirect, HttpResponse
 from webapp.models import Person, Partnership, Location
-from webapp.forms import addPersonForm, NameForm, AddLocationForm
+from webapp.forms import AddPersonForm, NameForm, AddLocationForm
 from django.views.generic.edit import CreateView
 
-def addPerson(request):
+def add_person(request):
     # if this is a POST request we need to process the form data
     name_form = NameForm(request.POST)
-    person_form = addPersonForm(request.POST)
+    person_form = AddPersonForm(request.POST)
+
+    context = {
+        'name_form': name_form, 
+        'person_form': person_form
+    }
+
     if request.method == 'POST':
         # check whether it's valid:
         if all((person_form.is_valid(), name_form.is_valid())):
-            profile = person_form.save(commit=False)
-            lname = name_form.save(commit=False)
-            lname.legal_name = profile
-            lname.save()
-            profile.save()
-            id = profile.id
+            created_legal_name = name_form.save(commit=False)
+            
+            created_person = person_form.save(commit=False)
+            created_person.legal_name = created_legal_name
+
+            created_legal_name.save()
+            created_person.save()
             # redirect to a new URL:
-            return redirect('person_detail', pk=id)
-    # if a GET (or any other method) we'll create a blank form
+            return redirect('person_detail', pk=created_person.id)
     else:
         name_form = NameForm()
-        person_form = addPersonForm()
-    return render(request, 'webapp/createPerson.html', {'name_form': name_form, 'person_form': person_form})
+        person_form = AddPersonForm()
+            
+    return render(request, 'webapp/add_person.html', context)
 
 # View that creates and saves a Location instance in the DB 
 # based on user's input in the Add Location form
