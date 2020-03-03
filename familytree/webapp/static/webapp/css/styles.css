@@ -59,6 +59,7 @@ html, body {
 
 button {
     color: grey;
+    background-color: white;
     padding: 0px 20px;
     margin: 8px 0;
     border: none;
