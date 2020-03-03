@@ -2,7 +2,7 @@ from django.shortcuts import render
 from django.views import generic
 from django.shortcuts import redirect
 from django.http import HttpResponseRedirect
-from webapp.models import Person, Partnership, Location
+from webapp.models import Person, Partnership, Location, LegalName
 from webapp.forms import AddPersonForm, NameForm, AddLocationForm
 from django.views.generic.edit import CreateView
 from django.views.decorators.http import require_POST
@@ -36,6 +36,7 @@ def add_person(request):
             
     return render(request, 'webapp/add_person.html', context)
 
+
 # View that creates and saves a Location instance in the DB 
 # based on user's input in the Add Location form
 def add_location(request):
@@ -57,8 +58,10 @@ def add_location(request):
 
 
 @require_POST
-def delete_person(request, pk):
-    query = Person.objects.get(pk=pk)
+def delete_person(request, person_pk, name_pk):
+    query = Person.objects.get(pk=person_pk)
+    query.delete()
+    query = LegalName.objects.get(pk=name_pk)
     query.delete()
     return redirect('person')
 
