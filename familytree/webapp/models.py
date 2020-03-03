@@ -67,7 +67,7 @@ class Person(models.Model):
     tree = models.ForeignKey('Tree', on_delete=models.CASCADE, null=True)
 
     def clean(self):
-        if self.birth_date > self.death_date:
+        if self.birth_date and self.death_date and self.birth_date > self.death_date:
             raise ValidationError(_('Birth date may not be after death date.'))
 
     def __str__(self):
