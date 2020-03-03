@@ -6,6 +6,7 @@ from django.db import models
 from django.contrib.auth.models import User
 from .submodels.location_model import Location
 from django.urls import reverse  # To generate URLS by reversing URL patterns
+from django.utils.translation import gettext_lazy as _
 
 
 class Tree(models.Model):
@@ -64,6 +65,10 @@ class Person(models.Model):
     notes = models.TextField(blank=True, default='')
 
     tree = models.ForeignKey('Tree', on_delete=models.CASCADE, null=True)
+
+    def clean(self):
+        if self.birth_date > self.death_date:
+            raise ValidationError(_('Birth date may not be after death date.'))
 
     def __str__(self):
         return f'[{self.id}] {self.legal_name.first_name} {self.legal_name.last_name}'
