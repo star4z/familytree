@@ -3,7 +3,7 @@ from django.views import generic
 from django.shortcuts import redirect
 from django.http import HttpResponseRedirect
 from webapp.models import Person, Partnership, Location, LegalName
-from webapp.forms import AddPersonForm, NameForm, AddLocationForm
+from webapp.forms import AddPersonForm, NameForm, AddLocationForm, AddPartnershipForm
 from django.views.generic.edit import CreateView
 from django.views.decorators.http import require_POST
 
@@ -56,6 +56,22 @@ def add_location(request):
 
     return render(request, 'webapp/add_location.html', context)
 
+def add_partnership(request):
+    partnership_form = AddPartnershipForm(request.POST)
+
+    context = {
+        'partnership_form': partnership_form
+    }
+
+    if request.method == 'POST':
+        if partnership_form.is_valid():
+            created_location = partnership_form.save(commit=False)
+            created_location.save()
+            return redirect('index')
+        else:
+            form = AddLocationForm(request.POST)
+
+    return render(request, 'webapp/add_partnership.html', context)
 
 @require_POST
 def delete_person(request, person_pk, name_pk):

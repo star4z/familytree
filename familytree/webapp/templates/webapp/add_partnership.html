@@ -1,0 +1,14 @@
+{% extends "base_generic.html" %}
+
+{% block content %}
+    <h1>Add Partnership</h1>
+    <div class="partnership-form">
+        <form action="" method="POST">
+            {% csrf_token %}
+            <table>
+                {{partnership_form.as_table}}
+            </table>
+            <input type="submit" value="Submit" />
+        </form>
+    </div>
+{% endblock %}
