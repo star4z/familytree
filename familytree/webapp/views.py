@@ -3,34 +3,61 @@ from django.views import generic
 from django.shortcuts import redirect
 from django.http import HttpResponseRedirect
 from webapp.models import Person, Partnership, Location, LegalName
-from webapp.forms import AddPersonForm, NameForm, AddLocationForm
+from webapp.forms import AddPersonForm, AddNameForm, AddLocationForm
 from django.views.generic.edit import CreateView
 from django.views.decorators.http import require_POST
 
 def add_person(request):
     if request.method == 'POST':
          # if this is a POST request we need to process the form data
-        name_form = NameForm(request.POST)
+        name_form = AddNameForm(request.POST)
         person_form = AddPersonForm(request.POST)
+        birth_location_form = AddLocationForm(request.POST)
+        death_location_form = AddLocationForm(request.POST)
+
+        form_validations = (
+            person_form.is_valid(), 
+            name_form.is_valid(),
+            birth_location_form.is_valid(), 
+            death_location_form.is_valid()
+        )
+
         # check whether it's valid:
-        if all((person_form.is_valid(), name_form.is_valid())):
+        if all(form_validations):
             created_legal_name = name_form.save(commit=False)
+            created_legal_name.save()
             
             created_person = person_form.save(commit=False)
             created_person.legal_name = created_legal_name
 
-            created_legal_name.save()
+            birth_location, birth_location_created = Location.objects.get_or_create(**birth_location_form.cleaned_data)
+            death_location, death_location_created = Location.objects.get_or_create(**death_location_form.cleaned_data)
+
+            if birth_location_created:
+                birth_location.save()
+
+            if death_location_created:
+                death_location.save()
+
+            created_person.birth_location = birth_location
+            created_person.death_location = death_location
+            
             created_person.save()
             # redirect to a new URL:
             return redirect('person_detail', pk=created_person.id)
+
     # if a GET (or any other method) we'll create a blank form
     else:
-        name_form = NameForm()
+        name_form = AddNameForm()
         person_form = AddPersonForm()
+        birth_location_form = AddLocationForm()
+        death_location_form = AddLocationForm()
     
     context = {
             'name_form': name_form, 
-            'person_form': person_form
+            'person_form': person_form,
+            'birth_location_form': birth_location_form,
+            'death_location_form': death_location_form
     }
             
     return render(request, 'webapp/add_person.html', context)
