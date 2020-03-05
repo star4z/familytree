@@ -1,13 +1,23 @@
 {% extends "base_generic.html" %}
 
 {% block content %}
-    <h1>Add Person</h1>
     <div class="person-form">
+        <h1>Add Person</h1>
         <form action="" method="POST">
             {% csrf_token %}
             <table>
                 {{ name_form.as_table }}
                 {{ person_form.as_table }}
+            </table>
+
+            <h2>Birth Location</h2>
+            <table>
+                {{ birth_location_form.as_table }}
+            </table>
+            
+            <h2>Death Location</h2>
+            <table>
+                {{ death_location_form.as_table }}
             </table>
             <input type="submit" value="Submit"/>
         </form>

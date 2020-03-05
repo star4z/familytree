@@ -23,5 +23,4 @@ urlpatterns = [
     path('person/<int:pk>', views.PersonDetailView.as_view(), name='person_detail'),
     path('person/delete/<int:person_pk>/<int:name_pk>/', views.delete_person, name="delete_person"),
     path('add_person/', views.add_person, name='add_person'),
-    path('add_location/', views.add_location, name='add_location'),
 ]
