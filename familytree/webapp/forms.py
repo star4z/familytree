@@ -1,6 +1,6 @@
 from django.forms import ModelForm
 from django import forms
-from webapp.models import Person, LegalName, Location
+from webapp.models import Person, LegalName, Location, Partnership
 
 
 class AddNameForm(forms.ModelForm):
@@ -37,3 +37,9 @@ class AddLocationForm(ModelForm):
             'city': forms.TextInput(attrs={'size': '50'}),
             'state': forms.TextInput(attrs={'size': '50'})
         }
+
+
+class AddPartnershipForm(ModelForm):
+    class Meta:
+        model = Partnership
+        fields = '__all__'
