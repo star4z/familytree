@@ -261,8 +261,10 @@ class Location(models.Model):
     country = models.CharField(max_length=2, choices=Country.choices, 
         blank=True)
 
+    '''
     class Meta:
         unique_together = ["city", "state", "country"]
+    '''
 
     def __str__(self):
         return self.city + ', ' + self.state + ', ' + self.country
