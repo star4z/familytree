@@ -33,6 +33,7 @@ def add_person(request):
             # Create a Person instance from person form's data
             # Person instance's Legal Name attribute will be a foreign key
             created_person = person_form.save(commit=False)
+            created_person.add(created_alternate_name_id)
             created_person.legal_name = created_legal_name
 
             # Check each location form's data and query for existing Location

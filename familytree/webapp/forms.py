@@ -26,6 +26,22 @@ class AddPersonForm(ModelForm):
             'notes': forms.Textarea(attrs={'rows': 10, 'cols': '50'})
         }
 
+'''
+Have a formset for Alternate Name Form
+'''
+class AlternateNameForm(ModelForm):
+    class Meta:
+        model = AlternateName
+        exclude = ['tree', 'person']
+        widgets = {
+            'prefix': forms.TextInput(attrs={'size': '4'}),
+            'first_name': forms.TextInput(attrs={'size': '30'}),
+            'middle_name': forms.TextInput(attrs={'size': '30'}),
+            'last_name': forms.TextInput(attrs={'size': '30'}),
+            'suffix': forms.TextInput(attrs={'size': '3'})
+        }
+
+
 # Defines a Location form based on the Location model.
 # Includes every attribute.
 # Textfield sizes for 'city' and 'state' attributes set to 50 characters.
