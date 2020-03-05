@@ -1,9 +1,10 @@
-from django.forms import ModelForm
 from django import forms
-from webapp.models import Person, LegalName, Location, Partnership
+from django.forms import ModelForm
+from django.forms import BaseModelFormSet
+from webapp.models import Person, LegalName, Location, Partnership, AlternateName
 
 
-class AddNameForm(forms.ModelForm):
+class AddNameForm(ModelForm):
     class Meta:
         model = LegalName
         exclude = ['tree']
@@ -26,13 +27,12 @@ class AddPersonForm(ModelForm):
             'notes': forms.Textarea(attrs={'rows': 10, 'cols': '50'})
         }
 
-'''
-Have a formset for Alternate Name Form
-'''
+
 class AlternateNameForm(ModelForm):
+    first_name = forms.CharField(required=False)
     class Meta:
         model = AlternateName
-        exclude = ['tree', 'person']
+        exclude = ['person','tree']
         widgets = {
             'prefix': forms.TextInput(attrs={'size': '4'}),
             'first_name': forms.TextInput(attrs={'size': '30'}),

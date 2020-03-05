@@ -2,17 +2,22 @@ from django.shortcuts import render
 from django.views import generic
 from django.shortcuts import redirect
 from django.http import HttpResponseRedirect
-from webapp.models import Person, Partnership, Location, LegalName
-from webapp.forms import AddPersonForm, AddNameForm, AddLocationForm, AddPartnershipForm
+from webapp.models import Person, Partnership, Location, LegalName, AlternateName
+from webapp.forms import AddPersonForm, AddNameForm, AddLocationForm, AddPartnershipForm, AlternateNameForm
 from django.views.generic.edit import CreateView
 from django.views.decorators.http import require_POST
+from django.forms import modelformset_factory
+from django.forms import inlineformset_factory
 
 
 def add_person(request):
+    AlternateNameFormSet = inlineformset_factory(Person, AlternateName, form=AlternateNameForm, extra=5, can_delete=True)
+    person = Person()
     if request.method == 'POST':
         # if this is a POST request we need to process the form data
         name_form = AddNameForm(request.POST)
-        person_form = AddPersonForm(request.POST)
+        person_form = AddPersonForm(request.POST, instance=person)
+        alt_name_formset = AlternateNameFormSet(request.POST, instance=person)
         birth_location_form = AddLocationForm(request.POST, prefix="birth_location")
         death_location_form = AddLocationForm(request.POST, prefix="death_location")
 
@@ -20,6 +25,7 @@ def add_person(request):
         form_validations = (
             person_form.is_valid(),
             name_form.is_valid(),
+            alt_name_formset.is_valid(),
             birth_location_form.is_valid(),
             death_location_form.is_valid()
         )
@@ -33,8 +39,14 @@ def add_person(request):
             # Create a Person instance from person form's data
             # Person instance's Legal Name attribute will be a foreign key
             created_person = person_form.save(commit=False)
-            created_person.add(created_alternate_name_id)
             created_person.legal_name = created_legal_name
+            created_person.save()
+
+            # Create Alternate Name for person
+            alt_names=alt_name_formset.save(commit=False)
+            for alt_name in alt_names:
+                alt_name.person_id = created_person.id
+                alt_name.save()
 
             # Check each location form's data and query for existing Location
             # instances.
@@ -64,13 +76,15 @@ def add_person(request):
     # if a GET (or any other method) we'll create a blank form
     else:
         name_form = AddNameForm()
-        person_form = AddPersonForm()
+        person_form = AddPersonForm(instance=person)
+        alt_name_formset = AlternateNameFormSet(instance=person)
         birth_location_form = AddLocationForm(prefix="birth_location")
         death_location_form = AddLocationForm(prefix="death_location")
 
     context = {
         'name_form': name_form,
         'person_form': person_form,
+        'alt_name_formset': alt_name_formset,
         'birth_location_form': birth_location_form,
         'death_location_form': death_location_form
     }

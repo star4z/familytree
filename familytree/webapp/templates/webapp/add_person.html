@@ -7,10 +7,12 @@
             {% csrf_token %}
             <table>
                 {{ name_form.as_table }}
-                {{ alternate_name_form.as_table }}
                 {{ person_form.as_table }}
             </table>
-
+            <h2> Alternate Names </h2>
+            <table>
+                {{ alt_name_formset.as_table}}
+            </table>
             <h2>Birth Location</h2>
             <table>
                 {{ birth_location_form.as_table }}
