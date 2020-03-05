@@ -3,7 +3,7 @@ from django import forms
 from webapp.models import Person, LegalName, Location, Partnership
 
 
-class NameForm(forms.ModelForm):
+class AddNameForm(forms.ModelForm):
     class Meta:
         model = LegalName
         exclude = ['tree']
@@ -18,7 +18,7 @@ class NameForm(forms.ModelForm):
 class AddPersonForm(ModelForm):
     class Meta:
         model = Person
-        exclude = ['legal_name', 'tree']
+        exclude = ['legal_name', 'tree', 'birth_location', 'death_location']
         widgets = {
             'birth_date': forms.DateInput(attrs={'type': 'date'}),
             'death_date': forms.DateInput(attrs={'type': 'date'}),

@@ -3,58 +3,79 @@ from django.views import generic
 from django.shortcuts import redirect
 from django.http import HttpResponseRedirect
 from webapp.models import Person, Partnership, Location, LegalName
-from webapp.forms import AddPersonForm, NameForm, AddLocationForm, AddPartnershipForm
+from webapp.forms import AddPersonForm, AddNameForm, AddLocationForm, AddPartnershipForm
 from django.views.generic.edit import CreateView
 from django.views.decorators.http import require_POST
 
+
 def add_person(request):
-    # if this is a POST request we need to process the form data
-    name_form = NameForm(request.POST)
-    person_form = AddPersonForm(request.POST)
-
-    context = {
-        'name_form': name_form, 
-        'person_form': person_form
-    }
-
     if request.method == 'POST':
+        # if this is a POST request we need to process the form data
+        name_form = AddNameForm(request.POST)
+        person_form = AddPersonForm(request.POST)
+        birth_location_form = AddLocationForm(request.POST, prefix="birth_location")
+        death_location_form = AddLocationForm(request.POST, prefix="death_location")
+
+        # Tuple that contains validation status of each filled form
+        form_validations = (
+            person_form.is_valid(),
+            name_form.is_valid(),
+            birth_location_form.is_valid(),
+            death_location_form.is_valid()
+        )
+
         # check whether it's valid:
-        if all((person_form.is_valid(), name_form.is_valid())):
+        if all(form_validations):
+            # Create a Legal Name instance from name form's data
             created_legal_name = name_form.save(commit=False)
-            
+            created_legal_name.save()
+
+            # Create a Person instance from person form's data
+            # Person instance's Legal Name attribute will be a foreign key
             created_person = person_form.save(commit=False)
             created_person.legal_name = created_legal_name
 
-            created_legal_name.save()
+            # Check each location form's data and query for existing Location
+            # instances.
+            # If location exists, stores it in the corresponding location
+            # variable and sets location_created boolean to false
+            # If it doesn't exist, create a new instance from form's data and
+            # set location_created boolean to true
+            birth_location, birth_location_created = Location.objects.get_or_create(**birth_location_form.cleaned_data)
+            death_location, death_location_created = Location.objects.get_or_create(**death_location_form.cleaned_data)
+
+            # if new location instances were created, save them in the DB
+            if birth_location_created:
+                birth_location.save()
+
+            if death_location_created:
+                death_location.save()
+
+            # Assign the location instances as keys in Person instance
+            created_person.birth_location = birth_location
+            created_person.death_location = death_location
+
             created_person.save()
-            # redirect to a new URL:
+
+            # redirect to page containing new Person instance's details
             return redirect('person_detail', pk=created_person.id)
+
     # if a GET (or any other method) we'll create a blank form
     else:
-        name_form = NameForm()
+        name_form = AddNameForm()
         person_form = AddPersonForm()
-            
-    return render(request, 'webapp/add_person.html', context)
-
-
-# View that creates and saves a Location instance in the DB 
-# based on user's input in the Add Location form
-def add_location(request):
-    location_form = AddLocationForm(request.POST)
+        birth_location_form = AddLocationForm(prefix="birth_location")
+        death_location_form = AddLocationForm(prefix="death_location")
 
     context = {
-        'location_form': location_form
+        'name_form': name_form,
+        'person_form': person_form,
+        'birth_location_form': birth_location_form,
+        'death_location_form': death_location_form
     }
 
-    if request.method == 'POST':
-        if location_form.is_valid():
-            created_location = location_form.save(commit=False)
-            created_location.save()
-            return redirect('index')
-        else:
-            form = AddLocationForm(request.POST)
+    return render(request, 'webapp/add_person.html', context)
 
-    return render(request, 'webapp/add_location.html', context)
 
 def add_partnership(request):
     partnership_form = AddPartnershipForm(request.POST)
@@ -72,6 +93,7 @@ def add_partnership(request):
             form = AddLocationForm(request.POST)
 
     return render(request, 'webapp/add_partnership.html', context)
+
 
 @require_POST
 def delete_person(request, person_pk, name_pk):
@@ -104,7 +126,8 @@ class PartnershipListView(generic.ListView):
 
 
 class PersonDetailView(generic.DetailView):
-	model = Person
+    model = Person
+
 
 '''
 class LocationCreateView(CreateView):
