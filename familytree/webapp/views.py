@@ -76,26 +76,6 @@ def add_person(request):
     return render(request, 'webapp/add_person.html', context)
 
 
-# View that creates and saves a Location instance in the DB 
-# based on user's input in the Add Location form
-def add_location(request):
-    if request.method == 'POST':
-        location_form = AddLocationForm(request.POST)
-
-        if location_form.is_valid():
-            created_location = location_form.save(commit=False)
-            created_location.save()
-            return redirect('index')
-    else:
-        location_form = AddLocationForm()
-    
-    context = {
-        'location_form': location_form
-    }
-
-    return render(request, 'webapp/add_location.html', context)
-
-
 @require_POST
 def delete_person(request, person_pk, name_pk):
     query = Person.objects.get(pk=person_pk)
