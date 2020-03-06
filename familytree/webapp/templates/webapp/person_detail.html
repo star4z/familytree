@@ -37,7 +37,7 @@
         <p><strong>Death date</strong> {{ person.death_date }}</p>
         <p><strong>Death location</strong> {{ person.death_location }}</p>
     {% endif %}
-
+    <p><strong>Marital status</strong> {{ person.marital_status }}</p>
     <p><strong>Partnerships</strong></p>
     {% with partnerships=person.partnerships.all %}
         {% if partnerships %}
@@ -53,14 +53,16 @@
                             {% endfor %}
                         </ul>
                         {% include "webapp/boolean_checkbox.html" with key="Current" value=partnership.current %}<br>
-                        {% include "webapp/boolean_checkbox.html" with key="Married" value=partnership.married %}<br>
+                        {% include "webapp/boolean_checkbox.html" with key="Married" value=partnership.married %}
                         {% if partnership.married %}
-                            ({{ partnership.marriage_date }})
+                            Marriage date - {{ partnership.marriage_date }}
                         {% endif %}
-                        {% include "webapp/boolean_checkbox.html" with key="Divorced" value=partnership.divorced %}<br>
+                        <br>
+                        {% include "webapp/boolean_checkbox.html" with key="Divorced" value=partnership.divorced %}
                         {% if partnership.divorced %}
-                            ({{ partnership.divorce_date }})
+                            Divorce date - {{ partnership.divorce_date }}
                         {% endif %}
+                        <br>
                         Children
                         {% with children=partnership.children.all %}
                             {% if children %}
