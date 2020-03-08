@@ -4,6 +4,8 @@ from dateutil.relativedelta import relativedelta
 from django.core.exceptions import ValidationError
 from django.db import models
 from django.contrib.auth.models import User
+from django.db.models import Max
+
 from .submodels.location_model import Location
 from django.urls import reverse  # To generate URLS by reversing URL patterns
 from django.utils.translation import gettext_lazy as _
@@ -118,6 +120,79 @@ class Person(models.Model):
         else:
             raise self.IllegalAgeError()
 
+    def marital_status(self):
+        relationship_statuses = set()
+        for partnership in self.partnerships.all():
+            other_living = Person.objects.filter(partnerships=partnership, living=True).exists()
+            if other_living:
+                if partnership.married:
+                    if partnership.divorced:
+                        if partnership.current:
+                            relationship_statuses.add(Partnership.MaritalStatus.PARTNERED)
+                        else:
+                            relationship_statuses.add(Partnership.MaritalStatus.DIVORCED)
+                    else:
+                        if partnership.current:
+                            relationship_statuses.add(Partnership.MaritalStatus.MARRIED)
+                        else:
+                            relationship_statuses.add(Partnership.MaritalStatus.SEPARATED)
+                else:
+                    if partnership.divorced:
+                        # ERROR! Must marry to divorce
+                        pass
+                    else:
+                        if partnership.current:
+                            relationship_statuses.add(Partnership.MaritalStatus.PARTNERED)
+                        else:
+                            relationship_statuses.add(Partnership.MaritalStatus.SINGLE)
+            else:
+                if self.living:
+                    if partnership.married:
+                        if partnership.divorced:
+                            relationship_statuses.add(Partnership.MaritalStatus.DIVORCED)
+                        else:
+                            relationship_statuses.add(Partnership.MaritalStatus.WIDOWED)
+                    else:
+                        if partnership.divorced:
+                            # Error! Must marry to divorce
+                            pass
+                        else:
+                            if partnership.current:
+                                relationship_statuses.add(Partnership.MaritalStatus.DIVORCED)
+                            else:
+                                relationship_statuses.add(Partnership.MaritalStatus.SINGLE)
+                else:
+                    if partnership.married:
+                        if partnership.divorced:
+                            relationship_statuses.add(Partnership.MaritalStatus.DIVORCED)
+                            if partnership.current:
+                                max_death_date = Partnership.max_death_date()
+                                if self.death_date and max_death_date and self.death_date > max_death_date:
+                                    relationship_statuses.add(Partnership.MaritalStatus.DIVORCED)
+                                else:
+                                    relationship_statuses.add(Partnership.MaritalStatus.PARTNERED)
+                            else:
+                                relationship_statuses.add(Partnership.MaritalStatus.DIVORCED)
+                        else:
+                            max_death_date = partnership.max_death_date()
+                            if self.death_date and max_death_date and self.death_date > max_death_date:
+                                relationship_statuses.add(Partnership.MaritalStatus.WIDOWED)
+                            else:
+                                relationship_statuses.add(Partnership.MaritalStatus.MARRIED)
+                    else:
+                        if partnership.divorced:
+                            # Error! Must marry to divorce
+                            pass
+                        else:
+                            if partnership.current:
+                                relationship_statuses.add(Partnership.MaritalStatus.PARTNERED)
+                            else:
+                                relationship_statuses.add(Partnership.MaritalStatus.SINGLE)
+        # If the person has no partnerships then they are single
+        if not relationship_statuses:
+            relationship_statuses.add(Partnership.MaritalStatus.SINGLE)
+        return max(relationship_statuses)[1]
+
 
 class Partnership(models.Model):
     children = models.ManyToManyField(Person, related_name='children', blank=True)
@@ -130,6 +205,12 @@ class Partnership(models.Model):
 
     tree = models.ForeignKey('Tree', on_delete=models.CASCADE, null=True)
 
+    def clean(self):
+        if self.divorced and not self.married:
+            raise ValidationError(_('Must be married to be divorced.'))
+        elif self.divorce_date and self.marriage_date and self.divorce_date < self.marriage_date:
+            raise ValidationError(_('Divorce must come after marriage.'))
+
     def partners(self):
         return Person.objects.filter(partnerships=self)
 
@@ -141,6 +222,19 @@ class Partnership(models.Model):
 
     def __str__(self):
         return f'[{self.id}] ' + self.partners_str()
+
+    class MaritalStatus:
+        MARRIED = 5, 'Married'
+        PARTNERED = 4, 'Partnered'
+        SEPARATED = 3, 'Legally separated'
+        WIDOWED = 2, 'Widowed'
+        DIVORCED = 1, 'Divorced'
+        SINGLE = 0, 'Single'
+
+    def max_death_date(self):
+        return Person.objects.exclude(pk=self.pk) \
+            .filter(partnerships=self, death_date__isnull=False) \
+            .aggregate(Max('death_date'))['death_date__max']
 
 
 class PersonPartnership(models.Model):
