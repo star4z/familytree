@@ -1,9 +1,10 @@
-from django.forms import ModelForm
 from django import forms
-from webapp.models import Person, LegalName, Location, Partnership
+from django.forms import ModelForm
+from django.forms import BaseModelFormSet
+from webapp.models import Person, LegalName, Location, Partnership, AlternateName
 
 
-class AddNameForm(forms.ModelForm):
+class AddNameForm(ModelForm):
     class Meta:
         model = LegalName
         exclude = ['tree']
@@ -25,6 +26,21 @@ class AddPersonForm(ModelForm):
             'preferred_name': forms.TextInput(attrs={'size': '40'}),
             'notes': forms.Textarea(attrs={'rows': 10, 'cols': '50'})
         }
+
+
+class AlternateNameForm(ModelForm):
+    first_name = forms.CharField(required=False)
+    class Meta:
+        model = AlternateName
+        exclude = ['person','tree']
+        widgets = {
+            'prefix': forms.TextInput(attrs={'size': '4'}),
+            'first_name': forms.TextInput(attrs={'size': '30'}),
+            'middle_name': forms.TextInput(attrs={'size': '30'}),
+            'last_name': forms.TextInput(attrs={'size': '30'}),
+            'suffix': forms.TextInput(attrs={'size': '3'})
+        }
+
 
 # Defines a Location form based on the Location model.
 # Includes every attribute.
