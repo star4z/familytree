@@ -56,7 +56,7 @@ ROOT_URLCONF = 'familytree.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [os.path.join(BASE_DIR, 'templates'),],
+        'DIRS': [os.path.join(BASE_DIR, 'accounts/templates'), ],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
