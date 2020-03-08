@@ -28,6 +28,8 @@ def signup_view(request):
         })
         user.email_user(subject, message)
         return redirect('activation_sent')
+    # else:
+    #     form = SignUpForm()
     return render(request, 'signup.html', {'form': form})
 
 
@@ -37,7 +39,7 @@ def activation_sent_view(request):
 
 def activate(request, uidb64, token):
     try:
-        uid = str(urlsafe_base64_decode(uidb64))
+        uid = urlsafe_base64_decode(uidb64).decode()
         user = User.objects.get(pk=uid)
     except (TypeError, ValueError, OverflowError, User.DoesNotExist):
         user = None
@@ -46,7 +48,7 @@ def activate(request, uidb64, token):
         # if valid set active true
         user.is_active = True
         # set signup_confirmation true
-        user.profile.signup_confirmation = True
+        # user.profile.signup_confirmation = True
         user.save()
         login(request, user)
         return redirect('/')
