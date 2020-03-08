@@ -19,6 +19,8 @@
                     {% if user.is_authenticated %}
                         <li>User: {{ user.get_username }}</li>
                         <li><a href="{% url 'logout' %}?next=/">Logout</a></li>
+                        <li><a href="{% url 'password_change' %}">Change password</a></li>
+                        <p></p>
                         <li><a href="{% url 'index' %}">Home</a></li>
                         <li><a href="{% url 'person' %}">All People</a></li>
                         <li><a href="{% url 'partnership' %}">All Partnerships</a></li>
@@ -26,6 +28,7 @@
                         <li><a href="{% url 'add_partnership' %}">Add Partnership</a></li>
                     {% else %}
                         <li><a href="{% url 'login' %}">Login</a></li>
+                        <li><a href="{% url 'signup' %}">Create Account</a></li>
                     {% endif %}
                 </ul>
             {% endblock %}
