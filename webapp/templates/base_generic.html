@@ -18,7 +18,7 @@
                 <ul class="sidebar-nav">
                     {% if user.is_authenticated %}
                         <li>User: {{ user.get_username }}</li>
-                        <li><a href="{% url 'logout' %}">Logout</a></li>
+                        <li><a href="{% url 'logout' %}?next=/">Logout</a></li>
                         <li><a href="{% url 'index' %}">Home</a></li>
                         <li><a href="{% url 'person' %}">All People</a></li>
                         <li><a href="{% url 'partnership' %}">All Partnerships</a></li>
