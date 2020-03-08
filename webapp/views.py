@@ -11,7 +11,7 @@ from django.forms import inlineformset_factory
 
 
 def add_person(request):
-    AlternateNameFormSet = inlineformset_factory(Person, AlternateName, form=AlternateNameForm, extra=5, can_delete=True)
+    AlternateNameFormSet = inlineformset_factory(Person, AlternateName, form=AlternateNameForm, extra=2, can_delete=True)
     person = Person()
     if request.method == 'POST':
         # if this is a POST request we need to process the form data
@@ -45,7 +45,7 @@ def add_person(request):
             # Create Alternate Name for person
             alt_names=alt_name_formset.save(commit=False)
             for alt_name in alt_names:
-                alt_name.person_id = created_person.id
+                #alt_name.person_id = created_person.id
                 alt_name.save()
 
             # Check each location form's data and query for existing Location
@@ -112,8 +112,10 @@ def add_partnership(request):
 
 @require_POST
 def delete_person(request, person_pk, name_pk):
-    query = Person.objects.get(pk=person_pk)
-    query.delete()
+    person_obj = Person.objects.get(pk=person_pk)
+    alt_name_list = person_obj.alternate_name.all()
+    alt_name_list.delete()
+    person_obj.delete()
     query = LegalName.objects.get(pk=name_pk)
     query.delete()
     return redirect('person')
