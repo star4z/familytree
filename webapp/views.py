@@ -1,3 +1,5 @@
+from django.contrib.auth.decorators import login_required
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.shortcuts import render
 from django.views import generic
 from django.shortcuts import redirect
@@ -8,6 +10,7 @@ from django.views.generic.edit import CreateView
 from django.views.decorators.http import require_POST
 
 
+@login_required
 def add_person(request):
     if request.method == 'POST':
         # if this is a POST request we need to process the form data
@@ -77,6 +80,7 @@ def add_person(request):
     return render(request, 'webapp/add_person.html', context)
 
 
+@login_required
 def add_partnership(request):
     partnership_form = AddPartnershipForm(request.POST)
 
@@ -95,6 +99,7 @@ def add_partnership(request):
     return render(request, 'webapp/add_partnership.html', context)
 
 
+@login_required
 @require_POST
 def delete_person(request, person_pk, name_pk):
     query = Person.objects.get(pk=person_pk)
@@ -115,22 +120,15 @@ def index(request):
     return render(request, 'index.html', context=context)
 
 
-class PersonListView(generic.ListView):
+class PersonListView(LoginRequiredMixin, generic.ListView):
     model = Person
     paginate_by = 10
 
 
-class PartnershipListView(generic.ListView):
+class PartnershipListView(LoginRequiredMixin, generic.ListView):
     model = Partnership
     paginate_by = 10
 
 
-class PersonDetailView(generic.DetailView):
+class PersonDetailView(LoginRequiredMixin, generic.DetailView):
     model = Person
-
-
-'''
-class LocationCreateView(CreateView):
-    model = Location
-    fields = '__all__'
-'''
