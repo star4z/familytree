@@ -15,14 +15,17 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import include, path
-#Use to redirect root view to only app: webapp (Can be changed)
-from django.views.generic import RedirectView 
+# Use to redirect root view to only app: webapp (Can be changed)
+from django.views.generic import RedirectView
+
+from accounts import views
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('webapp/', include('webapp.urls')),
-    path('',RedirectView.as_view(url='webapp/', permanent=True))
- ] 
+    path('', RedirectView.as_view(url='webapp/', permanent=True)),
+    path('accounts/', include('accounts.urls'))
+]
 
 # Use static() to add url mapping to serve static files during development (only)
 from django.conf import settings
