@@ -5,22 +5,18 @@ from django.views import generic
 from django.shortcuts import redirect
 from django.http import HttpResponseRedirect
 from webapp.models import Person, Partnership, Location, LegalName, AlternateName
-from webapp.forms import AddPersonForm, AddNameForm, AddLocationForm, AddPartnershipForm, AlternateNameForm
+from webapp.forms import AddPersonForm, AddNameForm, AddLocationForm, AddPartnershipForm, AlternateNameFormSet
 from django.views.generic.edit import CreateView
 from django.views.decorators.http import require_POST
-from django.forms import modelformset_factory
-from django.forms import inlineformset_factory
 
 
 @login_required
 def add_person(request):
-    AlternateNameFormSet = inlineformset_factory(Person, AlternateName, form=AlternateNameForm, extra=2, can_delete=True)
-    person = Person()
     if request.method == 'POST':
         # if this is a POST request we need to process the form data
         name_form = AddNameForm(request.POST)
-        person_form = AddPersonForm(request.POST, instance=person)
-        alt_name_formset = AlternateNameFormSet(request.POST, instance=person)
+        person_form = AddPersonForm(request.POST)
+        alt_name_formset = AlternateNameFormSet(request.POST)
         birth_location_form = AddLocationForm(request.POST, prefix="birth_location")
         death_location_form = AddLocationForm(request.POST, prefix="death_location")
 
@@ -48,7 +44,7 @@ def add_person(request):
             # Create Alternate Name for person
             alt_names=alt_name_formset.save(commit=False)
             for alt_name in alt_names:
-                #alt_name.person_id = created_person.id
+                alt_name.person_id = created_person.id
                 alt_name.save()
 
             # Check each location form's data and query for existing Location
@@ -79,8 +75,8 @@ def add_person(request):
     # if a GET (or any other method) we'll create a blank form
     else:
         name_form = AddNameForm()
-        person_form = AddPersonForm(instance=person)
-        alt_name_formset = AlternateNameFormSet(instance=person)
+        person_form = AddPersonForm()
+        alt_name_formset = AlternateNameFormSet()
         birth_location_form = AddLocationForm(prefix="birth_location")
         death_location_form = AddLocationForm(prefix="death_location")
 
