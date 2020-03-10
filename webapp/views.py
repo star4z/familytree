@@ -17,16 +17,12 @@ def add_person(request):
         name_form = AddNameForm(request.POST)
         person_form = AddPersonForm(request.POST)
         alt_name_formset = AlternateNameFormSet(request.POST)
-        birth_location_form = AddLocationForm(request.POST, prefix="birth_location")
-        death_location_form = AddLocationForm(request.POST, prefix="death_location")
 
         # Tuple that contains validation status of each filled form
         form_validations = (
             person_form.is_valid(),
             name_form.is_valid(),
             alt_name_formset.is_valid(),
-            birth_location_form.is_valid(),
-            death_location_form.is_valid()
         )
 
         # check whether it's valid:
@@ -53,14 +49,21 @@ def add_person(request):
             # variable and sets location_created boolean to false
             # If it doesn't exist, create a new instance from form's data and
             # set location_created boolean to true
-            birth_location, birth_location_created = Location.objects.get_or_create(**birth_location_form.cleaned_data)
-            death_location, death_location_created = Location.objects.get_or_create(**death_location_form.cleaned_data)
+            birth_location, birth_loc_was_created = Location.objects.get_or_create(
+                city=person_form.cleaned_data['birth_city'],
+                state=person_form.cleaned_data['birth_state'],
+                country=person_form.cleaned_data['birth_country'])
+
+            death_location, death_loc_was_created = Location.objects.get_or_create(
+                city=person_form.cleaned_data['death_city'],
+                state=person_form.cleaned_data['death_state'],
+                country=person_form.cleaned_data['death_country'])
 
             # if new location instances were created, save them in the DB
-            if birth_location_created:
+            if birth_loc_was_created:
                 birth_location.save()
 
-            if death_location_created:
+            if death_loc_was_created:
                 death_location.save()
 
             # Assign the location instances as keys in Person instance
@@ -77,15 +80,11 @@ def add_person(request):
         name_form = AddNameForm()
         person_form = AddPersonForm()
         alt_name_formset = AlternateNameFormSet()
-        birth_location_form = AddLocationForm(prefix="birth_location")
-        death_location_form = AddLocationForm(prefix="death_location")
 
     context = {
         'name_form': name_form,
         'person_form': person_form,
         'alt_name_formset': alt_name_formset,
-        'birth_location_form': birth_location_form,
-        'death_location_form': death_location_form
     }
 
     return render(request, 'webapp/add_person.html', context)

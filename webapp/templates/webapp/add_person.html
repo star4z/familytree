@@ -40,27 +40,18 @@
                     </tr>
                 {% endfor %}
             </table>
-
-            <h2>Birth Location</h2>
-            <table>
-                {{ birth_location_form.as_table }}
-            </table>
-            
-            <h2>Death Location</h2>
-            <table>
-                {{ death_location_form.as_table }}
-            </table>
             <input type="submit" value="Submit"/>
         </form>
     </div>
-        <!-- Include formset plugin - including jQuery dependency -->
-        <script src="//ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
-        <script src="{% static 'webapp/js/jquery.formset.js' %}"></script>
-        <script type="text/javascript">
-            $('.formset_row').formset({
-                addText: 'add name',
-                deleteText: 'remove'
-                prefix: 'alternate_name'
-            });
-        </script>
+    
+    <!-- Include formset plugin - including jQuery dependency -->
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
+    <script src="{% static 'webapp/js/jquery.formset.js' %}"></script>
+    <script type="text/javascript">
+        $('.formset_row').formset({
+            addText: 'add name',
+            deleteText: 'remove'
+            prefix: 'alternate_name'
+        });
+    </script>
 {% endblock %}
