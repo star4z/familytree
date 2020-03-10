@@ -1,6 +1,7 @@
 from django import forms
 from django.forms import ModelForm
-from django.forms import BaseModelFormSet
+from django.forms import modelformset_factory
+from django.forms import inlineformset_factory
 from webapp.models import Person, LegalName, Location, Partnership, AlternateName
 
 
@@ -40,6 +41,9 @@ class AlternateNameForm(ModelForm):
             'last_name': forms.TextInput(attrs={'size': '30'}),
             'suffix': forms.TextInput(attrs={'size': '3'})
         }
+
+
+AlternateNameFormSet = inlineformset_factory(Person, AlternateName, form=AlternateNameForm, extra=1, can_delete=True)
 
 
 # Defines a Location form based on the Location model.

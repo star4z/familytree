@@ -5,16 +5,13 @@ from django.views import generic
 from django.shortcuts import redirect
 from django.http import HttpResponseRedirect
 from webapp.models import Person, Partnership, Location, LegalName, AlternateName
-from webapp.forms import AddPersonForm, AddNameForm, AddLocationForm, AddPartnershipForm, AlternateNameForm
+from webapp.forms import AddPersonForm, AddNameForm, AddLocationForm, AddPartnershipForm, AlternateNameFormSet
 from django.views.generic.edit import CreateView
 from django.views.decorators.http import require_POST
-from django.forms import modelformset_factory
-from django.forms import inlineformset_factory
 
 
 @login_required
 def add_person(request):
-    AlternateNameFormSet = inlineformset_factory(Person, AlternateName, form=AlternateNameForm, extra=2, can_delete=True)
     person = Person()
     if request.method == 'POST':
         # if this is a POST request we need to process the form data

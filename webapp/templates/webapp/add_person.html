@@ -9,10 +9,31 @@
                 {{ name_form.as_table }}
                 {{ person_form.as_table }}
             </table>
+
             <h2> Alternate Names </h2>
             <table>
-                {{ alt_name_formset.as_table}}
+                {{ alt_name_formset.management_form}}
+
+                {% for form in alt_name_formset.forms %}
+                    {% if forloop.first %}
+                    <thead>
+                    <tr>
+                        {% for field in form.visible_fields %}
+                            <th>{{ field.label_tag }}</th>
+                        {% endfor %}
+                    </tr>
+                    </thead>
+                    {% endif %}
+                    <tbody>
+                    <tr class="formset_row">
+                        {% for field in form.visible_fields %}
+                            <td>{{ field }} &nbsp;</td>
+                        {% endfor %}
+                    </tr>
+                    </tbody>
+                {% endfor %}
             </table>
+
             <h2>Birth Location</h2>
             <table>
                 {{ birth_location_form.as_table }}
