@@ -60,7 +60,8 @@ class AlternateNameForm(ModelForm):
             'suffix': forms.TextInput(attrs={'size': '3'})
         }
 
-AlternateNameFormSet = inlineformset_factory(Person, AlternateName, form=AlternateNameForm, extra=2, can_delete=True)
+
+AlternateNameFormSet = inlineformset_factory(Person, AlternateName, form=AlternateNameForm, extra=1, can_delete=False)
 
 # Defines a Location form based on the Location model.
 # Includes every attribute.
