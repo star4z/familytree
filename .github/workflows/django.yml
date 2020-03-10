@@ -23,7 +23,7 @@ jobs:
         python-version: ${{ matrix.python-version }}
     - name: Configure MySQL Database
       run : |
-        sudo mysql -uroot -proot -e "CREATE DATABASE inventorydb; CREATE USER 'yourusername'@'localhost' IDENTIFIED BY 'yourpassword'; GRANT ALL PRIVILEGES ON inventorydb.* TO 'yourusername'@'localhost'; FLUSH PRIVILEGES;"
+        sudo mysql -uroot -proot -e "CREATE DATABASE familytreedb; CREATE USER 'familytreedefault'@'localhost' IDENTIFIED BY 'familytreedefaultpwd'; GRANT ALL PRIVILEGES ON familytreedb.* TO 'familytreedefault'@'localhost'; FLUSH PRIVILEGES;"
     - name: Install Dependencies
       run: |
         python -m pip install --upgrade pip
