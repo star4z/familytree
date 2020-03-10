@@ -31,6 +31,7 @@ jobs:
     - name: Set up MySQL
       uses: mirromutth/mysql-action@v1.1
       with:
+        host port: 3306
         mysql database: 'familytreedb' # Optional, default value is "test". The specified database which will be create
         mysql user: 'familytreedefault' # Required if "mysql root password" is empty, default is empty. The superuser for the specified database. Can use secrets, too:  
         mysql password: 'familytreedefaultpwd'
