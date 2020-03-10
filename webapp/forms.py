@@ -43,7 +43,7 @@ class AlternateNameForm(ModelForm):
         }
 
 
-AlternateNameFormSet = inlineformset_factory(Person, AlternateName, form=AlternateNameForm, extra=1, can_delete=True)
+AlternateNameFormSet = inlineformset_factory(Person, AlternateName, form=AlternateNameForm, extra=2, can_delete=True)
 
 
 # Defines a Location form based on the Location model.
