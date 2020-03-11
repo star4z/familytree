@@ -134,11 +134,13 @@ def index(request):
 class PersonListView(LoginRequiredMixin, generic.ListView):
     model = Person
     paginate_by = 10
+    ordering = ['id']
 
 
 class PartnershipListView(LoginRequiredMixin, generic.ListView):
     model = Partnership
     paginate_by = 10
+    ordering = ['id']
 
 
 class PersonDetailView(LoginRequiredMixin, generic.DetailView):
