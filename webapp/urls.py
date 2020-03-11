@@ -18,10 +18,13 @@ from . import views
 
 urlpatterns = [
     path('', views.index, name='index'),
+    path('tree/', views.TreeListView.as_view(), name = 'tree'),
     path('person/', views.PersonListView.as_view(), name='person'),
     path('partnership/', views.PartnershipListView.as_view(), name='partnership'),
-    path('person/<int:pk>', views.PersonDetailView.as_view(), name='person_detail'),
+    path('tree/<int:pk>/', views.TreeDetailView.as_view(), name='tree_detail'),
+    path('person/<int:pk>/', views.PersonDetailView.as_view(), name='person_detail'),
     path('person/delete/<int:person_pk>/<int:name_pk>/', views.delete_person, name="delete_person"),
+    path('add_tree/', views.add_tree, name='add_tree'),
     path('add_person/', views.add_person, name='add_person'),
     path('add_partnership/', views.add_partnership, name='add_partnership'),
 ]
