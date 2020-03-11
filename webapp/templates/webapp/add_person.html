@@ -4,6 +4,7 @@
 {% block content %}
     <div class="person-form">
         <h1>Add Person</h1>
+        <hr>
         <form action="" method="POST">
             {% csrf_token %}
             <table>
@@ -11,6 +12,7 @@
                 {{ person_form.as_table }}
             </table>
 
+            <hr>
             <h2> Alternate Names </h2>
             <table class="table">
                 {{ alt_name_formset.management_form}}
@@ -43,15 +45,15 @@
             <input type="submit" value="Submit"/>
         </form>
     </div>
-    
     <!-- Include formset plugin - including jQuery dependency -->
-    <script src="//ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
     <script src="{% static 'webapp/js/jquery.formset.js' %}"></script>
     <script type="text/javascript">
-        $('.formset_row').formset({
-            addText: 'add name',
-            deleteText: 'remove'
-            prefix: 'alternate_name'
+        $(document).ready(function(){
+            $('tr.formset_row').formset({
+                addText: 'add name',
+                deleteText: 'remove',
+                prefix: 'alternate_name'
+            });
         });
     </script>
 {% endblock %}

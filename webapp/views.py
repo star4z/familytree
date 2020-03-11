@@ -16,13 +16,11 @@ def add_person(request):
         # if this is a POST request we need to process the form data
         name_form = AddNameForm(request.POST)
         person_form = AddPersonForm(request.POST)
-        alt_name_formset = AlternateNameFormSet(request.POST)
 
         # Tuple that contains validation status of each filled form
         form_validations = (
             person_form.is_valid(),
             name_form.is_valid(),
-            alt_name_formset.is_valid(),
         )
 
         # check whether it's valid:
@@ -38,10 +36,11 @@ def add_person(request):
             created_person.save()
 
             # Create Alternate Name for person
-            alt_names=alt_name_formset.save(commit=False)
-            for alt_name in alt_names:
-                alt_name.person_id = created_person.id
-                alt_name.save()
+            alt_name_formset = AlternateNameFormSet(request.POST, instance=created_person)
+            if alt_name_formset.is_valid():  
+                alt_names = alt_name_formset.save(commit=False)
+                for alt_name in alt_names:
+                    alt_name.save()
 
             # Check each location form's data and query for existing Location
             # instances.
@@ -135,11 +134,13 @@ def index(request):
 class PersonListView(LoginRequiredMixin, generic.ListView):
     model = Person
     paginate_by = 10
+    ordering = ['id']
 
 
 class PartnershipListView(LoginRequiredMixin, generic.ListView):
     model = Partnership
     paginate_by = 10
+    ordering = ['id']
 
 
 class PersonDetailView(LoginRequiredMixin, generic.DetailView):
