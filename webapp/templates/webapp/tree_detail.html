@@ -1,0 +1,10 @@
+{% extends "base_generic.html" %}
+
+{% block content %}
+    <h3 style = "display:inline">
+        {{ tree.title }}
+        [{{ tree.id }}]
+    </h3>
+    <p><strong>Tree Title:</strong> {{ tree.title }}</p>
+    <p><strong>Notes:</strong> {{ tree.notes }}</p>
+{% endblock %}
