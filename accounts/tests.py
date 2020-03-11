@@ -5,11 +5,11 @@ from accounts import views
 from accounts.tokens import account_activation_token
 
 
-class UserAuthTestCase(TestCase):
-    def test_create_user_and_send_email(self):
-        # create dummy form response
-        views.signup_view()
-        self.assertTrue()
+# class UserAuthTestCase(TestCase):
+#     def test_create_user_and_send_email(self):
+#         # create dummy form response
+#         views.signup_view()
+#         self.assertTrue()
 
 
 class TokensTestCase(TestCase):
