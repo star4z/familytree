@@ -2,7 +2,7 @@ from django import forms
 from django.forms import ModelForm
 from django.forms import modelformset_factory
 from django.forms import inlineformset_factory
-from webapp.models import Person, LegalName, Location, Partnership, AlternateName
+from webapp.models import Person, LegalName, Location, Partnership, AlternateName, Tree
 
 class AddNameForm(ModelForm):
     class Meta:
@@ -63,17 +63,10 @@ class AlternateNameForm(ModelForm):
 
 AlternateNameFormSet = inlineformset_factory(Person, AlternateName, form=AlternateNameForm, extra=1, can_delete=False)
 
-# Defines a Location form based on the Location model.
-# Includes every attribute.
-# Textfield sizes for 'city' and 'state' attributes set to 50 characters.
-class AddLocationForm(ModelForm):
+class AddTreeForm(ModelForm):
     class Meta:
-        model = Location
-        fields = '__all__'
-        widgets = {
-            'city': forms.TextInput(attrs={'size': '50'}),
-            'state': forms.TextInput(attrs={'size': '50'})
-        }
+        model = Tree
+        fields = ['title', 'notes']
 
 class AddPartnershipForm(ModelForm):
     class Meta:

@@ -17,8 +17,14 @@ class Tree(models.Model):
     authorized_users = models.ManyToManyField(User, related_name='authorized_users', blank=True)
     notes = models.TextField(blank=True)
 
+    '''
     def __str__(self):
-        return f'{self.title}'
+        return f'[{self.id}] {self.title}'
+    '''
+
+    def get_absolute_url(self):
+        # Returns the url to access a Tree instance
+        return reverse('tree_detail', args=[str(self.id)])
 
 
 class Name(models.Model):
@@ -76,7 +82,7 @@ class Person(models.Model):
         return f'[{self.id}] {self.legal_name.first_name} {self.legal_name.last_name}'
 
     def get_absolute_url(self):
-        """Returns the url to access a particular book instance."""
+        # Returns the url to access a Person instance
         return reverse('person_detail', args=[str(self.id)])
 
     def get_generation(self, offset=0):

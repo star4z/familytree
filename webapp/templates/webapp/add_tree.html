@@ -1,0 +1,15 @@
+{% extends "base_generic.html" %}
+{% load static %}
+
+{% block content %}
+    <div class="person-form">
+        <h1>Add Tree</h1>
+        <form action="" method="POST">
+            {% csrf_token %}
+            <table>
+                {{ tree_form.as_table }}
+            </table>
+            <input type="submit" value="Submit"/>
+        </form>
+    </div>
+{% endblock %}
