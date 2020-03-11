@@ -1,0 +1,16 @@
+{% extends "base_generic.html" %}
+
+{% block content %}
+    <h1>Tree List</h1>
+    {% if tree_list %}
+        <ul>
+            {% for tree in tree_list %}
+                <li>
+                    <a href="{{ tree.get_absolute_url }}">{{ tree.title }}</a>
+                </li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p>There are no trees in the library.</p>
+    {% endif %}
+{% endblock %}
