@@ -16,6 +16,8 @@ Including another URLconf
 from django.urls import path
 from . import views
 
+#Have to use tree_pk for some instead of pk to avoid overlapping names.
+#Should add a back button of some sort on Person detail to go back to Tree detail page.
 urlpatterns = [
     path('', views.index, name='index'),
     path('tree/', views.TreeListView.as_view(), name = 'tree'),

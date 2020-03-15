@@ -1,8 +1,7 @@
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.shortcuts import render
+from django.shortcuts import render, redirect, get_object_or_404
 from django.views import generic
-from django.shortcuts import redirect
 from django.http import HttpResponseRedirect
 from webapp.models import Person, Partnership, Location, LegalName, AlternateName, Tree
 from webapp.forms import AddPersonForm, AddNameForm, AddTreeForm, AddPartnershipForm, AlternateNameFormSet
@@ -112,10 +111,6 @@ def add_person(request, tree_pk):
 
     return render(request, 'webapp/add_person.html', context)
 
-# @login_required
-# def manage_person(request, person_id):
-#     person = Person.objects.get(pk=person_id)
-
 @login_required
 def add_partnership(request):
     partnership_form = AddPartnershipForm(request.POST)
@@ -166,6 +161,7 @@ class TreeListView(LoginRequiredMixin, generic.ListView):
     def get_queryset(self):
         return super(TreeListView, self).get_queryset().filter(creator=self.request.user)
 
+# Have not integrate the partnership yet.
 class PartnershipListView(LoginRequiredMixin, generic.ListView):
     model = Partnership
     paginate_by = 10
@@ -174,6 +170,7 @@ class PartnershipListView(LoginRequiredMixin, generic.ListView):
 class TreeDetailView(LoginRequiredMixin, generic.DetailView):
     model = Tree
 
+    # This is to get Person list under the specific tree to show. PersonListView class is replaced with this.
     def get_context_data(self, **kwargs):
         # Call the base implementation first to get a context
         context = super(TreeDetailView, self).get_context_data(**kwargs)
@@ -183,7 +180,15 @@ class TreeDetailView(LoginRequiredMixin, generic.DetailView):
 
     #Get Tree object only under the current user
     def get_queryset(self):
-        return super(TreeListView, self).get_queryset().filter(creator=self.request.user)
+        return super(TreeDetailView, self).get_queryset().filter(creator=self.request.user)
 
 class PersonDetailView(LoginRequiredMixin, generic.DetailView):
     model = Person
+
+    #Goal is to only be able to access person detail view from tree user, the current tree id, and current person
+    #This currently only gets you the current person under a specific tree but other users can access it on the url
+
+    # #have to queryset to tree user specific.
+    # def get_object(self, queryset=None):
+    #     get_tree = self.kwargs['tree_pk']
+    #     return get_object_or_404(Person, tree=get_tree, id=self.kwargs['pk'])
