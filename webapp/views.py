@@ -96,7 +96,7 @@ def add_person(request, tree_pk):
             created_person.save()
 
             # redirect to page containing new Person instance's details
-            return redirect('person_detail', pk=created_person.id)
+            return redirect('person_detail', pk=created_person.id, tree_pk=current_tree.id)
 
     # if a GET (or any other method) we'll create a blank form
     else:
@@ -136,14 +136,14 @@ def add_partnership(request):
 
 @login_required
 @require_POST
-def delete_person(request, person_pk, name_pk):
+def delete_person(request, tree_pk, person_pk, name_pk):
     person_obj = Person.objects.get(pk=person_pk)
     alt_name_list = person_obj.alternate_name.all()
     alt_name_list.delete()
     person_obj.delete()
     query = LegalName.objects.get(pk=name_pk)
     query.delete()
-    return redirect('person')
+    return redirect('tree_detail', pk=tree_pk)
 
 def index(request):
     # Generate counts of Tree, Person, and Partnership
@@ -166,20 +166,6 @@ class TreeListView(LoginRequiredMixin, generic.ListView):
     def get_queryset(self):
         return super(TreeListView, self).get_queryset().filter(creator=self.request.user)
 
-class PersonListView(LoginRequiredMixin, generic.ListView):
-    model = Person
-    paginate_by = 10
-    ordering = ['id']
-
-    #Get person object only under all trees from the current user
-    #Person needs to be inside TreeDetailView to get accurate tree pk
-    def get_queryset(self):
-        try:
-            trees = Tree.objects.get(creator=self.request.user, pk=1)
-        except Tree.DoesNotExist:
-            trees = None
-        return Person.objects.filter(tree=trees)
-
 class PartnershipListView(LoginRequiredMixin, generic.ListView):
     model = Partnership
     paginate_by = 10
@@ -188,9 +174,16 @@ class PartnershipListView(LoginRequiredMixin, generic.ListView):
 class TreeDetailView(LoginRequiredMixin, generic.DetailView):
     model = Tree
 
+    def get_context_data(self, **kwargs):
+        # Call the base implementation first to get a context
+        context = super(TreeDetailView, self).get_context_data(**kwargs)
+        # Add extra context from another model
+        context['person_list'] = Person.objects.filter(tree_id=self.kwargs['pk'])
+        return context
+
     #Get Tree object only under the current user
     def get_queryset(self):
-        return Tree.objects.filter(creator=self.request.user)
+        return super(TreeListView, self).get_queryset().filter(creator=self.request.user)
 
 class PersonDetailView(LoginRequiredMixin, generic.DetailView):
     model = Person

@@ -9,6 +9,6 @@
     <p><strong>Notes:</strong> {{ tree.notes }}</p>
 
     <!--Display the people list in the tree-->
-    
+    {% include "webapp/person_list.html" %}
     <a href="{% url 'add_person' tree.id %}">Add Person</a>
 {% endblock %}

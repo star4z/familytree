@@ -1,20 +1,16 @@
-{% extends "base_generic.html" %}
-
-{% block content %}
-    <h1>People List</h1>
-    {% if person_list %}
-        <ul>
-            {% for person in person_list %}
-                <li>
-                    <a href="{{ person.get_absolute_url }}">{{ person.legal_name }}</a>
-                    {% if person.birth_date %}
-                        ({{ person.birth_date.year }} - {{ person.death_date.year }})
-                    {% endif %}
-                    {% include "webapp/delete_confirmationbox.html" %}
-                </li>
-            {% endfor %}
-        </ul>
-    {% else %}
-        <p>There are no people in the library.</p>
-    {% endif %}
-{% endblock %}
+<h1>People List</h1>
+{% if person_list %}
+     <ul>
+        {% for person in person_list %}
+            <li>
+                <a href="{{ person.get_absolute_url }}">{{ person.legal_name }}</a>
+                {% if person.birth_date %}
+                    ({{ person.birth_date.year }} - {{ person.death_date.year }})
+                {% endif %}
+                {% include "webapp/delete_confirmationbox.html" %}
+            </li>
+        {% endfor %}
+    </ul>
+{% else %}
+    <p>There are no people in the library.</p>
+{% endif %}

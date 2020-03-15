@@ -83,7 +83,7 @@ class Person(models.Model):
 
     def get_absolute_url(self):
         # Returns the url to access a Person instance
-        return reverse('person_detail', args=[str(self.id)])
+        return reverse('person_detail', args=[str(self.tree.id), str(self.id)])
 
     def get_generation(self, offset=0):
         if offset < -1:
