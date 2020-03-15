@@ -14,7 +14,7 @@ def add_tree(request):
     if request.method == 'POST':
         tree_form = AddTreeForm(request.POST)
 
-        if (tree_form.is_valid()):
+        if tree_form.is_valid():
             created_tree = tree_form.save(commit=False)
             created_tree.save()
             
@@ -104,21 +104,19 @@ def add_person(request):
 
 @login_required
 def add_partnership(request):
-    partnership_form = AddPartnershipForm(request.POST)
-
-    context = {
-        'partnership_form': partnership_form
-    }
-
     if request.method == 'POST':
-        if partnership_form.is_valid():
-            created_location = partnership_form.save(commit=False)
-            created_location.save()
-            return redirect('index')
-        else:
-            form = AddLocationForm(request.POST)
+        partnership_form = AddPartnershipForm(request.POST)
 
-    return render(request, 'webapp/add_partnership.html', context)
+        if partnership_form.is_valid():
+            created_partnership = partnership_form.save(commit=False)
+            created_partnership.save()
+            
+            return redirect('index')
+    else:
+        partnership_form = AddPartnershipForm()
+
+    return render(request, 'webapp/add_partnership.html', 
+        {'partnership_form': partnership_form})
 
 @login_required
 @require_POST
