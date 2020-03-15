@@ -141,3 +141,7 @@ hr {
         width: 100%;
   }
 }
+
+#toast-box {
+    background-color: lightsteelblue;
+}
