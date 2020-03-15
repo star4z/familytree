@@ -12,8 +12,8 @@ from django.views.decorators.http import require_POST
 def add_tree(request):
     if request.method == 'POST':
         tree_form = AddTreeForm(request.POST)
-
-            current_user = request.user
+            
+        current_user = request.user
         if tree_form.is_valid():
             created_tree = tree_form.save(commit=False)
             created_tree.save()
@@ -95,7 +95,7 @@ def add_person(request, tree_pk):
             created_person.save()
 
             # redirect to page containing new Person instance's details
-            return redirect('person_detail', pk=created_person.id, tree_pk=current_tree.id)
+            return redirect('person_detail', pk=created_person.id)
 
     # if a GET (or any other method) we'll create a blank form
     else:
@@ -129,7 +129,7 @@ def add_partnership(request):
 
 @login_required
 @require_POST
-def delete_person(request, tree_pk, person_pk, name_pk):
+def delete_person(request, person_pk, name_pk, tree_pk):
     person_obj = Person.objects.get(pk=person_pk)
     alt_name_list = person_obj.alternate_name.all()
     alt_name_list.delete()
