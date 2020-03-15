@@ -7,4 +7,8 @@
     </h3>
     <p><strong>Tree Title:</strong> {{ tree.title }}</p>
     <p><strong>Notes:</strong> {{ tree.notes }}</p>
+
+    <!--Display the people list in the tree-->
+    
+    <a href="{% url 'add_person' tree.id %}">Add Person</a>
 {% endblock %}

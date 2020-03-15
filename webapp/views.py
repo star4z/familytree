@@ -15,7 +15,11 @@ def add_tree(request):
         tree_form = AddTreeForm(request.POST)
 
         if (tree_form.is_valid()):
+            current_user = request.user
             created_tree = tree_form.save(commit=False)
+            created_tree.save()
+
+            created_tree.creator = current_user
             created_tree.save()
             
             return redirect('tree_detail', pk=created_tree.id)
@@ -25,11 +29,13 @@ def add_tree(request):
     return render(request, 'webapp/add_tree.html', {'tree_form': tree_form})
 
 @login_required
-def add_person(request):
+def add_person(request, tree_pk):
     if request.method == 'POST':
         # if this is a POST request we need to process the form data
         name_form = AddNameForm(request.POST)
         person_form = AddPersonForm(request.POST)
+
+        current_tree = Tree.objects.get(pk=tree_pk)
 
         # Tuple that contains validation status of each filled form
         form_validations = (
@@ -40,12 +46,15 @@ def add_person(request):
         # check whether it's valid:
         if all(form_validations):
             # Create a Legal Name instance from name form's data
+
             created_legal_name = name_form.save(commit=False)
+            created_legal_name.tree = current_tree
             created_legal_name.save()
 
             # Create a Person instance from person form's data
             # Person instance's Legal Name attribute will be a foreign key
             created_person = person_form.save(commit=False)
+            created_person.tree = current_tree
             created_person.legal_name = created_legal_name
             created_person.save()
 
@@ -54,6 +63,7 @@ def add_person(request):
             if alt_name_formset.is_valid():  
                 alt_names = alt_name_formset.save(commit=False)
                 for alt_name in alt_names:
+                    alt_name.tree = current_tree
                     alt_name.save()
 
             # Check each location form's data and query for existing Location
@@ -102,6 +112,10 @@ def add_person(request):
 
     return render(request, 'webapp/add_person.html', context)
 
+# @login_required
+# def manage_person(request, person_id):
+#     person = Person.objects.get(pk=person_id)
+
 @login_required
 def add_partnership(request):
     partnership_form = AddPartnershipForm(request.POST)
@@ -146,11 +160,25 @@ def index(request):
 class TreeListView(LoginRequiredMixin, generic.ListView):
     model = Tree
     paginate_by = 10
+    ordering = ['id']
+
+    #Get Tree object only under the current user
+    def get_queryset(self):
+        return super(TreeListView, self).get_queryset().filter(creator=self.request.user)
 
 class PersonListView(LoginRequiredMixin, generic.ListView):
     model = Person
     paginate_by = 10
     ordering = ['id']
+
+    #Get person object only under all trees from the current user
+    #Person needs to be inside TreeDetailView to get accurate tree pk
+    def get_queryset(self):
+        try:
+            trees = Tree.objects.get(creator=self.request.user, pk=1)
+        except Tree.DoesNotExist:
+            trees = None
+        return Person.objects.filter(tree=trees)
 
 class PartnershipListView(LoginRequiredMixin, generic.ListView):
     model = Partnership
@@ -159,6 +187,10 @@ class PartnershipListView(LoginRequiredMixin, generic.ListView):
 
 class TreeDetailView(LoginRequiredMixin, generic.DetailView):
     model = Tree
+
+    #Get Tree object only under the current user
+    def get_queryset(self):
+        return Tree.objects.filter(creator=self.request.user)
 
 class PersonDetailView(LoginRequiredMixin, generic.DetailView):
     model = Person
