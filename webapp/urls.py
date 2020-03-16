@@ -18,7 +18,7 @@ from . import views
 
 urlpatterns = [
     path('', views.index, name='index'),
-    path('tree/', views.TreeListView.as_view(), name = 'tree'),
+    path('tree/', views.TreeListView.as_view(), name='tree'),
     path('person/', views.PersonListView.as_view(), name='person'),
     path('partnership/', views.PartnershipListView.as_view(), name='partnership'),
     path('tree/<int:pk>/', views.TreeDetailView.as_view(), name='tree_detail'),

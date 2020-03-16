@@ -1,3 +1,4 @@
+from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.shortcuts import render
@@ -9,6 +10,7 @@ from webapp.forms import AddPersonForm, AddNameForm, AddTreeForm, AddPartnership
 from django.views.generic.edit import CreateView
 from django.views.decorators.http import require_POST
 
+
 @login_required
 def add_tree(request):
     if request.method == 'POST':
@@ -17,12 +19,13 @@ def add_tree(request):
         if tree_form.is_valid():
             created_tree = tree_form.save(commit=False)
             created_tree.save()
-            
+
             return redirect('tree_detail', pk=created_tree.id)
     else:
         tree_form = AddTreeForm()
 
     return render(request, 'webapp/add_tree.html', {'tree_form': tree_form})
+
 
 @login_required
 def add_person(request):
@@ -51,7 +54,7 @@ def add_person(request):
 
             # Create Alternate Name for person
             alt_name_formset = AlternateNameFormSet(request.POST, instance=created_person)
-            if alt_name_formset.is_valid():  
+            if alt_name_formset.is_valid():
                 alt_names = alt_name_formset.save(commit=False)
                 for alt_name in alt_names:
                     alt_name.save()
@@ -102,6 +105,7 @@ def add_person(request):
 
     return render(request, 'webapp/add_person.html', context)
 
+
 @login_required
 def add_partnership(request):
     if request.method == 'POST':
@@ -118,6 +122,7 @@ def add_partnership(request):
     return render(request, 'webapp/add_partnership.html', 
         {'partnership_form': partnership_form})
 
+
 @login_required
 @require_POST
 def delete_person(request, person_pk, name_pk):
@@ -129,6 +134,12 @@ def delete_person(request, person_pk, name_pk):
     query.delete()
     return redirect('person')
 
+
+toast_messages = {
+    'logged_in': (messages.SUCCESS, 'Logged in successfully. Welcome to Family Tree')
+}
+
+
 def index(request):
     # Generate counts of Tree, Person, and Partnership
     num_tree = Tree.objects.all().count()
@@ -139,24 +150,34 @@ def index(request):
         'num_person': num_person,
         'num_partnerships': num_partnerships,
     }
+
+    message = request.GET.get('message')
+    if message and message in toast_messages:
+        messages.add_message(request, *toast_messages[message])
+
     return render(request, 'index.html', context=context)
+
 
 class TreeListView(LoginRequiredMixin, generic.ListView):
     model = Tree
     paginate_by = 10
+
 
 class PersonListView(LoginRequiredMixin, generic.ListView):
     model = Person
     paginate_by = 10
     ordering = ['id']
 
+
 class PartnershipListView(LoginRequiredMixin, generic.ListView):
     model = Partnership
     paginate_by = 10
     ordering = ['id']
 
+
 class TreeDetailView(LoginRequiredMixin, generic.DetailView):
     model = Tree
+
 
 class PersonDetailView(LoginRequiredMixin, generic.DetailView):
     model = Person
