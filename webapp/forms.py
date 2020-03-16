@@ -72,3 +72,7 @@ class AddPartnershipForm(ModelForm):
     class Meta:
         model = Partnership
         fields = '__all__'
+        widgets = {
+            'marriage_date': forms.DateInput(attrs={'type': 'date'}),
+            'divorce_date': forms.DateInput(attrs={'type': 'date'})
+        }
