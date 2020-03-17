@@ -1,8 +1,10 @@
 from django.contrib.auth import authenticate, login
 from django.contrib.auth.models import User
+from django.contrib.auth.views import PasswordChangeView
 from django.contrib.sites.shortcuts import get_current_site
 from django.shortcuts import redirect, render
 from django.template.loader import render_to_string
+from django.urls import reverse_lazy
 from django.utils.encoding import force_bytes
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 
@@ -54,3 +56,7 @@ def activate(request, uidb64, token):
         return redirect('/')
     else:
         return render(request, 'activation_invalid.html')
+
+
+class GoHomeAfterPasswordChange(PasswordChangeView):
+    success_url = '/webapp/?message=password_reset'
