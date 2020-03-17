@@ -136,7 +136,8 @@ def delete_person(request, person_pk, name_pk):
 
 
 toast_messages = {
-    'logged_in': (messages.SUCCESS, 'Logged in successfully. Welcome to Family Tree')
+    'logged_in': (messages.SUCCESS, 'Logged in successfully. Welcome to Family Tree'),
+    'password_reset': (messages.SUCCESS, 'Password reset successfully.'),
 }
 
 
