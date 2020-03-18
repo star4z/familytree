@@ -106,7 +106,7 @@ class Person(models.Model):
 
     def siblings(self):
         return Person.objects.filter(pk__in=Partnership.children.through.objects.filter(
-            partnership__in=Partnership.objects.filter(children=self)).values('person_id'))
+            partnership__in=Partnership.objects.filter(children=self)).values('person_id')).exclude(pk=self.pk)
 
     class IllegalAgeError(ValidationError):
         def __init__(self):
