@@ -184,3 +184,16 @@ class TreeDetailView(LoginRequiredMixin, generic.DetailView):
 
 class PersonDetailView(LoginRequiredMixin, generic.DetailView):
     model = Person
+
+
+def graph_person(request, pk):
+    person = Person.objects.get(pk=pk)
+    parents = person.get_generation(1)
+    children = person.get_generation(-1)
+
+    context = {
+        'parents': parents,
+        'person': person.gen_json(),
+        'children': children,
+    }
+    return render(request, 'webapp/person_graph.html', context)

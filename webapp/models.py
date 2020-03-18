@@ -199,6 +199,27 @@ class Person(models.Model):
             relationship_statuses.add(Partnership.MaritalStatus.SINGLE)
         return max(relationship_statuses)[1]
 
+    def gen_json(self):
+        if self.birth_date or self.death_date:
+            birth_date = self.birth_date.year or 'unknown'
+            death_date = 'present' if self.living else self.death_date or 'unknown'
+            years = f'({birth_date} - {death_date})'
+        else:
+            years = 'Unknown'
+        json = {
+            'name': str(self.legal_name),
+            'id': self.pk,
+            'partnerships': [
+                {
+                    'partners': list(partnership.partners().values('id')),
+                    'children': list(partnership.children.values('id')),
+                } for partnership in self.partnerships.all()
+            ],
+            'parents': None,
+            'years': years,
+        }
+        return str(json)
+
 
 class Partnership(models.Model):
     children = models.ManyToManyField(Person, related_name='children', blank=True)

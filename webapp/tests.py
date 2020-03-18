@@ -119,3 +119,7 @@ class PersonTestCase(TestCase):
             death_date = datetime.date(2000, 1, 1)
             instance = self.create_person('default', 'M', birth_date=birth_date, death_date=death_date)
             instance.clean()
+
+    def test_gen_json(self):
+        pass
+

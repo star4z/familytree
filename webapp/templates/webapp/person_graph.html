@@ -1,0 +1,12 @@
+{% extends 'base_generic.html' %}
+{% load static %}
+
+
+{% block content %}
+    <canvas id="person-graph" width="200" height="100"></canvas>
+{#    <script type="text/javascript">#}
+{##}
+{#    </script>#}
+    {{ person|json_script:"person" }}
+    <script type="text/javascript" src="{% static "/webapp/js/graph_person.js" %}"></script>
+{% endblock %}
