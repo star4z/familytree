@@ -96,13 +96,13 @@ class Person(models.Model):
         elif offset == 0:
             return self
         elif offset == 1:
-            return self.parents()
+            return Partnership.objects.filter(children=self)
         else:
             return Partnership.objects.filter(
                 children__in=Person.objects.filter(partnerships__in=self.get_generation(offset - 1)))
 
     def parents(self):
-        return Partnership.objects.filter(children=self)
+        return self.get_generation(1)
 
     def siblings(self):
         return Person.objects.filter(pk__in=Partnership.children.through.objects.filter(
