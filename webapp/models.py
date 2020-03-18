@@ -205,7 +205,7 @@ class Person(models.Model):
         else:
             years = 'Unknown'
         json = {
-            'name': str(self.legal_name),
+            'name': self.legal_name.first_name + ' ' + self.legal_name.last_name,
             'id': self.pk,
             'partnerships': [
                 {
@@ -216,7 +216,7 @@ class Person(models.Model):
             'parents': list(Person.objects.filter(partnerships__in=self.parents()).values('id')),
             'years': years,
         }
-        return str(json)
+        return json
 
 
 class Partnership(models.Model):

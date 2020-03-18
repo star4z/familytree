@@ -187,13 +187,18 @@ class PersonDetailView(LoginRequiredMixin, generic.DetailView):
 
 
 def graph_person(request, pk):
-    person = Person.objects.get(pk=pk)
-    parents = person.get_generation(1)
-    children = person.get_generation(-1)
+    person_json = Person.objects.get(pk=pk).gen_json()
+
+    ids = [person_json['id']]
+    for partnership in person_json['partnerships']:
+        ids += [partner['id'] for partner in partnership['partners']]
+        ids += [child['id'] for child in partnership['children']]
+    ids += [parent['id'] for parent in person_json['parents']]
+
+    persons = list(person.gen_json() for person in Person.objects.filter(pk__in=ids))
 
     context = {
-        'parents': parents,
-        'person': person.gen_json(),
-        'children': children,
+        'person_id': pk,
+        'persons': persons
     }
     return render(request, 'webapp/person_graph.html', context)

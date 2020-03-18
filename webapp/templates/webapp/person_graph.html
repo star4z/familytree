@@ -7,6 +7,7 @@
 {#    <script type="text/javascript">#}
 {##}
 {#    </script>#}
-    {{ person|json_script:"person" }}
+    {{ person_id|json_script:"person_id" }}
+    {{ persons|json_script:"persons" }}
     <script type="text/javascript" src="{% static "/webapp/js/graph_person.js" %}"></script>
 {% endblock %}

@@ -1,6 +1,8 @@
-person = JSON.parse(document.getElementById('person').textContent);
+person_id = JSON.parse(document.getElementById('person_id').textContent);
+persons = JSON.parse(document.getElementById('persons').textContent);
 
-console.log(person);
+console.log(person_id);
+console.log(persons);
 
 person_box = {"height": 30, width: 100};
 
