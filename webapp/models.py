@@ -87,10 +87,9 @@ class Person(models.Model):
 
     def get_generation(self, offset=0):
         if offset < -1:
-            return Person.objects.filter(
-                pk__in=Partnership.objects.filter(
-                    pk__in=self.get_generation(offset + 1).values('partnerships')
-                ).values('children'))
+            last_gen_partnership_ids = self.get_generation(offset + 1).values('partnerships')
+            last_gen_partnerships = Partnership.objects.filter(pk__in=last_gen_partnership_ids)
+            return Person.objects.filter(pk__in=last_gen_partnerships.values('children'))
         elif offset == -1:
             return Person.objects.filter(pk__in=self.partnerships.values('children'))
         elif offset == 0:
@@ -105,8 +104,10 @@ class Person(models.Model):
         return self.get_generation(1)
 
     def siblings(self):
-        return Person.objects.filter(pk__in=Partnership.children.through.objects.filter(
-            partnership__in=Partnership.objects.filter(children=self)).values('person_id')).exclude(pk=self.pk)
+        parents = Partnership.objects.filter(children=self)
+        # need ID's from intermediate model to filter Persons
+        parents_children_ids = Partnership.children.through.objects.filter(partnership__in=parents).values('person_id')
+        return Person.objects.filter(pk__in=parents_children_ids).exclude(pk=self.pk)
 
     class IllegalAgeError(ValidationError):
         def __init__(self):
