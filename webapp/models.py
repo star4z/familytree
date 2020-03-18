@@ -213,7 +213,7 @@ class Person(models.Model):
                     'children': list(partnership.children.values('id')),
                 } for partnership in self.partnerships.all()
             ],
-            'parents': None,
+            'parents': list(Person.objects.filter(partnerships__in=self.parents()).values('id')),
             'years': years,
         }
         return str(json)
