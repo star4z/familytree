@@ -87,29 +87,26 @@ class Person(models.Model):
 
     def get_generation(self, offset=0):
         if offset < -1:
-            generation = []
-            for person in self.get_generation(offset + 1):
-                for partnership in person.partnerships.all():
-                    generation += partnership.children.all()
-            return generation
+            return Person.objects.filter(
+                pk__in=Partnership.objects.filter(
+                    pk__in=self.get_generation(offset + 1).values('partnerships')
+                ).values('children'))
         elif offset == -1:
-            return [child for partnership in self.partnerships.all() for child in partnership.children.all()]
+            return Person.objects.filter(pk__in=self.partnerships.values('children'))
         elif offset == 0:
-            return [self]
+            return self
         elif offset == 1:
             return self.parents()
         else:
-            generation = []
-            for partnership in self.parents():
-                for partner in partnership.partners():
-                    generation += partner.get_generation(offset - 1)
-            return generation
+            return Partnership.objects.filter(
+                children__in=Person.objects.filter(partnerships__in=self.get_generation(offset - 1)))
 
     def parents(self):
-        return [partnership for partnership in Partnership.objects.filter(children=self)]
+        return Partnership.objects.filter(children=self)
 
     def siblings(self):
-        return [child for parents in self.parents() for child in parents.children.all() if child != self]
+        return Person.objects.filter(pk__in=Partnership.children.through.objects.filter(
+            partnership__in=Partnership.objects.filter(children=self)).values('person_id'))
 
     class IllegalAgeError(ValidationError):
         def __init__(self):
