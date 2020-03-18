@@ -24,7 +24,7 @@ jobs:
     - name: Clear MySQL installation
       run:  |
         sudo apt-get remove --purge mysql\*
-        sudo apt-get install mysql-server mysql-client
+        sudo apt-get install mysql-server mysql-client libmysqlclient-dev
     - name: Configure MySQL Database
       run : |
         sudo mysql -uroot -proot < script.sql
