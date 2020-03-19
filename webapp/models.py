@@ -209,7 +209,7 @@ class Person(models.Model):
             'id': self.pk,
             'partnerships': [
                 {
-                    'partners': list(partnership.partners().values('id')),
+                    'partners': list(partnership.partners().exclude(pk=self.pk).values('id')),
                     'children': list(partnership.children.values('id')),
                 } for partnership in self.partnerships.all()
             ],
