@@ -195,7 +195,7 @@ def graph_person(request, pk):
         ids += [child['id'] for child in partnership['children']]
     ids += [parent['id'] for parent in person_json['parents']]
 
-    persons = list(person.gen_json() for person in Person.objects.filter(pk__in=ids))
+    persons = {person.pk: person.gen_json() for person in Person.objects.filter(pk__in=ids)}
 
     context = {
         'person_id': pk,
