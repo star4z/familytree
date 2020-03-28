@@ -62,37 +62,37 @@ class PersonTestCase(TestCase):
         return partnership
 
     def test_get_parents(self):
-        parents = self.philip.parents()
+        parents = list(self.philip.parents())
         self.assertListEqual(self.gen1, parents)
 
     def test_get_gen_two(self):
-        generation = self.philip.get_generation(2)
+        generation = list(self.philip.get_generation(2))
         self.assertListEqual(self.gen2, generation)
 
     def test_get_gen_one(self):
-        generation = self.philip.get_generation(1)
+        generation = list(self.philip.get_generation(1))
         self.assertListEqual(self.gen1, generation)
 
     def test_get_gen_zero(self):
-        generation = self.philip.get_generation(0)
+        generation = [self.philip.get_generation(0)]
         self.assertListEqual(self.gen0, generation)
 
     def test_get_gen_neg_one(self):
-        generation = self.philip.get_generation(-1)
+        generation = list(self.philip.get_generation(-1))
         self.assertListEqual(self.genN1, generation)
 
     def test_get_gen_neg_two(self):
-        generation = self.philip.get_generation(-2)
+        generation = list(self.philip.get_generation(-2))
         self.assertListEqual(self.genN2, generation)
 
     def test_get_siblings(self):
         expected = [self.akira]
-        actual = self.colin.siblings()
+        actual = list(self.colin.siblings())
         self.assertListEqual(expected, actual)
 
     def test_get_siblings_empty_list(self):
         expected = []
-        actual = self.philip.siblings()
+        actual = list(self.philip.siblings())
         self.assertListEqual(expected, actual)
 
     def test_age_dead_with_death_date(self):

@@ -123,13 +123,13 @@ def add_partnership(request):
         if partnership_form.is_valid():
             created_partnership = partnership_form.save(commit=False)
             created_partnership.save()
-            
+
             return redirect('index')
     else:
         partnership_form = AddPartnershipForm()
 
-    return render(request, 'webapp/add_partnership.html', 
-        {'partnership_form': partnership_form})
+    return render(request, 'webapp/add_partnership.html',
+                  {'partnership_form': partnership_form})
 
 
 @login_required
@@ -145,7 +145,8 @@ def delete_person(request, person_pk, name_pk, tree_pk):
 
 
 toast_messages = {
-    'logged_in': (messages.SUCCESS, 'Logged in successfully. Welcome to Family Tree')
+    'logged_in': (messages.SUCCESS, 'Logged in successfully. Welcome to Family Tree'),
+    'password_reset': (messages.SUCCESS, 'Password reset successfully.'),
 }
 
 
@@ -163,6 +164,8 @@ def index(request):
     message = request.GET.get('message')
     if message and message in toast_messages:
         messages.add_message(request, *toast_messages[message])
+        # Redirect to remove message parameter from url
+        return redirect('/webapp/')
 
     return render(request, 'index.html', context=context)
 

@@ -87,29 +87,27 @@ class Person(models.Model):
 
     def get_generation(self, offset=0):
         if offset < -1:
-            generation = []
-            for person in self.get_generation(offset + 1):
-                for partnership in person.partnerships.all():
-                    generation += partnership.children.all()
-            return generation
+            last_gen_partnership_ids = self.get_generation(offset + 1).values('partnerships')
+            last_gen_partnerships = Partnership.objects.filter(pk__in=last_gen_partnership_ids)
+            return Person.objects.filter(pk__in=last_gen_partnerships.values('children'))
         elif offset == -1:
-            return [child for partnership in self.partnerships.all() for child in partnership.children.all()]
+            return Person.objects.filter(pk__in=self.partnerships.values('children'))
         elif offset == 0:
-            return [self]
+            return self
         elif offset == 1:
-            return self.parents()
+            return Partnership.objects.filter(children=self)
         else:
-            generation = []
-            for partnership in self.parents():
-                for partner in partnership.partners():
-                    generation += partner.get_generation(offset - 1)
-            return generation
+            return Partnership.objects.filter(
+                children__in=Person.objects.filter(partnerships__in=self.get_generation(offset - 1)))
 
     def parents(self):
-        return [partnership for partnership in Partnership.objects.filter(children=self)]
+        return self.get_generation(1)
 
     def siblings(self):
-        return [child for parents in self.parents() for child in parents.children.all() if child != self]
+        parents = Partnership.objects.filter(children=self)
+        # need ID's from intermediate model to filter Persons
+        parents_children_ids = Partnership.children.through.objects.filter(partnership__in=parents).values('person_id')
+        return Person.objects.filter(pk__in=parents_children_ids).exclude(pk=self.pk)
 
     class IllegalAgeError(ValidationError):
         def __init__(self):
