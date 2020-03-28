@@ -210,8 +210,9 @@ class PersonDetailView(LoginRequiredMixin, generic.DetailView):
     model = Person
 
     #Goal is to only be able to access person detail view from tree user, the current tree id, and current person
-    #This currently only gets you the current person under a specific tree but other users can access it on the url
+    #This only get the first tree each user created.
 
+    #Problem: Queryset Foreign Key of a Foreign Key
     # #have to queryset to tree user specific.
     # def get_object(self, queryset=None):
     #     get_tree = self.kwargs['tree_pk']
