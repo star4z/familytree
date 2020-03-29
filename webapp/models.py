@@ -207,15 +207,7 @@ class Person(models.Model):
         json = {
             'name': self.legal_name.first_name + ' ' + self.legal_name.last_name,
             'id': self.pk,
-            'partnerships': [
-                {
-                    'partners': list(
-                        partner['id'] for partner in partnership.partners().exclude(pk=self.pk).values('id')),
-                    'children': list(child['id'] for child in partnership.children.values('id')),
-                } for partnership in self.partnerships.all()
-            ],
-            'parents': list(
-                parent['id'] for parent in Person.objects.filter(partnerships__in=self.parents()).values('id')),
+            'partnerships': list(partnership['id'] for partnership in self.partnerships.values('id')),
             'years': years,
         }
         return json
@@ -262,6 +254,14 @@ class Partnership(models.Model):
         return Person.objects.exclude(pk=self.pk) \
             .filter(partnerships=self, death_date__isnull=False) \
             .aggregate(Max('death_date'))['death_date__max']
+
+    # def get_json(self):
+    #     json = {
+    #         'pk': self.pk,
+    #         'partners': PersonPartnership.objects.filter()
+    #     }
+    #
+    #     return json
 
 
 class PersonPartnership(models.Model):
