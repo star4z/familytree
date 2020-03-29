@@ -123,7 +123,7 @@ def add_person(request, tree_pk):
 @login_required
 def add_partnership(request):
     if request.method == 'POST':
-        partnership_form = AddPartnershipForm(request.POST)
+        partnership_form = AddPartnershipForm(request.POST, user=request.user)
 
         if partnership_form.is_valid():
             created_partnership = partnership_form.save(commit=False)
@@ -131,7 +131,7 @@ def add_partnership(request):
 
             return redirect('index')
     else:
-        partnership_form = AddPartnershipForm()
+        partnership_form = AddPartnershipForm(user=request.user)
 
     return render(request, 'webapp/add_partnership.html',
                   {'partnership_form': partnership_form})
@@ -182,7 +182,7 @@ class TreeListView(LoginRequiredMixin, generic.ListView):
 
     #Get Tree object only under the current user
     def get_queryset(self):
-        return super(TreeListView, self).get_queryset().filter(creator=self.request.user)
+        return super(TreeListView, self).get_queryset().filter(creator=self.request.user).select_related('creator')
 
 # Have not integrate the partnership yet.
 class PartnershipListView(LoginRequiredMixin, generic.ListView):
@@ -204,14 +204,14 @@ class TreeDetailView(LoginRequiredMixin, generic.DetailView):
 
     #Get Tree object only under the current user
     def get_queryset(self):
-        return super(TreeDetailView, self).get_queryset().filter(creator=self.request.user)
+        return super(TreeDetailView, self).get_queryset().filter(creator=self.request.user).select_related('creator')
 
 class PersonDetailView(LoginRequiredMixin, generic.DetailView):
     model = Person
 
     # Users can only access their own person_detail page they created
     def get_object(self):
-        trees = Tree.objects.filter(creator=self.request.user)
+        trees = Tree.objects.filter(creator=self.request.user).select_related('creator')
         get_person = get_object_or_404(Person, pk=self.kwargs['pk'])
         for tree in trees:
             get_tree = tree

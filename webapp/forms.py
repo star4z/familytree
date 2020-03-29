@@ -76,3 +76,10 @@ class AddPartnershipForm(ModelForm):
             'marriage_date': forms.DateInput(attrs={'type': 'date'}),
             'divorce_date': forms.DateInput(attrs={'type': 'date'})
         }
+
+    def __init__(self, user, *args, **kwargs):
+        super(AddPartnershipForm, self).__init__(*args, **kwargs)
+        trees = Tree.objects.all().filter(creator=user).select_related('creator')
+        self.fields['tree'].queryset = trees
+        tree_ids = [tree.id for tree in trees]
+        self.fields['children'].queryset = Person.objects.filter(tree__id__in=tree_ids)
