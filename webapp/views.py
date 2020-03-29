@@ -1,14 +1,15 @@
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.core import serializers
+from django.db.models import Q
+from django.shortcuts import redirect
 from django.shortcuts import render
 from django.views import generic
-from django.shortcuts import redirect
-from django.http import HttpResponseRedirect
-from webapp.models import Person, Partnership, Location, LegalName, AlternateName, Tree
-from webapp.forms import AddPersonForm, AddNameForm, AddTreeForm, AddPartnershipForm, AlternateNameFormSet
-from django.views.generic.edit import CreateView
 from django.views.decorators.http import require_POST
+
+from webapp.forms import AddPersonForm, AddNameForm, AddTreeForm, AddPartnershipForm, AlternateNameFormSet
+from webapp.models import Person, Partnership, Location, LegalName, Tree, PersonPartnership
 
 
 @login_required
@@ -187,18 +188,20 @@ class PersonDetailView(LoginRequiredMixin, generic.DetailView):
 
 
 def graph_person(request, pk):
-    person_json = Person.objects.get(pk=pk).gen_json()
+    person = Person.objects.get(pk=pk)
 
-    ids = [person_json['id']]
-    for partnership in person_json['partnerships']:
-        ids += partnership['partners']
-        ids += partnership['children']
-    ids += person_json['parents']
-
-    persons = {person.pk: person.gen_json() for person in Person.objects.filter(pk__in=ids)}
+    persons = Person.objects.filter(Q(partnerships__in=person.partnerships.all())
+                                    | Q(pk__in=person.partnerships.values('children'))
+                                    | Q(partnerships__in=person.parents()))
+    person_partnerships = PersonPartnership.objects.filter(person__in=persons)
+    partnerships = Partnership.objects.filter(pk__in=persons.values('partnerships'))
+    legal_names = LegalName.objects.filter(pk__in=persons.values('legal_name'))
 
     context = {
         'person_id': pk,
-        'persons': persons
+        'persons': serializers.serialize('json', persons),
+        'person_partnerships': serializers.serialize('json', person_partnerships),
+        'partnerships': serializers.serialize('json', partnerships),
+        'legal_names': serializers.serialize('json', legal_names),
     }
     return render(request, 'webapp/person_graph.html', context)
