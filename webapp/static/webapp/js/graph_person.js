@@ -8,6 +8,36 @@ box_padding = {vert: 10, horiz: 10};
 
 const sum = (a, b) => a + b;
 
+class Graph {
+    constructor(contents, ctx) {
+        this.contents = contents;
+        this.ctx = ctx;
+    }
+
+    graph() {
+        let y = 0;
+        for (let row of this.contents) {
+            let x = 0;
+            for (let i = 0; i < row.contents.length; i++) {
+                let item = row.contents[i];
+                item.graph(x, y, this.ctx);
+                x += item.full_width();
+
+                if (item instanceof Partnership && i + 1 < this.contents.length) {
+                    for (let child of item.children) {
+                        for (let next_item of this.contents[i + 1]) {
+                            if (next_item.equals()) {
+
+                            }
+                        }
+                    }
+                }
+            }
+            y += row.height();
+        }
+    }
+}
+
 /**
  * Contains an array of Items to be graphed at roughly the same y-value.
  */
@@ -20,7 +50,7 @@ class Row {
         return this.contents.map(item => item.full_width()).reduce(sum);
     };
 
-    height = function() {
+    height = function () {
         return Math.max(this.contents.map(item => item.full_height()));
     };
 }
@@ -53,6 +83,9 @@ class Item {
 
     graph(x, y, ctx) {
     }
+
+    equals(other_id) {
+    }
 }
 
 class Partnership extends Item {
@@ -78,6 +111,10 @@ class Partnership extends Item {
         ctx.lineTo(x + 2 * this.padding.left + this.padding.right + this.width, y + this.padding.top + this.height / 2);
         ctx.stroke();
     }
+
+    equals(other_id) {
+        return other_id in this.partners;
+    }
 }
 
 class Person extends Item {
@@ -89,6 +126,10 @@ class Person extends Item {
     graph(x, y, ctx) {
         ctx.fillRect(x + this.padding.left, y + this.padding.top, this.width, this.height);
     }
+
+    equals(other_id) {
+        return id === other_id;
+    }
 }
 
 let person_partners = [];
@@ -99,7 +140,12 @@ for (let partnership of person.partnerships) {
 }
 person_partners.push(person.id);
 
-rows = [
+canvas = document.getElementById("person-graph");
+ctx = canvas.getContext("2d");
+canvas.width = window.innerWidth;
+canvas.height = window.innerHeight;
+
+graph = new Graph([
     new Row([
         new Partnership(person.parents, [person.id]),
     ]),
@@ -109,19 +155,6 @@ rows = [
     new Row(
         children.map(child => new Person(child))
     ),
-];
+], ctx);
 
-canvas = document.getElementById("person-graph");
-ctx = canvas.getContext("2d");
-canvas.width = window.innerWidth;
-canvas.height = window.innerHeight;
 
-let y = 0;
-for (let row of rows) {
-    let x = 0;
-    for (item of row.contents) {
-        item.graph(x, y, ctx);
-        x += item.full_width();
-    }
-    y += row.height();
-}
