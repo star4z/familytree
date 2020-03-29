@@ -190,6 +190,11 @@ class PartnershipListView(LoginRequiredMixin, generic.ListView):
     paginate_by = 10
     ordering = ['id']
 
+    def get_queryset(self):
+        trees = Tree.objects.all().filter(creator=self.request.user).select_related('creator')
+        tree_ids = [tree.id for tree in trees]
+        return super(PartnershipListView, self).get_queryset().filter(tree__id__in=tree_ids)
+
 
 class TreeDetailView(LoginRequiredMixin, generic.DetailView):
     model = Tree
