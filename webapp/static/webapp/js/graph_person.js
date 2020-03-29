@@ -63,6 +63,38 @@ for (let m_person of Object.values(persons)) {
     }
 }
 
+for (let m_partnership of person.partnerships) {
+    for (let m_partner of m_partnership.partners) {
+        if (!(added_people.includes(m_partner.id))) {
+            data.nodes.push({
+                id: m_partner.toString(),
+                x: 100,
+                y: 0
+            }, {
+                id: person.id.toString() + "+" + m_partner.toString(),
+                x: 50,
+                y: 0
+            });
+            data.edges.push({
+                source: person.id.toString(),
+                target: person.id.toString() + "+" + m_partner.toString()
+            },{
+                source: m_partner.toString(),
+                target: person.id.toString() + "+" + m_partner.toString()
+            });
+            added_people.push(m_partner);
+        }
+    }
+    for (let m_child of m_partnership.children) {
+        if (!(added_people.includes(m_child))) {
+            data.nodes.push({
+
+            })
+            added_people.push(m_child);
+        }
+    }
+}
+
 let minX = 0;
 let minY = 0;
 //Find minX and minY
