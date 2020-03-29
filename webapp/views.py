@@ -123,7 +123,7 @@ def add_person(request, tree_pk):
 @login_required
 def add_partnership(request):
     if request.method == 'POST':
-        partnership_form = AddPartnershipForm(request.POST, user=request.user)
+        partnership_form = AddPartnershipForm(data=request.POST, user=request.user)
 
         if partnership_form.is_valid():
             created_partnership = partnership_form.save(commit=False)
