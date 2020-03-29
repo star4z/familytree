@@ -191,9 +191,9 @@ def graph_person(request, pk):
 
     ids = [person_json['id']]
     for partnership in person_json['partnerships']:
-        ids += [partner['id'] for partner in partnership['partners']]
-        ids += [child['id'] for child in partnership['children']]
-    ids += [parent['id'] for parent in person_json['parents']]
+        ids += partnership['partners']
+        ids += partnership['children']
+    ids += person_json['parents']
 
     persons = {person.pk: person.gen_json() for person in Person.objects.filter(pk__in=ids)}
 

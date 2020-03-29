@@ -209,11 +209,13 @@ class Person(models.Model):
             'id': self.pk,
             'partnerships': [
                 {
-                    'partners': list(partnership.partners().exclude(pk=self.pk).values('id')),
-                    'children': list(partnership.children.values('id')),
+                    'partners': list(
+                        partner['id'] for partner in partnership.partners().exclude(pk=self.pk).values('id')),
+                    'children': list(child['id'] for child in partnership.children.values('id')),
                 } for partnership in self.partnerships.all()
             ],
-            'parents': list(Person.objects.filter(partnerships__in=self.parents()).values('id')),
+            'parents': list(
+                parent['id'] for parent in Person.objects.filter(partnerships__in=self.parents()).values('id')),
             'years': years,
         }
         return json
