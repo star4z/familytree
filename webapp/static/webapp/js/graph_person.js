@@ -38,6 +38,10 @@ function prettyPrintName(name) {
     return name.fields.first_name + " " + name.fields.last_name
 }
 
+function getPrettyName(person) {
+    return prettyPrintName(getName(person));
+}
+
 function getPartnership(pk) {
     for (let partnership of partnerships) {
         if (partnership.pk === pk) {
@@ -112,12 +116,14 @@ function getNode(id) {
 data.nodes.push({
     id: personId(person),
     x: 0,
-    y: 0
+    y: 0,
+    label: getPrettyName(person),
 });
 
 added_people = [person_id];
 
 for (let m_person of persons) {
+    console.log(added_people.toString());
     if (!(added_people.includes(m_person.pk))) {
         for (let m_partnership of getPartnerships(m_person)) {
             if (m_partnership.fields.children.includes(person.pk)) {
@@ -125,7 +131,8 @@ for (let m_person of persons) {
                 data.nodes.push({
                         id: personId(m_person),
                         x: -50,
-                        y: -50
+                        y: -50,
+                        label: getPrettyName(m_person)
                     },
                     {
                         id: partnershipId(m_partnership),
@@ -143,19 +150,22 @@ for (let m_person of persons) {
                         target: partnershipId(m_partnership)
                     }
                 );
-                let m_partners = getPartners(m_partnership);
+                let m_partners = getPartners(m_partnership).exclude(m_person.pk);
+                console.log(m_partners);
                 if (m_partners.length !== 0) {
                     let m_partner = m_partners[0];
+                    added_people.push(m_partner.pk);
+
                     data.nodes.push({
                         id: personId(m_partner),
                         x: 50,
-                        y: -50
+                        y: -50,
+                        label: getPrettyName(m_partner)
                     });
                     data.edges.push({
                         source: personId(m_partner),
                         target: partnershipId(m_partnership)
                     });
-                    added_people.push(m_partner);
                 }
             }
         }
@@ -168,7 +178,8 @@ for (let m_partnership of getPartnerships(person)) {
             data.nodes.push({
                 id: personId(m_partner),
                 x: 100,
-                y: 0
+                y: 0,
+                label: getPrettyName(m_partner)
             }, {
                 id: partnershipId(m_partnership),
                 x: 50,
@@ -181,7 +192,7 @@ for (let m_partnership of getPartnerships(person)) {
                 source: personId(m_partner),
                 target: partnershipId(m_partnership)
             });
-            added_people.push(m_partner);
+            added_people.push(m_partner.pk);
         }
     }
     let n = m_partnership.fields.children.length;
@@ -194,7 +205,8 @@ for (let m_partnership of getPartnerships(person)) {
                 data.nodes.push({
                     id: personId(m_child),
                     x: xi,
-                    y: 50
+                    y: 50,
+                    label: getPrettyName(m_child)
                 }, {
                     id: childId(m_child),
                     x: xi,
@@ -210,7 +222,7 @@ for (let m_partnership of getPartnerships(person)) {
                         target: childId(getPerson(m_partnership.fields.children[i - 1]))
                     })
                 }
-                added_people.push(m_child);
+                added_people.push(m_child.pk);
             }
         }
         data.nodes.push({
