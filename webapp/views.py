@@ -9,6 +9,7 @@ from django.views import generic
 from django.views.decorators.http import require_POST
 
 from webapp.forms import AddPersonForm, AddNameForm, AddTreeForm, AddPartnershipForm, AlternateNameFormSet
+from webapp.graph import Graph
 from webapp.models import Person, Partnership, Location, LegalName, Tree, PersonPartnership
 
 
@@ -190,18 +191,11 @@ class PersonDetailView(LoginRequiredMixin, generic.DetailView):
 def graph_person(request, pk):
     person = Person.objects.get(pk=pk)
 
-    persons = Person.objects.filter(Q(partnerships__in=person.partnerships.all())
-                                    | Q(pk__in=person.partnerships.values('children'))
-                                    | Q(partnerships__in=person.parents()))
-    person_partnerships = PersonPartnership.objects.filter(person__in=persons)
-    partnerships = Partnership.objects.filter(pk__in=persons.values('partnerships'))
-    legal_names = LegalName.objects.filter(pk__in=persons.values('legal_name'))
+    graph = Graph()
+
+    graph.add_person(person, 100, 100)
 
     context = {
-        'person_id': pk,
-        'persons': serializers.serialize('json', persons),
-        'person_partnerships': serializers.serialize('json', person_partnerships),
-        'partnerships': serializers.serialize('json', partnerships),
-        'legal_names': serializers.serialize('json', legal_names),
+        'data': graph.to_json()
     }
     return render(request, 'webapp/person_graph.html', context)

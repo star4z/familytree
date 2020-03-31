@@ -5,11 +5,7 @@
 {% block content %}
     <canvas id="person-graph" width="200" height="100"></canvas>
     {# Insert values from project for reference in scripts #}
-    {{ person_id|json_script:"person_id" }}
-    {{ persons|json_script:"persons" }}
-    {{ person_partnerships|json_script:"person_partnerships" }}
-    {{ partnerships|json_script:"partnerships" }}
-    {{ legal_names|json_script:"legal_names" }}
+    {{ data|json_script:"data" }}
     <script src="https://gw.alipayobjects.com/os/antv/pkg/_antv.g6-3.3.1/dist/g6.min.js"></script>
     <!-- Container must be declared before script creating g6 graph -->
     <div id="family-graph"></div>
