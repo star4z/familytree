@@ -52,27 +52,36 @@ class Graph:
             self.add_edge(self.gen_id(partners[1]), self.gen_id(partnership))
         # TODO: add logic for other numbers of partners
 
-    def add_parents(self, person, x=None, y=None):
-        # default x and y to coordinates of the node matching person
-        x = x or self.get_node(person).x
-        y = y or self.get_node(person).y
+    def add_parents(self, person, x=None, y=None, depth=1):
+        if depth > 0:
+            # default x and y to coordinates of the node matching person
+            person_node = self.get_node(person)
+            x = x or person_node.x
+            y = y or person_node.y
 
-        parents = person.parents()[0]
-        self.add_partnership(parents, x, y - self.padding)
-        self.add_edge(self.gen_id(parents), self.gen_id(person))
+            # TODO: add support for multiple partnerships
+            parents = person.parents()[0]
+            self.add_partnership(parents, x, y - self.padding)
+            self.add_edge(self.gen_id(parents), self.gen_id(person))
 
-    def add_children(self, partnership, x=None, y=None):
-        # default x and y to coordinates of the node matching partnership
-        x = x or self.get_node(partnership).x
-        y = y or self.get_node(partnership).y
+            # TODO: add support for >2 partners
+            for parent in parents.partners()[:2]:
+                if parent.parents():
+                    self.add_parents(parent, depth=depth - 1)
 
-        children = list(partnership.children.all())
-        n = len(children)
-        for i in range(n):
-            child = children[i]
-            xi = -self.padding / 2 * (n - 1) + self.padding * i + x
-            self.add_person(child, xi, y + self.padding)
-            self.add_edge(self.gen_id(partnership), self.gen_id(child))
+    def add_children(self, partnership, x=None, y=None, depth=1):
+        if depth > 0:
+            # default x and y to coordinates of the node matching partnership
+            x = x or self.get_node(partnership).x
+            y = y or self.get_node(partnership).y
+
+            children = list(partnership.children.all())
+            n = len(children)
+            for i in range(n):
+                child = children[i]
+                xi = -self.padding / 2 * (n - 1) + self.padding * i + x
+                self.add_person(child, xi, y + self.padding)
+                self.add_edge(self.gen_id(partnership), self.gen_id(child))
 
     def normalize(self, extra_padding=0):
         min_x = min(node.x for node in self.nodes)

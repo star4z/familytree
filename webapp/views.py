@@ -204,7 +204,7 @@ def graph_person(request, pk):
         graph.add_person(person, 0, 0)
 
     if person.parents():
-        graph.add_parents(person)
+        graph.add_parents(person, depth=2)
 
     graph.normalize(extra_padding=50)
 
