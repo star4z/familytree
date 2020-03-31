@@ -209,6 +209,7 @@ def graph_person(request, pk):
     graph.normalize(extra_padding=50)
 
     context = {
+        'person': person,
         'data': graph.to_dict()
     }
     return render(request, 'webapp/person_graph.html', context)
