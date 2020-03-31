@@ -9,7 +9,7 @@ from django.views import generic
 from django.views.decorators.http import require_POST
 
 from webapp.forms import AddPersonForm, AddNameForm, AddTreeForm, AddPartnershipForm, AlternateNameFormSet
-from webapp.graph import Graph
+from webapp.graphs import Graph
 from webapp.models import Person, Partnership, Location, LegalName, Tree, PersonPartnership
 
 
