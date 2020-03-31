@@ -1,4 +1,7 @@
 class Graph:
+    """
+    For use with antv/G6; see https://g6.antv.vision/en
+    """
     padding = 50
 
     def __init__(self):
@@ -47,7 +50,7 @@ class Graph:
         self.edges.append(self.Edge(source, target))
 
     def add_partnership(self, partnership, x, y):
-        self.add_node(self.Node(self.gen_id(partnership), x, y))
+        self.add_node(self.Node(self.gen_id(partnership), x, y, size=1))
         partners = partnership.partners()
         if len(partners) == 2:
             self.add_person(partners[0], x - self.padding, y)
