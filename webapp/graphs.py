@@ -7,20 +7,24 @@ class Graph:
         self.edges = []
 
     class Node:
-        def __init__(self, id_, x=None, y=None, label=None):
+        def __init__(self, id_, x=None, y=None, label=None, **kwargs):
             self.id = id_
             self.x = x
             self.y = y
             self.label = label
+            for kwarg in kwargs:
+                setattr(self, kwarg, kwargs[kwarg])
 
         def __eq__(self, other):
             return self.id == other.id
 
     class Edge:
-        def __init__(self, source, target, label=None):
+        def __init__(self, source, target, label=None, **kwargs):
             self.source = source
             self.target = target
             self.label = label
+            for kwarg in kwargs:
+                setattr(self, kwarg, kwargs[kwarg])
 
     @staticmethod
     def gen_id(model_object):
