@@ -195,11 +195,16 @@ def graph_person(request, pk):
 
     partnerships = person.partnerships.all()
     if partnerships:
-        graph.add_partnership(partnerships[0], 50, 0)
+        # TODO: add option to graph multiple partnerships
+        for partnership in partnerships[:1]:
+            graph.add_partnership(partnership, 50, 0)
+            if list(partnership.children.all()):
+                graph.add_children(partnership)
     else:
         graph.add_person(person, 0, 0)
-    person_node = graph.get_node(person)
-    graph.add_parents(person, person_node.x, person_node.y)
+
+    if person.parents():
+        graph.add_parents(person)
 
     graph.normalize(extra_padding=50)
 
