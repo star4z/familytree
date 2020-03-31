@@ -1,15 +1,20 @@
 class Graph:
+    padding = 50
+
     def __init__(self):
         self.added_people = []
         self.nodes = []
         self.edges = []
 
     class Node:
-        def __init__(self, pk, x=None, y=None, label=None):
-            self.id = pk
+        def __init__(self, id_, x=None, y=None, label=None):
+            self.id = id_
             self.x = x
             self.y = y
             self.label = label
+
+        def __eq__(self, other):
+            return self.id == other.id
 
     class Edge:
         def __init__(self, source, target, label=None):
@@ -21,13 +26,46 @@ class Graph:
     def gen_id(model_object):
         return f'{type(model_object).__name__}_{model_object.pk}'
 
+    def get_node(self, model_object):
+        return next(node for node in self.nodes if node.id == self.gen_id(model_object))
+
+    def add_node(self, node):
+        if node not in self.nodes:
+            self.nodes.append(node)
+        else:
+            raise Warning("Tried to add duplicate node")
+
     def add_person(self, person, x, y):
-        self.nodes.append(self.Node(self.gen_id(person), x, y, str(person)))
+        self.add_node(self.Node(self.gen_id(person), x, y, str(person)))
+        self.added_people.append(person)
+
+    def add_edge(self, source, target):
+        self.edges.append(self.Edge(source, target))
 
     def add_partnership(self, partnership, x, y):
-        pass
+        self.add_node(self.Node(self.gen_id(partnership), x, y))
+        partners = partnership.partners()
+        if len(partners) == 2:
+            self.add_person(partners[0], x - self.padding, y)
+            self.add_person(partners[1], x + self.padding, y)
+            self.add_edge(self.gen_id(partners[0]), self.gen_id(partnership))
+            self.add_edge(self.gen_id(partners[1]), self.gen_id(partnership))
+        # TODO: add logic for other numbers of partners
 
-    def to_json(self):
+    def add_parents(self, person, x, y):
+        parents = person.parents()[0]
+        self.add_partnership(parents, x, y - self.padding)
+        self.add_edge(self.gen_id(parents), self.gen_id(person))
+
+    def normalize(self, extra_padding=0):
+        min_x = min(node.x for node in self.nodes)
+        min_y = min(node.y for node in self.nodes)
+        for node in self.nodes:
+            node.x += extra_padding - min_x
+            node.y += extra_padding - min_y
+        return self
+
+    def to_dict(self):
         return {
             'nodes': [vars(node) for node in self.nodes],
             'edges': [vars(edge) for edge in self.edges]

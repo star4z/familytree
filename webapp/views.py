@@ -193,9 +193,17 @@ def graph_person(request, pk):
 
     graph = Graph()
 
-    graph.add_person(person, 100, 100)
+    partnerships = person.partnerships.all()
+    if partnerships:
+        graph.add_partnership(partnerships[0], 50, 0)
+    else:
+        graph.add_person(person, 0, 0)
+    person_node = graph.get_node(person)
+    graph.add_parents(person, person_node.x, person_node.y)
+
+    graph.normalize(extra_padding=50)
 
     context = {
-        'data': graph.to_json()
+        'data': graph.to_dict()
     }
     return render(request, 'webapp/person_graph.html', context)
