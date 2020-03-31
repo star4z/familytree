@@ -113,129 +113,162 @@ function getNode(id) {
     }
 }
 
-data.nodes.push({
-    id: personId(person),
-    x: 0,
-    y: 0,
-    label: getPrettyName(person),
-});
 
-added_people = [person_id];
+let added_people = [];
 
-for (let m_person of persons) {
-    console.log(added_people.toString());
-    if (!(added_people.includes(m_person.pk))) {
-        for (let m_partnership of getPartnerships(m_person)) {
-            if (m_partnership.fields.children.includes(person.pk)) {
-                added_people.push(m_person.pk);
-                data.nodes.push({
-                        id: personId(m_person),
-                        x: -50,
-                        y: -50,
-                        label: getPrettyName(m_person)
-                    },
-                    {
-                        id: partnershipId(m_partnership),
-                        x: 0,
-                        y: -50
-                    }
-                );
-                data.edges.push(
-                    {
-                        source: personId(person),
-                        target: partnershipId(m_partnership),
-                    },
-                    {
-                        source: personId(m_person),
-                        target: partnershipId(m_partnership)
-                    }
-                );
-                let m_partners = getPartners(m_partnership).exclude(m_person.pk);
-                console.log(m_partners);
-                if (m_partners.length !== 0) {
-                    let m_partner = m_partners[0];
-                    added_people.push(m_partner.pk);
 
-                    data.nodes.push({
-                        id: personId(m_partner),
-                        x: 50,
-                        y: -50,
-                        label: getPrettyName(m_partner)
-                    });
-                    data.edges.push({
-                        source: personId(m_partner),
-                        target: partnershipId(m_partnership)
-                    });
-                }
-            }
+function addPerson(person, x, y) {
+    let node = {
+        id: personId(person),
+        x: x,
+        y: y,
+        label: getPrettyName(person)
+    };
+    data.nodes.push(node);
+    added_people.push(person.pk);
+    return node;
+}
+
+function addPartnership(partnership, x, y) {
+    data.nodes.push({
+        id: partnershipId(partnership),
+        x: x,
+        y: y,
+    });
+    let partners = getPartners(partnership);
+    if (partners.length === 2) {
+        addPerson(partners[0], x - 50);
+        addPerson(partners[1], x + 50);
+    } else {
+        console.log("Found a partnership with " + partners.length + " partners, implementation not ready yet")
+    }
+}
+
+function graphParents(person) {
+    let person_node = getNode(person.pk);
+    for (let partnership of partnerships) {
+        if (partnership.fields.children.includes(person)) {
+            addPartnership(partnership, person_node.x, person_node.y - 50);
         }
     }
 }
 
-for (let m_partnership of getPartnerships(person)) {
-    for (let m_partner of getPartners(m_partnership)) {
-        if (!(added_people.includes(m_partner.pk))) {
-            data.nodes.push({
-                id: personId(m_partner),
-                x: 100,
-                y: 0,
-                label: getPrettyName(m_partner)
-            }, {
-                id: partnershipId(m_partnership),
-                x: 50,
-                y: 0
-            });
-            data.edges.push({
-                source: personId(person),
-                target: partnershipId(m_partnership)
-            }, {
-                source: personId(m_partner),
-                target: partnershipId(m_partnership)
-            });
-            added_people.push(m_partner.pk);
-        }
-    }
-    let n = m_partnership.fields.children.length;
-    let offset = getNode(partnershipId(m_partnership)).x;
-    if (n > 0) {
-        for (let i = 0; i < n; i++) {
-            let m_child = getPerson(m_partnership.fields.children[i]);
-            if (!(added_people.includes(m_child))) {
-                let xi = -25 * (n - 1) + 50 * i + offset;
-                data.nodes.push({
-                    id: personId(m_child),
-                    x: xi,
-                    y: 50,
-                    label: getPrettyName(m_child)
-                }, {
-                    id: childId(m_child),
-                    x: xi,
-                    y: 25
-                });
-                data.edges.push({
-                    source: childId(m_child),
-                    target: personId(m_child)
-                });
-                if (i > 0) {
-                    data.edges.push({
-                        source: childId(m_child),
-                        target: childId(getPerson(m_partnership.fields.children[i - 1]))
-                    })
-                }
-                added_people.push(m_child.pk);
-            }
-        }
-        data.nodes.push({
-            id: midPointId(m_partnership),
-            x: offset,
-            y: 25
-        });
-        data.edges.push({
-            source: partnershipId(m_partnership),
-            target: midPointId(m_partnership)
-        });
-    }
-}
+
+addPerson(person, 0, 0);
+graphParents(person);
+
+// for (let m_person of persons) {
+//     if (!(added_people.includes(m_person.pk))) {
+//         for (let m_partnership of getPartnerships(m_person)) {
+//             if (m_partnership.fields.children.includes(person.pk)) {
+//                 added_people.push(m_person.pk);
+//                 data.nodes.push({
+//                         id: personId(m_person),
+//                         x: person_node.x + -50,
+//                         y: person_node.y + -50,
+//                         label: getPrettyName(m_person)
+//                     },
+//                     {
+//                         id: partnershipId(m_partnership),
+//                         x: person_node.x,
+//                         y: person_node.y + -50
+//                     }
+//                 );
+//                 data.edges.push(
+//                     {
+//                         source: personId(person),
+//                         target: partnershipId(m_partnership),
+//                     },
+//                     {
+//                         source: personId(m_person),
+//                         target: partnershipId(m_partnership)
+//                     }
+//                 );
+//                 let m_partners = getPartners(m_partnership).exclude(m_person.pk);
+//                 if (m_partners.length !== 0) {
+//                     let m_partner = m_partners[0];
+//                     added_people.push(m_partner.pk);
+//
+//                     data.nodes.push({
+//                         id: personId(m_partner),
+//                         x: person_node.x + 50,
+//                         y: person_node.y + -50,
+//                         label: getPrettyName(m_partner)
+//                     });
+//                     data.edges.push({
+//                         source: personId(m_partner),
+//                         target: partnershipId(m_partnership)
+//                     });
+//                 }
+//             }
+//         }
+//     }
+// }
+//
+// for (let m_partnership of getPartnerships(person)) {
+//     for (let m_partner of getPartners(m_partnership)) {
+//         if (!(added_people.includes(m_partner.pk))) {
+//             data.nodes.push({
+//                 id: personId(m_partner),
+//                 x: person_node.x + 100,
+//                 y: person_node.y,
+//                 label: getPrettyName(m_partner)
+//             }, {
+//                 id: partnershipId(m_partnership),
+//                 x: person_node.x + 50,
+//                 y: person_node.y
+//             });
+//             data.edges.push({
+//                 source: personId(person),
+//                 target: partnershipId(m_partnership)
+//             }, {
+//                 source: personId(m_partner),
+//                 target: partnershipId(m_partnership)
+//             });
+//             added_people.push(m_partner.pk);
+//         }
+//     }
+//     let n = m_partnership.fields.children.length;
+//     let offset = getNode(partnershipId(m_partnership)).x;
+//     if (n > 0) {
+//         for (let i = 0; i < n; i++) {
+//             let m_child = getPerson(m_partnership.fields.children[i]);
+//             if (!(added_people.includes(m_child))) {
+//                 let xi = -25 * (n - 1) + 50 * i + offset;
+//                 data.nodes.push({
+//                     id: personId(m_child),
+//                     x: xi,
+//                     y: person_node.y + 50,
+//                     label: getPrettyName(m_child)
+//                 }, {
+//                     id: childId(m_child),
+//                     x: xi,
+//                     y: person_node.y + 25
+//                 });
+//                 data.edges.push({
+//                     source: childId(m_child),
+//                     target: personId(m_child)
+//                 });
+//                 if (i > 0) {
+//                     data.edges.push({
+//                         source: childId(m_child),
+//                         target: childId(getPerson(m_partnership.fields.children[i - 1]))
+//                     })
+//                 }
+//                 added_people.push(m_child.pk);
+//             }
+//         }
+//         data.nodes.push({
+//             id: midPointId(m_partnership),
+//             x: offset,
+//             y: person_node.y + 25
+//         });
+//         data.edges.push({
+//             source: partnershipId(m_partnership),
+//             target: midPointId(m_partnership)
+//         });
+//     }
+// }
 
 let minX = 0;
 let minY = 0;
