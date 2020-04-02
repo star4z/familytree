@@ -1,3 +1,6 @@
+from webapp.models import Person
+
+
 class Graph:
     """
     For use with antv/G6; see https://g6.antv.vision/en
@@ -40,7 +43,7 @@ class Graph:
         if node not in self.nodes:
             self.nodes.append(node)
         else:
-            raise Warning("Tried to add duplicate node")
+            raise ValueError("Tried to add duplicate node")
 
     def add_person(self, person, x, y):
         self.add_node(self.Node(self.gen_id(person), x, y, str(person)))
@@ -84,10 +87,18 @@ class Graph:
 
             children = list(partnership.children.all())
             n = len(children)
+            extra = 0
             for i in range(n):
-                child = children[i]
-                xi = -self.padding / 2 * (n - 1) + self.padding * i + x
-                self.add_person(child, xi, y + self.padding)
+                child: Person = children[i]
+                xi = -self.padding / 2 * (n - 1) + self.padding * i + x + extra
+                if child.partnerships.exists():
+                    px = xi + self.padding
+                    child_partnership = next(iter(child.partnerships.all()))
+                    self.add_partnership(child_partnership, px, y + self.padding)
+                    extra += self.padding * 2
+                    self.add_children(child_partnership, depth=depth - 1)
+                else:
+                    self.add_person(child, xi, y + self.padding)
                 self.add_edge(self.gen_id(partnership), self.gen_id(child))
 
     def normalize(self, extra_padding=0):

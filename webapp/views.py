@@ -198,8 +198,8 @@ def graph_person(request, pk):
         # TODO: add option to graph multiple partnerships
         for partnership in partnerships[:1]:
             graph.add_partnership(partnership, 50, 0)
-            if list(partnership.children.all()):
-                graph.add_children(partnership)
+            if partnership.children.exists():
+                graph.add_children(partnership, depth=2)
     else:
         graph.add_person(person, 0, 0)
 
