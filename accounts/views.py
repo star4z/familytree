@@ -45,12 +45,9 @@ def activate(request, uidb64, token):
         user = User.objects.get(pk=uid)
     except (TypeError, ValueError, OverflowError, User.DoesNotExist):
         user = None
-    # checking if the user exists, if the token is valid.
+    # check that the user exists and the token is valid
     if user is not None and account_activation_token.check_token(user, token):
-        # if valid set active true
         user.is_active = True
-        # set signup_confirmation true
-        # user.profile.signup_confirmation = True
         user.save()
         login(request, user)
         return redirect('/webapp/?message=activation_success')
