@@ -227,9 +227,8 @@ class PartnershipListView(LoginRequiredMixin, generic.ListView):
     ordering = ['id']
 
     def get_queryset(self):
-        trees = Tree.objects.all().filter(creator=self.request.user).select_related('creator')
-        tree_ids = [tree.id for tree in trees]
-        return super(PartnershipListView, self).get_queryset().filter(tree__id__in=tree_ids)
+        trees = Tree.objects.select_related('creator').filter(creator=self.request.user)
+        return super(PartnershipListView, self).get_queryset().filter(tree__in=trees)
 
 
 class TreeDetailView(LoginRequiredMixin, generic.DetailView):
@@ -253,18 +252,11 @@ class PersonDetailView(LoginRequiredMixin, generic.DetailView):
 
     # Users can only access their own person_detail page they created
     def get_object(self, **kwargs):
-        trees = Tree.objects.filter(creator=self.request.user).select_related('creator')
-        get_person = get_object_or_404(Person, pk=self.kwargs['pk'])
-        for tree in trees:
-            get_tree = tree
-            if get_person.tree == get_tree:
-                return Person.objects.get(tree=get_tree, pk=self.kwargs['pk'])
-        raise Http404
+        return get_object_or_404(Person, pk=self.kwargs['pk'], tree__in=Tree.objects.filter(creator=self.request.user))
 
 
 def graph_person(request, pk):
-    person = Person.objects.get(pk=pk)
-
+    person = get_object_or_404(Person, pk=pk, tree__in=Tree.objects.filter(creator=request.user))
     graph = Graph()
 
     partnerships = person.partnerships.all()
