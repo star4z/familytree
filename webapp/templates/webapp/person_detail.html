@@ -10,6 +10,8 @@
         [{{ person.id }}]
     </h3>
     {% include "webapp/delete_confirmationbox.html" %}
+    <br>
+    <a href="{% url 'go_back_tree' person.tree.id %}">Back to Tree</a>
     <p><a href="{{ request.path }}graph/">view graph</a></p>
 
     <p><strong>Alternate names</strong></p>
