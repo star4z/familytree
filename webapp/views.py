@@ -171,6 +171,7 @@ def delete_person(request, person_pk, name_pk, tree_pk):
 toast_messages = {
     'logged_in': (messages.SUCCESS, 'Logged in successfully. Welcome to Family Tree'),
     'password_reset': (messages.SUCCESS, 'Password reset successfully.'),
+    'activation_success': (messages.SUCCESS, 'Your account was activated successfully. Welcome to Family Tree')
 }
 
 
@@ -236,7 +237,7 @@ class PersonDetailView(LoginRequiredMixin, generic.DetailView):
     model = Person
 
     # Users can only access their own person_detail page they created
-    def get_object(self):
+    def get_object(self, **kwargs):
         trees = Tree.objects.filter(creator=self.request.user).select_related('creator')
         get_person = get_object_or_404(Person, pk=self.kwargs['pk'])
         for tree in trees:

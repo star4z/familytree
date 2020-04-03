@@ -1,3 +1,9 @@
+{% extends "base_generic.html" %}
+
+{% block sidebar %}
+{% endblock %}
+
+{% block content %}
 {% autoescape off %}
     Hi {{ user.username }},
 
@@ -5,3 +11,4 @@
 
     http://{{ domain }}{% url 'activate' uidb64=uid token=token %}
 {% endautoescape %}
+{% endblock %}
