@@ -1,0 +1,21 @@
+{% extends 'base_generic.html' %}
+{% load static %}
+
+
+{% block content %}
+    <p></p>
+    <h3 style = "display:inline">
+        {{ person.legal_name.prefix }}
+        {{ person.legal_name.first_name }}
+        {{ person.legal_name.middle_name }}
+        {{ person.legal_name.last_name }}{% if person.legal_name.suffix %}, {{ person.legal_name.suffix }}{% endif %}
+        [{{ person.id }}]
+    </h3>
+    <p><a href="/webapp/person/{{ person.pk }}">view details</a></p>
+    {# Insert values from project for reference in scripts #}
+    {{ data|json_script:"data" }}
+    <script src="https://gw.alipayobjects.com/os/antv/pkg/_antv.g6-3.3.1/dist/g6.min.js"></script>
+    <!-- Container must be declared before script creating g6 graph -->
+    <div id="family-graph"></div>
+    <script type="text/javascript" src="{% static "/webapp/js/graph_person.js" %}"></script>
+{% endblock %}

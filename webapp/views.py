@@ -7,6 +7,7 @@ from django.views import generic
 from django.views.decorators.http import require_POST
 
 from webapp.forms import AddPersonForm, AddNameForm, AddTreeForm, AddPartnershipForm, AlternateNameFormSet
+from webapp.graphs import Graph
 from webapp.models import Person, Partnership, Location, LegalName, Tree
 
 
@@ -226,3 +227,30 @@ class PersonDetailView(LoginRequiredMixin, generic.DetailView):
             if get_person.tree == get_tree:
                 return Person.objects.get(tree=get_tree, pk=self.kwargs['pk'])
         raise Http404
+
+
+def graph_person(request, pk):
+    person = Person.objects.get(pk=pk)
+
+    graph = Graph()
+
+    partnerships = person.partnerships.all()
+    if partnerships:
+        # TODO: add option to graph multiple partnerships
+        for partnership in partnerships[:1]:
+            graph.add_partnership(partnership, 50, 0)
+            if partnership.children.exists():
+                graph.add_children(partnership, depth=2)
+    else:
+        graph.add_person(person, 0, 0)
+
+    if person.parents():
+        graph.add_parents(person, depth=2)
+
+    graph.normalize(extra_padding=50)
+
+    context = {
+        'person': person,
+        'data': graph.to_dict()
+    }
+    return render(request, 'webapp/person_graph.html', context)

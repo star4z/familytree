@@ -9,6 +9,7 @@
         {{ person.legal_name.last_name }}{% if person.legal_name.suffix %}, {{ person.legal_name.suffix }}{% endif %}
         [{{ person.id }}]
     </h3>
+    <p><a href="{{ request.path }}graph/">view graph</a></p>
     {% include "webapp/delete_confirmationbox.html" %}
     <p><strong>Alternate names</strong></p>
     {% with alternate_names=person.alternate_name.all %}
