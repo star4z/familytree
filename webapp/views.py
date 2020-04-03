@@ -170,6 +170,19 @@ def delete_person(request, person_pk, name_pk, tree_pk):
     return redirect('tree_detail', pk=tree_pk)
 
 
+@login_required
+@require_POST
+def delete_partnership(request, partnership_pk, person_pk):
+    partnership_obj = Partnership.objects.get(pk=partnership_pk)
+    partnership_obj.delete()
+    return redirect('person_detail', pk=person_pk)
+
+@login_required
+@require_POST
+def go_back_tree(request, tree_pk):
+    return redirect('tree_detail', pk=tree_pk)
+
+
 toast_messages = {
     'logged_in': (messages.SUCCESS, 'Logged in successfully. Welcome to Family Tree'),
     'password_reset': (messages.SUCCESS, 'Password reset successfully.'),
