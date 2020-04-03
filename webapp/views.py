@@ -6,7 +6,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.views import generic
 from django.views.decorators.http import require_POST
 
-from webapp.forms import AddPersonForm, AddNameForm, AddTreeForm, AddPartnershipForm, AlternateNameFormSet
+from webapp.forms import AddPersonForm, AddNameForm, AddTreeForm, AddPartnershipForm, AlternateNameFormSet, PersonFormSet
 from webapp.graphs import Graph
 from webapp.models import Person, Partnership, Location, LegalName, Tree
 
@@ -122,20 +122,40 @@ def add_person(request, tree_pk):
 
 
 @login_required
-def add_partnership(request):
-    if request.method == 'POST':
-        partnership_form = AddPartnershipForm(data=request.POST, user=request.user)
+def add_partnership(request, tree_pk):
+    current_tree = Tree.objects.get(pk=tree_pk)
 
-        if partnership_form.is_valid():
-            created_partnership = partnership_form.save(commit=False)
-            created_partnership.save()
+    if current_tree.creator == request.user:
+        if request.method == 'POST':
+            partnership_form = AddPartnershipForm(data=request.POST, tree_id=tree_pk)
 
-            return redirect('index')
+            if partnership_form.is_valid():
+                created_partnership = partnership_form.save(commit=False)
+                created_partnership.tree = current_tree
+                created_partnership.save()
+                partnership_form.save_m2m()
+
+                # Add Person to partnership
+                person_partner_formset = PersonFormSet(data=request.POST, instance=created_partnership, form_kwargs={'tree_id': tree_pk})
+                if person_partner_formset.is_valid():
+                    people = person_partner_formset.save(commit=False)
+                    for person in people:
+                        person.save()
+
+                return redirect('partnership')
+        else:
+            partnership_form = AddPartnershipForm(tree_id=tree_pk)
+            person_partner_formset = PersonFormSet(form_kwargs={'tree_id': tree_pk})
+
+        context = {
+            'partnership_form': partnership_form,
+            'person_partner_formset': person_partner_formset
+        }
+
+        return render(request, 'webapp/add_partnership.html',context)
+
     else:
-        partnership_form = AddPartnershipForm(user=request.user)
-
-    return render(request, 'webapp/add_partnership.html',
-                  {'partnership_form': partnership_form})
+        raise Http404
 
 
 @login_required

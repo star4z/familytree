@@ -28,5 +28,5 @@ urlpatterns = [
     path('person/delete/<int:person_pk>/<int:name_pk>/<int:tree_pk>/', views.delete_person, name="delete_person"),
     path('tree/add_tree/', views.add_tree, name='add_tree'),
     path('tree/<int:tree_pk>/add_person/', views.add_person, name='add_person'),
-    path('add_partnership/', views.add_partnership, name='add_partnership'),
+    path('tree/<int:tree_pk>/add_partnership/', views.add_partnership, name='add_partnership'),
 ]
