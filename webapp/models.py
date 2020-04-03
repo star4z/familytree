@@ -1,14 +1,14 @@
 import datetime
 
 from dateutil.relativedelta import relativedelta
+from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
 from django.db import models
-from django.contrib.auth.models import User
 from django.db.models import Max
-
-from .submodels.location_model import Location
 from django.urls import reverse  # To generate URLS by reversing URL patterns
 from django.utils.translation import gettext_lazy as _
+
+from .submodels.location_model import Location
 
 
 class Tree(models.Model):
@@ -39,8 +39,6 @@ class Name(models.Model):
 
     def __repr__(self):
         return f'[{self.id}] {self.first_name} {self.last_name}'
-
-
 
     class Meta:
         abstract = True
@@ -76,6 +74,9 @@ class Person(models.Model):
     notes = models.TextField(blank=True, default='')
 
     tree = models.ForeignKey('Tree', on_delete=models.CASCADE, null=True)
+
+    class Meta:
+        ordering = ['birth_date']
 
     def clean(self):
         if self.birth_date and self.death_date and self.birth_date > self.death_date:
