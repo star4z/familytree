@@ -2,7 +2,6 @@ import datetime
 
 from dateutil.relativedelta import relativedelta
 from django.core.exceptions import ValidationError
-from django.db.models import Max
 from django.test import TestCase
 
 from webapp.graphs import Graph
@@ -138,7 +137,6 @@ class TestGraph(ModelTestCase):
         self.bruno = self.create_person('Bruno', 'M', [1])
 
     def test_gen_id(self):
-        # graph = Graph()
         expected = f'Person_{self.opal.pk}'
         actual = self.graph.gen_id(self.opal)
         self.assertEqual(expected, actual)
