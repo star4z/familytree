@@ -8,9 +8,9 @@ class Graph:
     padding = 50
 
     def __init__(self):
-        self.added_people = []
-        self.nodes = []
-        self.edges = []
+        self.added_people = set()
+        self.nodes = set()
+        self.edges = set()
 
     class Node:
         def __init__(self, id_, x=None, y=None, label=None, **kwargs):
@@ -24,13 +24,34 @@ class Graph:
         def __eq__(self, other):
             return self.id == other.id
 
+        def __hash__(self):
+            return hash(self.id)
+
+        def __str__(self):
+            return str(vars(self))
+
+        def __repr__(self):
+            return str(vars(self))
+
     class Edge:
-        def __init__(self, source, target, label=None, **kwargs):
-            self.source = source
-            self.target = target
+        def __init__(self, source_id, target_id, label=None, **kwargs):
+            self.source = source_id
+            self.target = target_id
             self.label = label
             for kwarg in kwargs:
                 setattr(self, kwarg, kwargs[kwarg])
+
+        def __eq__(self, other):
+            return self.source == other.source and self.target == other.target
+
+        def __hash__(self):
+            return hash((self.source, self.target))
+
+        def __str__(self):
+            return str(vars(self))
+
+        def __repr__(self):
+            return str(vars(self))
 
     @staticmethod
     def gen_id(model_object):
@@ -41,16 +62,27 @@ class Graph:
 
     def add_node(self, node):
         if node not in self.nodes:
-            self.nodes.append(node)
+            self.nodes.add(node)
         else:
             raise ValueError("Tried to add duplicate node")
 
+    def remove_node(self, node):
+        self.nodes.remove(node)
+        self.edges = [edge for edge in self.edges if edge.source != node.id and edge.target != node.id]
+
     def add_person(self, person, x, y):
         self.add_node(self.Node(self.gen_id(person), x, y, str(person)))
-        self.added_people.append(person)
+        self.added_people.add(person)
 
-    def add_edge(self, source, target):
-        self.edges.append(self.Edge(source, target))
+    def remove_person(self, person):
+        self.remove_node(self.get_node(person))
+        self.added_people.remove(person)
+
+    def add_edge(self, source_id, target_id):
+        self.edges.add(self.Edge(source_id, target_id))
+
+    def remove_edge(self, source_id, target_id):
+        self.edges.remove(self.Edge(source_id, target_id))
 
     def add_partnership(self, partnership, x, y):
         self.add_node(self.Node(self.gen_id(partnership), x, y, size=1))
