@@ -1,20 +1,21 @@
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.http import Http404
 from django.shortcuts import render, redirect, get_object_or_404
 from django.views import generic
-from django.http import HttpResponseRedirect, Http404
-from webapp.models import Person, Partnership, Location, LegalName, AlternateName, Tree
-from webapp.forms import AddPersonForm, AddNameForm, AddTreeForm, AddPartnershipForm, AlternateNameFormSet
-from django.views.generic.edit import CreateView
 from django.views.decorators.http import require_POST
+
+from webapp.forms import AddPersonForm, AddNameForm, AddTreeForm, AddPartnershipForm, AlternateNameFormSet, PersonFormSet
+from webapp.graphs import Graph
+from webapp.models import Person, Partnership, Location, LegalName, Tree
 
 
 @login_required
 def add_tree(request):
     if request.method == 'POST':
         tree_form = AddTreeForm(request.POST)
-            
+
         current_user = request.user
         if tree_form.is_valid():
             created_tree = tree_form.save(commit=False)
@@ -22,7 +23,7 @@ def add_tree(request):
 
             created_tree.creator = current_user
             created_tree.save()
-            
+
             return redirect('tree_detail', pk=created_tree.id)
     else:
         tree_form = AddTreeForm()
@@ -121,20 +122,40 @@ def add_person(request, tree_pk):
 
 
 @login_required
-def add_partnership(request):
-    if request.method == 'POST':
-        partnership_form = AddPartnershipForm(data=request.POST, user=request.user)
+def add_partnership(request, tree_pk):
+    current_tree = Tree.objects.get(pk=tree_pk)
 
-        if partnership_form.is_valid():
-            created_partnership = partnership_form.save(commit=False)
-            created_partnership.save()
+    if current_tree.creator == request.user:
+        if request.method == 'POST':
+            partnership_form = AddPartnershipForm(data=request.POST, tree_id=tree_pk)
 
-            return redirect('index')
+            if partnership_form.is_valid():
+                created_partnership = partnership_form.save(commit=False)
+                created_partnership.tree = current_tree
+                created_partnership.save()
+                partnership_form.save_m2m()
+
+                # Add Person to partnership
+                person_partner_formset = PersonFormSet(data=request.POST, instance=created_partnership, form_kwargs={'tree_id': tree_pk})
+                if person_partner_formset.is_valid():
+                    people = person_partner_formset.save(commit=False)
+                    for person in people:
+                        person.save()
+
+                return redirect('partnership')
+        else:
+            partnership_form = AddPartnershipForm(tree_id=tree_pk)
+            person_partner_formset = PersonFormSet(form_kwargs={'tree_id': tree_pk})
+
+        context = {
+            'partnership_form': partnership_form,
+            'person_partner_formset': person_partner_formset
+        }
+
+        return render(request, 'webapp/add_partnership.html',context)
+
     else:
-        partnership_form = AddPartnershipForm(user=request.user)
-
-    return render(request, 'webapp/add_partnership.html',
-                  {'partnership_form': partnership_form})
+        raise Http404
 
 
 @login_required
@@ -149,9 +170,23 @@ def delete_person(request, person_pk, name_pk, tree_pk):
     return redirect('tree_detail', pk=tree_pk)
 
 
+@login_required
+@require_POST
+def delete_partnership(request, partnership_pk, person_pk):
+    partnership_obj = Partnership.objects.get(pk=partnership_pk)
+    partnership_obj.delete()
+    return redirect('person_detail', pk=person_pk)
+
+@login_required
+@require_POST
+def go_back_tree(request, tree_pk):
+    return redirect('tree_detail', pk=tree_pk)
+
+
 toast_messages = {
     'logged_in': (messages.SUCCESS, 'Logged in successfully. Welcome to Family Tree'),
     'password_reset': (messages.SUCCESS, 'Password reset successfully.'),
+    'activation_success': (messages.SUCCESS, 'Your account was activated successfully. Welcome to Family Tree')
 }
 
 
@@ -180,9 +215,10 @@ class TreeListView(LoginRequiredMixin, generic.ListView):
     paginate_by = 10
     ordering = ['id']
 
-    #Get Tree object only under the current user
+    # Get Tree object only under the current user
     def get_queryset(self):
         return super(TreeListView, self).get_queryset().filter(creator=self.request.user).select_related('creator')
+
 
 # Have not integrate the partnership yet.
 class PartnershipListView(LoginRequiredMixin, generic.ListView):
@@ -191,9 +227,8 @@ class PartnershipListView(LoginRequiredMixin, generic.ListView):
     ordering = ['id']
 
     def get_queryset(self):
-        trees = Tree.objects.all().filter(creator=self.request.user).select_related('creator')
-        tree_ids = [tree.id for tree in trees]
-        return super(PartnershipListView, self).get_queryset().filter(tree__id__in=tree_ids)
+        trees = Tree.objects.select_related('creator').filter(creator=self.request.user)
+        return super(PartnershipListView, self).get_queryset().filter(tree__in=trees)
 
 
 class TreeDetailView(LoginRequiredMixin, generic.DetailView):
@@ -207,19 +242,40 @@ class TreeDetailView(LoginRequiredMixin, generic.DetailView):
         context['person_list'] = Person.objects.filter(tree_id=self.kwargs['pk'])
         return context
 
-    #Get Tree object only under the current user
+    # Get Tree object only under the current user
     def get_queryset(self):
         return super(TreeDetailView, self).get_queryset().filter(creator=self.request.user).select_related('creator')
+
 
 class PersonDetailView(LoginRequiredMixin, generic.DetailView):
     model = Person
 
     # Users can only access their own person_detail page they created
-    def get_object(self):
-        trees = Tree.objects.filter(creator=self.request.user).select_related('creator')
-        get_person = get_object_or_404(Person, pk=self.kwargs['pk'])
-        for tree in trees:
-            get_tree = tree
-            if get_person.tree == get_tree:
-                return Person.objects.get(tree=get_tree, pk=self.kwargs['pk'])
-        raise Http404
+    def get_object(self, **kwargs):
+        return get_object_or_404(Person, pk=self.kwargs['pk'], tree__in=Tree.objects.filter(creator=self.request.user))
+
+
+def graph_person(request, pk):
+    person = get_object_or_404(Person, pk=pk, tree__in=Tree.objects.filter(creator=request.user))
+    graph = Graph()
+
+    partnerships = person.partnerships.all()
+    if partnerships:
+        # TODO: add option to graph multiple partnerships
+        for partnership in partnerships[:1]:
+            graph.add_partnership(partnership, 50, 0)
+            if partnership.children.exists():
+                graph.add_children(partnership, depth=2)
+    else:
+        graph.add_person(person, 0, 0)
+
+    if person.parents():
+        graph.add_parents(person, depth=2)
+
+    graph.normalize(extra_padding=50)
+
+    context = {
+        'person': person,
+        'data': graph.to_dict()
+    }
+    return render(request, 'webapp/person_graph.html', context)
