@@ -53,7 +53,7 @@ def activate(request, uidb64, token):
         # user.profile.signup_confirmation = True
         user.save()
         login(request, user)
-        return redirect('/')
+        return redirect('/webapp/?message=activation_success')
     else:
         return render(request, 'activation_invalid.html')
 

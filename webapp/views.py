@@ -1,20 +1,20 @@
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.http import Http404
 from django.shortcuts import render, redirect, get_object_or_404
 from django.views import generic
-from django.http import HttpResponseRedirect, Http404
-from webapp.models import Person, Partnership, Location, LegalName, AlternateName, Tree
-from webapp.forms import AddPersonForm, AddNameForm, AddTreeForm, AddPartnershipForm, AlternateNameFormSet
-from django.views.generic.edit import CreateView
 from django.views.decorators.http import require_POST
+
+from webapp.forms import AddPersonForm, AddNameForm, AddTreeForm, AddPartnershipForm, AlternateNameFormSet
+from webapp.models import Person, Partnership, Location, LegalName, Tree
 
 
 @login_required
 def add_tree(request):
     if request.method == 'POST':
         tree_form = AddTreeForm(request.POST)
-            
+
         current_user = request.user
         if tree_form.is_valid():
             created_tree = tree_form.save(commit=False)
@@ -22,7 +22,7 @@ def add_tree(request):
 
             created_tree.creator = current_user
             created_tree.save()
-            
+
             return redirect('tree_detail', pk=created_tree.id)
     else:
         tree_form = AddTreeForm()
@@ -152,6 +152,7 @@ def delete_person(request, person_pk, name_pk, tree_pk):
 toast_messages = {
     'logged_in': (messages.SUCCESS, 'Logged in successfully. Welcome to Family Tree'),
     'password_reset': (messages.SUCCESS, 'Password reset successfully.'),
+    'activation_success': (messages.SUCCESS, 'Your account was activated successfully. Welcome to Family Tree')
 }
 
 
@@ -180,9 +181,10 @@ class TreeListView(LoginRequiredMixin, generic.ListView):
     paginate_by = 10
     ordering = ['id']
 
-    #Get Tree object only under the current user
+    # Get Tree object only under the current user
     def get_queryset(self):
         return super(TreeListView, self).get_queryset().filter(creator=self.request.user).select_related('creator')
+
 
 # Have not integrate the partnership yet.
 class PartnershipListView(LoginRequiredMixin, generic.ListView):
@@ -207,15 +209,16 @@ class TreeDetailView(LoginRequiredMixin, generic.DetailView):
         context['person_list'] = Person.objects.filter(tree_id=self.kwargs['pk'])
         return context
 
-    #Get Tree object only under the current user
+    # Get Tree object only under the current user
     def get_queryset(self):
         return super(TreeDetailView, self).get_queryset().filter(creator=self.request.user).select_related('creator')
+
 
 class PersonDetailView(LoginRequiredMixin, generic.DetailView):
     model = Person
 
     # Users can only access their own person_detail page they created
-    def get_object(self):
+    def get_object(self, **kwargs):
         trees = Tree.objects.filter(creator=self.request.user).select_related('creator')
         get_person = get_object_or_404(Person, pk=self.kwargs['pk'])
         for tree in trees:
