@@ -68,18 +68,31 @@ class AddTreeForm(ModelForm):
         model = Tree
         fields = ['title', 'notes']
 
+
 class AddPartnershipForm(ModelForm):
     class Meta:
         model = Partnership
-        fields = '__all__'
+        exclude = ['tree']
         widgets = {
             'marriage_date': forms.DateInput(attrs={'type': 'date'}),
             'divorce_date': forms.DateInput(attrs={'type': 'date'})
         }
 
-    def __init__(self, user, *args, **kwargs):
+    def __init__(self, *args, **kwargs):
+        tree = kwargs.pop('tree_id')        
         super(AddPartnershipForm, self).__init__(*args, **kwargs)
-        trees = Tree.objects.all().filter(creator=user).select_related('creator')
-        self.fields['tree'].queryset = trees
-        tree_ids = [tree.id for tree in trees]
-        self.fields['children'].queryset = Person.objects.filter(tree__id__in=tree_ids)
+        self.fields['children'].queryset = Person.objects.filter(tree=tree)
+
+
+class AddPersonPartnership(ModelForm):
+    class Meta: 
+        model = Person.partnerships.through
+        fields = '__all__'
+
+    def __init__(self, *args, **kwargs):
+        tree = kwargs.pop('tree_id')
+        super(AddPersonPartnership, self).__init__(*args, **kwargs)
+        self.fields['person'].queryset = Person.objects.filter(tree=tree)
+
+
+PersonFormSet = inlineformset_factory(Partnership, Person.partnerships.through, form=AddPersonPartnership, extra=1, can_delete=False)

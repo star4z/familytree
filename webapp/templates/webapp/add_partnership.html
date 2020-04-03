@@ -1,14 +1,50 @@
 {% extends "base_generic.html" %}
+{% load static %}
 
 {% block content %}
     <h1>Add Partnership</h1>
     <div class="person-form">
         <form action="" method="POST">
             {% csrf_token %}
+
+            <h3>People in Partnership</h3>
+            <table class="table">
+                {{ person_partner_formset.management_form}}
+
+                {% for form in person_partner_formset.forms %}
+                    <tr class="{% cycle 'row1' 'row2' %} formset_row">
+                        {% for field in form.visible_fields %}
+                            <th width="1px">{{ field.label_tag }}</th>
+                        {% endfor %}
+                        {% for field in form.visible_fields %}
+                            <td>
+                                {% if forloop.first %}
+                                    {% for hidden in form.hidden_fields %}
+                                        {{ hidden }}
+                                    {% endfor %}
+                                {% endif %}
+                                {{ field.errors.as_ul }}
+                                {{ field }}
+                            </td>
+                        {% endfor %}
+                    </tr>
+                {% endfor %}
+            </table>
+
             <table>
                 {{partnership_form.as_table}}
             </table>
             <input type="submit" value="Submit" />
         </form>
     </div>
+    <!-- Include formset plugin - including jQuery dependency -->
+    <script src="{% static 'webapp/js/jquery.formset.js' %}"></script>
+    <script type="text/javascript">
+        $(document).ready(function(){
+            $('tr.formset_row').formset({
+                addText: 'add person',
+                deleteText: 'remove'
+            });
+        });
+    </script>
 {% endblock %}
