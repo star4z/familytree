@@ -1,13 +1,39 @@
 import datetime
+
 from dateutil.relativedelta import relativedelta
-
+from django.core.exceptions import ValidationError
 from django.test import TestCase
-from webapp import models
+
+from webapp.graphs import Graph
+from webapp.models import LegalName, Partnership, Person, PersonPartnership, Tree
 
 
-class PersonTestCase(TestCase):
+class ModelTestCase(TestCase):
     def setUp(self):
-        self.tree = models.Tree.objects.create(title='test tree')
+        self.tree = Tree.objects.create(title='test tree')
+
+    def create_person(self, first_name, gender, partnership_ids=None, **kwargs):
+        genders = {'M': 'Male', 'F': 'Female'}
+        legal_name = LegalName.objects.create(first_name=first_name)
+        legal_name.save()
+        p = Person.objects.create(tree=self.tree, legal_name=legal_name, gender=genders[gender], **kwargs)
+        p.save()
+        if partnership_ids:
+            for pid in partnership_ids:
+                partnership = self.get_partnership(pid)
+                person_partnership = PersonPartnership.objects.create(person=p, partnership=partnership)
+                person_partnership.save()
+        return p
+
+    def get_partnership(self, pid):
+        partnership, created = Partnership.objects.get_or_create(id=pid, defaults={'tree': self.tree})
+        partnership.save()
+        return partnership
+
+
+class PersonTestCase(ModelTestCase):
+    def setUp(self):
+        super().setUp()
 
         self.abe = self.create_person('Abe', 'M', [1])
         self.beth = self.create_person('Beth', 'F', [1])
@@ -42,24 +68,6 @@ class PersonTestCase(TestCase):
         self.gen0 = [self.philip]
         self.genN1 = [self.akito, self.elizabeth]
         self.genN2 = [self.colin, self.akira, self.john, self.violet]
-
-    def create_person(self, first_name, gender, partnership_ids=None, **kwargs):
-        genders = {'M': 'Male', 'F': 'Female'}
-        legal_name = models.LegalName.objects.create(first_name=first_name)
-        legal_name.save()
-        p = models.Person.objects.create(tree=self.tree, legal_name=legal_name, gender=genders[gender], **kwargs)
-        p.save()
-        if partnership_ids:
-            for pid in partnership_ids:
-                partnership = self.get_partnership(pid)
-                person_partnership = models.PersonPartnership.objects.create(person=p, partnership=partnership)
-                person_partnership.save()
-        return p
-
-    def get_partnership(self, pid):
-        partnership, created = models.Partnership.objects.get_or_create(id=pid, defaults={'tree': self.tree})
-        partnership.save()
-        return partnership
 
     def test_get_parents(self):
         parents = list(self.philip.parents())
@@ -101,7 +109,7 @@ class PersonTestCase(TestCase):
         self.assertEqual(expected, actual)
 
     def test_age_dead_without_death_date(self):
-        with self.assertRaises(models.Person.IllegalAgeError):
+        with self.assertRaises(Person.IllegalAgeError):
             self.megumi.age()
 
     def test_age_living_with_birth_date(self):
@@ -110,12 +118,68 @@ class PersonTestCase(TestCase):
         self.assertEqual(expected, actual)
 
     def test_age_without_birth_date(self):
-        with self.assertRaises(models.Person.IllegalAgeError):
+        with self.assertRaises(Person.IllegalAgeError):
             self.violet.age()
 
     def test_illegal_age_range_raises_error(self):
-        with self.assertRaises(models.ValidationError):
+        with self.assertRaises(ValidationError):
             birth_date = datetime.date(2000, 1, 2)
             death_date = datetime.date(2000, 1, 1)
             instance = self.create_person('default', 'M', birth_date=birth_date, death_date=death_date)
             instance.clean()
+
+
+class TestGraph(ModelTestCase):
+    def setUp(self):
+        super().setUp()
+        self.graph = Graph()
+        self.opal = self.create_person('Opal', 'F', [1])
+        self.bruno = self.create_person('Bruno', 'M', [1])
+
+    def test_gen_id(self):
+        expected = f'Person_{self.opal.pk}'
+        actual = self.graph.gen_id(self.opal)
+        self.assertEqual(expected, actual)
+
+    def test_add_node(self):
+        node = Graph.Node('test_id')
+        self.graph.add_node(node)
+        self.assertSetEqual({node}, self.graph.nodes)
+
+    def test_remove_node(self):
+        node = Graph.Node('test_id')
+        self.graph.add_node(node)
+        self.graph.remove_node(node)
+        self.assertSetEqual(set(), self.graph.nodes)
+
+    def test_add_person(self):
+        self.graph.add_person(self.opal, 100, 100)
+        expected_nodes = {Graph.Node(self.graph.gen_id(self.opal), 100, 100, 'Opal')}
+        self.assertSetEqual(expected_nodes, self.graph.nodes)
+        expected_added_people = {self.opal}
+        self.assertSetEqual(expected_added_people, self.graph.added_people)
+
+    def test_remove_person(self):
+        self.graph.add_person(self.opal, 0, 0)
+        self.graph.remove_person(self.opal)
+        expected = set()
+        self.assertSetEqual(expected, self.graph.nodes)
+
+    def test_add_edge(self):
+        node1 = Graph.Node('id1')
+        node2 = Graph.Node('id2')
+        self.graph.add_node(node1)
+        self.graph.add_node(node2)
+        self.graph.add_edge(node1.id, node2.id)
+
+    def test_add_partnership(self):
+        self.graph.add_partnership(self.get_partnership(1), 200, 200)
+        opal_id = self.graph.gen_id(self.opal)
+        bruno_id = self.graph.gen_id(self.bruno)
+        partnership_id = self.graph.gen_id(self.get_partnership(1))
+        expected_nodes = {self.graph.Node(opal_id), self.graph.Node(bruno_id), self.graph.Node(partnership_id)}
+        self.assertSetEqual(expected_nodes, self.graph.nodes)
+        expected_edges = {self.graph.Edge(opal_id, partnership_id), self.graph.Edge(bruno_id, partnership_id)}
+        self.assertSetEqual(expected_edges, self.graph.edges)
+        expected_added_people = {self.opal, self.bruno}
+        self.assertSetEqual(expected_added_people, self.graph.added_people)

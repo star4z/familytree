@@ -24,6 +24,7 @@ urlpatterns = [
     path('partnership/', views.PartnershipListView.as_view(), name='partnership'),
     path('tree/<int:pk>/', views.TreeDetailView.as_view(), name='tree_detail'),
     path('person/<int:pk>/', views.PersonDetailView.as_view(), name='person_detail'),
+    path('person/<int:pk>/graph/', views.graph_person, name='person_graph'),
     path('person/delete/<int:person_pk>/<int:name_pk>/<int:tree_pk>/', views.delete_person, name="delete_person"),
     path('tree/add_tree/', views.add_tree, name='add_tree'),
     path('tree/<int:tree_pk>/add_person/', views.add_person, name='add_person'),
