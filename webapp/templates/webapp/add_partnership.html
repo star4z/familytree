@@ -43,7 +43,8 @@
         $(document).ready(function(){
             $('tr.formset_row').formset({
                 addText: 'add person',
-                deleteText: 'remove'
+                deleteText: 'remove',
+                prefix: '{{ person_partner_formset.prefix }}'
             });
         });
     </script>

@@ -133,12 +133,14 @@ def add_partnership(request, tree_pk):
                 created_partnership = partnership_form.save(commit=False)
                 created_partnership.tree = current_tree
                 created_partnership.save()
+                partnership_form.save_m2m()
 
                 # Add Person to partnership
                 person_partner_formset = PersonFormSet(data=request.POST, instance=created_partnership, form_kwargs={'tree_id': tree_pk})
                 if person_partner_formset.is_valid():
                     people = person_partner_formset.save(commit=False)
-                    person_partner_formset.save_m2m()
+                    for person in people:
+                        person.save()
 
                 return redirect('partnership')
         else:
