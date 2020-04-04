@@ -255,6 +255,20 @@ def delete_partnership(request, partnership_pk, person_pk):
     partnership_obj.delete()
     return redirect('person_detail', pk=person_pk)
 
+
+@login_required
+@require_POST
+def delete_tree(request, tree_pk):
+    tree = Tree.objects.get(pk=tree_pk)
+    people = Person.objects.filter(tree=tree)
+    for person in people:
+        delete_person(request, person.id, person.legal_name.id, tree.id)
+    partnerships = Partnership.objects.filter(tree=tree)
+    partnerships.delete()
+    tree.delete()
+    return redirect('tree')
+
+
 @login_required
 @require_POST
 def go_back_tree(request, tree_pk):
