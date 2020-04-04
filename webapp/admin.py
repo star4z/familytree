@@ -9,8 +9,9 @@ text_input_size = 40
 
 @admin.register(Tree)
 class TreeAdmin(admin.ModelAdmin):
-    list_display = ('id', 'title')
+    list_display = ('id', 'title', 'creator')
     list_display_links = ('id', 'title')
+    list_filter = ('creator',)
 
 
 @admin.register(LegalName)
@@ -38,6 +39,7 @@ class AlternateNameInline(admin.TabularInline):
 class LocationAdmin(admin.ModelAdmin):
     list_display = ('city', 'state', 'country')
     list_display_links = ('city', 'state', 'country')
+    list_filter = ('state', 'country')
 
 
 class PartnershipInline(admin.TabularInline):
@@ -71,6 +73,10 @@ class PersonAdmin(admin.ModelAdmin):
             'fields': ('notes', 'tree')
         })
     )
+    formfield_overrides = {
+        models.TextField: {'widget': TextInput(attrs={'size': text_input_size})},
+        models.CharField: {'widget': TextInput(attrs={'size': text_input_size})},
+    }
 
     def first_name(self, obj):
         return obj.legal_name.first_name
@@ -87,15 +93,13 @@ class PersonAdmin(admin.ModelAdmin):
 
     list_display = ('id', 'first_name', 'middle_name', 'last_name', 'birth_date', 'living', 'gender', 'tree')
     list_display_links = ('id', 'first_name', 'middle_name', 'last_name')
-    formfield_overrides = {
-        models.TextField: {'widget': TextInput(attrs={'size': text_input_size})},
-        models.CharField: {'widget': TextInput(attrs={'size': text_input_size})},
-    }
+    list_filter = ('living', 'gender', 'tree')
 
 
 @admin.register(Partnership)
 class PartnershipAdmin(admin.ModelAdmin):
     inlines = [PersonInline]
 
-    list_display = ('id', 'partners_str', 'married', 'current')
+    list_display = ('id', 'partners_str', 'married', 'divorced', 'current')
     list_display_links = ('id', 'partners_str')
+    list_filter = ('married', 'divorced', 'current')
