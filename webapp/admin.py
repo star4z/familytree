@@ -12,17 +12,20 @@ class TreeAdmin(admin.ModelAdmin):
     list_display = ('id', 'title', 'creator')
     list_display_links = ('id', 'title')
     list_filter = ('creator',)
+    search_fields = ('title', 'creator__username', 'creator__first_name', 'creator__last_name', 'creator__email')
 
 
 @admin.register(LegalName)
 @admin.register(AlternateName)
 class NameAdmin(admin.ModelAdmin):
-    list_display = ('id', 'first_name', 'middle_name', 'last_name')
-    list_display_links = ('id', 'first_name', 'middle_name', 'last_name')
     formfield_overrides = {
         models.TextField: {'widget': TextInput(attrs={'size': text_input_size})},
         models.CharField: {'widget': TextInput(attrs={'size': text_input_size})},
     }
+
+    list_display = ('id', 'first_name', 'middle_name', 'last_name')
+    list_display_links = ('id', 'first_name', 'middle_name', 'last_name')
+    search_fields = ('first_name', 'middle_name', 'last_name')
 
 
 class AlternateNameInline(admin.TabularInline):
@@ -40,6 +43,7 @@ class LocationAdmin(admin.ModelAdmin):
     list_display = ('city', 'state', 'country')
     list_display_links = ('city', 'state', 'country')
     list_filter = ('state', 'country')
+    search_fields = ('city', 'state', 'country')
 
 
 class PartnershipInline(admin.TabularInline):
@@ -88,12 +92,16 @@ class PersonAdmin(admin.ModelAdmin):
         return obj.legal_name.last_name
 
     first_name.short_description = 'first name'
+    first_name.admin_order_field = 'legal_name__first_name'
     middle_name.short_description = 'middle name'
+    middle_name.admin_order_field = 'legal_name__middle_name'
     last_name.short_description = 'last name'
+    last_name.admin_order_field = 'legal_name__last_name'
 
     list_display = ('id', 'first_name', 'middle_name', 'last_name', 'birth_date', 'living', 'gender', 'tree')
     list_display_links = ('id', 'first_name', 'middle_name', 'last_name')
     list_filter = ('living', 'gender', 'tree')
+    search_fields = ('legal_name__first_name', 'legal_name__middle_name', 'legal_name__last_name')
 
 
 @admin.register(Partnership)
@@ -103,3 +111,5 @@ class PartnershipAdmin(admin.ModelAdmin):
     list_display = ('id', 'partners_str', 'married', 'divorced', 'current')
     list_display_links = ('id', 'partners_str')
     list_filter = ('married', 'divorced', 'current')
+    search_fields = ('person__legal_name__first_name', 'person__legal_name__middle_name',
+                     'person__legal_name__last_name')
