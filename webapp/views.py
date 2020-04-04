@@ -122,6 +122,84 @@ def add_person(request, tree_pk):
 
 
 @login_required
+def edit_person(request, tree_pk, person_pk):
+    current_tree = Tree.objects.get(pk=tree_pk)
+    current_person = Person.objects.get(pk=person_pk)
+
+    # User validation to prevent other users from adding to trees that aren't theirs
+    if current_tree.creator == request.user:
+        if request.method == 'POST':
+            # if this is a POST request we need to process the form data
+            name_form = AddNameForm(request.POST, instance=current_person.legal_name)
+            person_form = AddPersonForm(request.POST, instance=current_person)
+
+            # Tuple that contains validation status of each filled form
+            form_validations = (
+                person_form.is_valid(),
+                name_form.is_valid(),
+            )
+
+            # check whether it's valid:
+            if all(form_validations):
+
+                name_form.save()
+                person_form.save()
+
+                alt_name_formset = AlternateNameFormSet(request.POST, instance=current_person)
+                if alt_name_formset.is_valid():
+                    alt_name_formset.save()
+
+                # Check each location form's data and query for existing Location
+                # instances.
+                # If location exists, stores it in the corresponding location
+                # variable and sets location_created boolean to false
+                # If it doesn't exist, create a new instance from form's data and
+                # set location_created boolean to true
+                birth_location, birth_loc_was_created = Location.objects.get_or_create(
+                    city=person_form.cleaned_data['birth_city'],
+                    state=person_form.cleaned_data['birth_state'],
+                    country=person_form.cleaned_data['birth_country'])
+
+                death_location, death_loc_was_created = Location.objects.get_or_create(
+                    city=person_form.cleaned_data['death_city'],
+                    state=person_form.cleaned_data['death_state'],
+                    country=person_form.cleaned_data['death_country'])
+
+                # if new location instances were created, save them in the DB
+                if birth_loc_was_created:
+                    birth_location.save()
+
+                if death_loc_was_created:
+                    death_location.save()
+
+                # Assign the location instances as keys in Person instance
+                current_person.birth_location = birth_location
+                current_person.death_location = death_location
+
+                current_person.save()
+
+                # redirect to page containing new Person instance's details
+                return redirect('person_detail', pk=current_person.id)
+
+        # if a GET (or any other method) we'll create a blank form
+        else:
+            name_form = AddNameForm(instance=current_person.legal_name)
+            person_form = AddPersonForm(instance=current_person)
+            alt_name_formset = AlternateNameFormSet(instance=current_person)
+
+        context = {
+            'name_form': name_form,
+            'person_form': person_form,
+            'alt_name_formset': alt_name_formset,
+        }
+
+        return render(request, 'webapp/edit_person.html', context)
+
+    else:
+        raise Http404
+
+
+@login_required
 def add_partnership(request, tree_pk):
     current_tree = Tree.objects.get(pk=tree_pk)
 

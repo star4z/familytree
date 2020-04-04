@@ -61,7 +61,7 @@ class AlternateNameForm(ModelForm):
         }
 
 
-AlternateNameFormSet = inlineformset_factory(Person, AlternateName, form=AlternateNameForm, extra=1, can_delete=False)
+AlternateNameFormSet = inlineformset_factory(Person, AlternateName, form=AlternateNameForm, extra=1, can_delete=True)
 
 class AddTreeForm(ModelForm):
     class Meta:
@@ -95,4 +95,4 @@ class AddPersonPartnership(ModelForm):
         self.fields['person'].queryset = Person.objects.filter(tree=tree)
 
 
-PersonFormSet = inlineformset_factory(Partnership, Person.partnerships.through, form=AddPersonPartnership, extra=1, can_delete=False)
+PersonFormSet = inlineformset_factory(Partnership, Person.partnerships.through, form=AddPersonPartnership, extra=1, can_delete=True)
