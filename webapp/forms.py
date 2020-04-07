@@ -83,7 +83,7 @@ class AddPartnershipForm(ModelForm):
         super(AddPartnershipForm, self).__init__(*args, **kwargs)
         # self.fields['children'].queryset = Person.objects.filter(tree=tree)
 
-
+# Form for adding partner (Person) to Partnership
 class AddPersonPartnership(ModelForm):
     class Meta: 
         model = Person.partnerships.through
@@ -106,5 +106,8 @@ class AddPartnershipChild(ModelForm):
         self.fields['person'].queryset = Person.objects.filter(tree=tree)
 
 
+# Formset for form that adds partner (Person) to Partnership
 PersonFormSet = inlineformset_factory(Partnership, Person.partnerships.through, form=AddPersonPartnership, extra=1, can_delete=True)
-PartnershipChildFormset = inlineformset_factory(Partnership, Partnership.children.through, form=AddPartnershipChild, extra=1, can_delete=True)
+
+# Formset for form that adds child (Person) to Partnership
+PartnershipChildFormSet = inlineformset_factory(Partnership, Partnership.children.through, form=AddPartnershipChild, extra=1, can_delete=True)
