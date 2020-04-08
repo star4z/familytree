@@ -29,6 +29,8 @@ urlpatterns = [
     path('person/delete/<int:partnership_pk>/<int:person_pk>/', views.delete_partnership, name="delete_partnership"),
     path('tree/<int:tree_pk>/', views.go_back_tree, name='go_back_tree'),
     path('tree/add_tree/', views.add_tree, name='add_tree'),
+    path('tree/delete/<int:tree_pk>', views.delete_tree, name="delete_tree"),
     path('tree/<int:tree_pk>/add_person/', views.add_person, name='add_person'),
+    path('person/<int:tree_pk>/<int:person_pk>/edit_person/', views.edit_person, name='edit_person'),
     path('tree/<int:tree_pk>/add_partnership/', views.add_partnership, name='add_partnership'),
 ]
