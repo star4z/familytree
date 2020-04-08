@@ -16,7 +16,7 @@
     <a href="{% url 'go_back_tree' person.tree.id %}">Back to Tree</a>
     <p><a href="{{ request.path }}graph/">view graph</a></p>
 
-    <p><strong>Alternate names</strong></p>
+    <p><strong>Alternate names:</strong></p>
     {% with alternate_names=person.alternate_name.all %}
         {% if alternate_names %}
             <ul>
@@ -33,17 +33,18 @@
             <p>None</p>
         {% endif %}
     {% endwith %}
-    <p><strong>Gender</strong> {{ person.gender }}</p>
-    <p><strong>Birth date</strong> {{ person.birth_date }}</p>
-    <p><strong>Birth location</strong> {{ person.birth_location }} </p>
-    <label><strong>Living</strong>
+    <p><strong>Gender:</strong> {{ person.gender }}</p>
+    <p><strong>Birth date:</strong> {{ person.birth_date }}</p>
+    <p><strong>Birth location:</strong> {{ person.birth_location }} </p>
+    <label><strong>Living:</strong>
+        &nbsp;
         <input type="checkbox" {% if person.living %}checked{% endif %} disabled>
     </label>
     {% if not person.living %}
-        <p><strong>Death date</strong> {{ person.death_date }}</p>
-        <p><strong>Death location</strong> {{ person.death_location }}</p>
+        <p><strong>Death date:</strong> {{ person.death_date }}</p>
+        <p><strong>Death location:</strong> {{ person.death_location }}</p>
     {% endif %}
-    <p><strong>Marital status</strong> {{ person.marital_status }}</p>
+    <p><strong>Marital status:</strong> {{ person.marital_status }}</p>
 
     <p><strong>Parents</strong></p>
     {% with parents=person.parents %}
@@ -72,7 +73,7 @@
     {% endif %}
     {% endwith %}
 
-    <p><strong>Notes</strong></p>
+    <p><strong>Notes:</strong></p>
     <p>{{ person.notes|default:"None" }}</p>
 
     {% with partnerships=person.partnerships.all %}
