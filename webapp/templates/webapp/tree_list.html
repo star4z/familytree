@@ -7,6 +7,8 @@
             {% for tree in tree_list %}
                 <li>
                     <a href="{{ tree.get_absolute_url }}">{{ tree.title }}</a>
+                    &nbsp;
+                    <a href="{% url 'edit_tree' tree.id %}" style="color:grey;opacity: 0.9;">edit</a>
                     {% include "webapp/delete_tree.html" %}
                 </li>
             {% endfor %}

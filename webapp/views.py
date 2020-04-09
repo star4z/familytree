@@ -13,6 +13,8 @@ from webapp.models import Person, Partnership, Location, LegalName, Tree
 
 @login_required
 def add_tree(request):
+    # If request is POST, create and save Tree from valid form's values and 
+    # assign the current user as the tree's creator.
     if request.method == 'POST':
         tree_form = AddTreeForm(request.POST)
 
@@ -23,12 +25,39 @@ def add_tree(request):
 
             created_tree.creator = current_user
             created_tree.save()
-
+            
+            # Redirect to the Tree's details page after a valid creation.
             return redirect('tree_detail', pk=created_tree.id)
+
+    # If request is not POST, display an empty form for creating a Tree
     else:
         tree_form = AddTreeForm()
 
     return render(request, 'webapp/add_tree.html', {'tree_form': tree_form})
+
+@login_required
+def edit_tree(request, tree_pk):
+    current_tree = Tree.objects.get(pk=tree_pk)
+
+    # Check that the current user is the creator of this Tree before they
+    # can modify it
+    if current_tree.creator == request.user:
+        # If request is POST, update and save the Tree from valid form's values
+        if request.method == 'POST':
+            tree_form = AddTreeForm(request.POST, instance=current_tree)
+
+            if tree_form.is_valid():
+                tree_form.save()
+
+                return redirect('tree_detail', pk=current_tree.id)
+        # If request is not POST, show an empty form for updating the Tree
+        else:
+            tree_form = AddTreeForm(instance=current_tree)
+
+        return render(request, 'webapp/add_tree.html', {'tree_form': tree_form})
+
+    else:
+        raise Http404
 
 
 @login_required
@@ -48,7 +77,7 @@ def add_person(request, tree_pk):
                 name_form.is_valid(),
             )
 
-            # check whether it's valid:
+            # Create/Save instances if all forms are valid.
             if all(form_validations):
                 # Create a Legal Name instance from name form's data
 
@@ -139,7 +168,7 @@ def edit_person(request, tree_pk, person_pk):
                 name_form.is_valid(),
             )
 
-            # check whether it's valid:
+            # Update/Save instances if all forms are valid.
             if all(form_validations):
 
                 name_form.save()
