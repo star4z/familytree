@@ -89,7 +89,8 @@
                             <th> Divorced </th>
                             <th> Divorced Date </th>
                             <th> Children </th>
-                            <th> Delete </th>
+                            <th>  </th>
+                            <th> </th>
                         </tr>
                     </thead>
                     <tbody>
@@ -132,6 +133,7 @@
                                         {% endif %}
                                     {% endwith %}
                                 </td>
+                                <td> <button onclick="location.href='{% url 'edit_partnership' person.tree.id person.id partnership.id %}'">edit</button> </td>
                                 <td> {% include "webapp/delete_partnership.html" %} </td>
                             {% endfor %}
                         </tr>
