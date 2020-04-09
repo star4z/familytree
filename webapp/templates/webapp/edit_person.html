@@ -1,0 +1,59 @@
+{% extends "base_generic.html" %}
+{% load static %}
+
+{% block content %}
+    <div class="person-form">
+        <h1>Edit Person</h1>
+        <hr>
+        <form action="" method="POST">
+            {% csrf_token %}
+            <table>
+                {{ name_form.as_table }}
+                {{ person_form.as_table }}
+            </table>
+
+            <hr>
+            <h2> Alternate Names </h2>
+            <table class="table">
+                {{ alt_name_formset.management_form}}
+
+                {% for form in alt_name_formset.forms %}
+                    {% if forloop.first %}
+                        <thead>
+                        <tr>
+                            {% for field in form.visible_fields %}
+                                <th>{{ field.label_tag }}</th>
+                            {% endfor %}
+                        </tr>
+                        </thead>
+                    {% endif %}
+                    <tr class="{% cycle 'row1' 'row2' %} formset_row">
+                        {% for field in form.visible_fields %}
+                            <td>
+                                {% if forloop.first %}
+                                    {% for hidden in form.hidden_fields %}
+                                        {{ hidden }}
+                                    {% endfor %}
+                                {% endif %}
+                                {{ field.errors.as_ul }}
+                                {{ field }}
+                            </td>
+                        {% endfor %}
+                    </tr>
+                {% endfor %}
+            </table>
+            <input type="submit" value="Submit"/>
+        </form>
+    </div>
+    <!-- Include formset plugin - including jQuery dependency -->
+    <script src="{% static 'webapp/js/jquery.formset.js' %}"></script>
+    <script type="text/javascript">
+        $(document).ready(function(){
+            $('tr.formset_row').formset({
+                addText: 'add name',
+                deleteText: 'remove',
+                prefix: 'alternate_name'
+            });
+        });
+    </script>
+{% endblock %}

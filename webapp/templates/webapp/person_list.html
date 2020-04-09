@@ -1,4 +1,4 @@
-<h1>People List</h1>
+<h3>People List</h3>
 {% if person_list %}
      <ul>
         {% for person in person_list %}
@@ -7,6 +7,8 @@
                 {% if person.birth_date %}
                     ({{ person.birth_date.year }} - {{ person.death_date.year }})
                 {% endif %}
+                &nbsp; 
+                <a href="{% url 'edit_person' person.tree.id person.id %}" style="color:grey;opacity: 0.9;">edit</a>
                 {% include "webapp/delete_confirmationbox.html" %}
             </li>
         {% endfor %}

@@ -9,9 +9,14 @@
         {{ person.legal_name.last_name }}{% if person.legal_name.suffix %}, {{ person.legal_name.suffix }}{% endif %}
         [{{ person.id }}]
     </h3>
-    <p><a href="{{ request.path }}graph/">view graph</a></p>
+    &nbsp;
+    <a href="{% url 'edit_person' person.tree.id person.id %}" style="color:grey;">edit</a>
     {% include "webapp/delete_confirmationbox.html" %}
-    <p><strong>Alternate names</strong></p>
+    <br>
+    <a href="{% url 'go_back_tree' person.tree.id %}">Back to Tree</a>
+    <p><a href="{{ request.path }}graph/">view graph</a></p>
+
+    <p><strong>Alternate names:</strong></p>
     {% with alternate_names=person.alternate_name.all %}
         {% if alternate_names %}
             <ul>
@@ -28,61 +33,19 @@
             <p>None</p>
         {% endif %}
     {% endwith %}
-    <p><strong>Gender</strong> {{ person.gender }}</p>
-    <p><strong>Birth date</strong> {{ person.birth_date }}</p>
-    <p><strong>Birth location</strong> {{ person.birth_location }} </p>
-    <label><strong>Living</strong>
+    <p><strong>Gender:</strong> {{ person.gender }}</p>
+    <p><strong>Birth date:</strong> {{ person.birth_date }}</p>
+    <p><strong>Birth location:</strong> {{ person.birth_location }} </p>
+    <label><strong>Living:</strong>
+        &nbsp;
         <input type="checkbox" {% if person.living %}checked{% endif %} disabled>
     </label>
     {% if not person.living %}
-        <p><strong>Death date</strong> {{ person.death_date }}</p>
-        <p><strong>Death location</strong> {{ person.death_location }}</p>
+        <p><strong>Death date:</strong> {{ person.death_date }}</p>
+        <p><strong>Death location:</strong> {{ person.death_location }}</p>
     {% endif %}
-    <p><strong>Marital status</strong> {{ person.marital_status }}</p>
-    <p><strong>Partnerships</strong></p>
-    {% with partnerships=person.partnerships.all %}
-        {% if partnerships %}
-            <ul>
-                {% for partnership in partnerships %}
-                    <li>
-                        Partners
-                        <ul>
-                            {% for partner in partnership.partners %}
-                                {% if person != partner %}
-                                    <li><a href="{{ partner.get_absolute_url }}">{{ partner }}</a></li>
-                                {% endif %}
-                            {% endfor %}
-                        </ul>
-                        {% include "webapp/boolean_checkbox.html" with key="Current" value=partnership.current %}<br>
-                        {% include "webapp/boolean_checkbox.html" with key="Married" value=partnership.married %}
-                        {% if partnership.married %}
-                            Marriage date - {{ partnership.marriage_date }}
-                        {% endif %}
-                        <br>
-                        {% include "webapp/boolean_checkbox.html" with key="Divorced" value=partnership.divorced %}
-                        {% if partnership.divorced %}
-                            Divorce date - {{ partnership.divorce_date }}
-                        {% endif %}
-                        <br>
-                        Children
-                        {% with children=partnership.children.all %}
-                            {% if children %}
-                                <ul>
-                                    {% for child in children %}
-                                        <li><a href="{{ child.get_absolute_url }}">{{ child }}</a></li>
-                                    {% endfor %}
-                                </ul>
-                            {% else %}
-                                <p>None</p>
-                            {% endif %}
-                        {% endwith %}
-                    </li>
-                {% endfor %}
-            </ul>
-        {% else %}
-            <p>None</p>
-        {% endif %}
-    {% endwith %}
+    <p><strong>Marital status:</strong> {{ person.marital_status }}</p>
+
     <p><strong>Parents</strong></p>
     {% with parents=person.parents %}
         {% if parents %}
@@ -110,7 +73,71 @@
     {% endif %}
     {% endwith %}
 
-    <p><strong>Notes</strong></p>
+    <p><strong>Notes:</strong></p>
     <p>{{ person.notes|default:"None" }}</p>
 
+    {% with partnerships=person.partnerships.all %}
+        {% if partnerships %}
+            <div class="table-responsive">
+                <table class="table table-striped table-sm">
+                    <thead>
+                        <tr>
+                            <th> Partnership </th>
+                            <th> Current </th>
+                            <th> Married </th>
+                            <th> Marriage Date </th>
+                            <th> Divorced </th>
+                            <th> Divorced Date </th>
+                            <th> Children </th>
+                            <th> Delete </th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for partnership in partnerships %}
+                            <tr>
+                                <td>
+                                    {% for partner in partnership.partners %}
+                                        {% if person != partner %}
+                                            <li><a href="{{ partner.get_absolute_url }}">{{ partner }}</a></li>
+                                        {% endif %}
+                                    {% endfor %}
+                                </td>
+                                <td>{% include "webapp/boolean_checkbox.html" with key="" value=partnership.current %}</td>
+                                <td>{% include "webapp/boolean_checkbox.html" with key="" value=partnership.married %}</td>
+                                <td>
+                                    {% if partnership.married %}
+                                        {{ partnership.marriage_date }}
+                                    {% else %}
+                                        Not Married
+                                    {% endif %}
+                                </td>
+                                <td>{% include "webapp/boolean_checkbox.html" with key="" value=partnership.divorced %}</td>
+                                <td>
+                                    {% if partnership.divorced %}
+                                        {{ partnership.divorce_date }}
+                                    {% else %}
+                                        Not divorced
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% with children=partnership.children.all %}
+                                        {% if children %}
+                                            <ul>
+                                                {% for child in children %}
+                                                    <li><a href="{{ child.get_absolute_url }}">{{ child }}</a></li>
+                                                {% endfor %}
+                                            </ul>
+                                        {% else %}
+                                            <p>None</p>
+                                        {% endif %}
+                                    {% endwith %}
+                                </td>
+                                <td> {% include "webapp/delete_partnership.html" %} </td>
+                            {% endfor %}
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        {% endif %}
+    {% endwith %}
 {% endblock %}

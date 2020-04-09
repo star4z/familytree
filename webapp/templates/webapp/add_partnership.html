@@ -1,14 +1,102 @@
 {% extends "base_generic.html" %}
+{% load static %}
 
 {% block content %}
     <h1>Add Partnership</h1>
     <div class="person-form">
         <form action="" method="POST">
             {% csrf_token %}
+            
+            <!-- 
+            Table and managment form for displaying and handling
+            forms as rows fromformset  that adds partner (Person)
+            to Partnership
+            -->
+            <h3>People in Partnership</h3>
+            <table class="table">
+                {{ person_partner_formset.management_form}}
+
+                {% for form in person_partner_formset.forms %}
+                     <!-- 
+                    Assign unique identifier to
+                    Partnership-Partner formset row for javascript handling
+                    -->
+                    <tr class="{% cycle 'row1' 'row2' %} partner_formset_row">
+                        {% for field in form.visible_fields %}
+                            <th width="1px">{{ field.label_tag }}</th>
+                        {% endfor %}
+                        {% for field in form.visible_fields %}
+                            <td>
+                                {% if forloop.first %}
+                                    {% for hidden in form.hidden_fields %}
+                                        {{ hidden }}
+                                    {% endfor %}
+                                {% endif %}
+                                {{ field.errors.as_ul }}
+                                {{ field }}
+                            </td>
+                        {% endfor %}
+                    </tr>
+                {% endfor %}
+            </table>
+
+            <!-- 
+            Table and managment form for displaying and handling
+            forms as rows from formset that adds child (Person)
+            to Partnership
+            -->
+            <h3>Partnership's Children</h3>
+            <table class="table">
+                {{ partnership_child_formset.management_form}}
+
+                {% for form in partnership_child_formset.forms %}
+                    <!-- 
+                    Assign unique identifier to
+                    Partnership-Child formset row for javascript handling
+                    -->
+                    <tr class="{% cycle 'row1' 'row2' %} child_formset_row">
+                        {% for field in form.visible_fields %}
+                            <th width="1px">{{ field.label_tag }}</th>
+                        {% endfor %}
+                        {% for field in form.visible_fields %}
+                            <td>
+                                {% if forloop.first %}
+                                    {% for hidden in form.hidden_fields %}
+                                        {{ hidden }}
+                                    {% endfor %}
+                                {% endif %}
+                                {{ field.errors.as_ul }}
+                                {{ field }}
+                            </td>
+                        {% endfor %}
+                    </tr>
+                {% endfor %}
+            </table>
+
             <table>
                 {{partnership_form.as_table}}
             </table>
             <input type="submit" value="Submit" />
         </form>
     </div>
+    <!-- Include formset plugin - including jQuery dependency -->
+    <script src="{% static 'webapp/js/jquery.formset.js' %}"></script>
+    <!--
+    javascript for handling Partnership-partner and
+    Partnership-child formsets' fields and buttons respectively.
+    -->
+    <script type="text/javascript">
+        $(document).ready(function(){
+            $('.partner_formset_row').formset({
+                prefix: '{{ person_partner_formset.prefix }}',
+                addText: 'Add partner',
+                deleteText: 'remove',
+            });
+            $('.child_formset_row').formset({
+                prefix: '{{ partnership_child_formset.prefix }}',
+                addText: 'Add child',
+                deleteText: 'remove',
+            });
+        });
+    </script>
 {% endblock %}
