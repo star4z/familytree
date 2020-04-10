@@ -37,3 +37,8 @@ To get this web application working:
  ```
 1. Open a tab to `http://127.0.0.1:8000/admin/` to open the admin site
 1. Open tab to `http://127.0.0.1:8000` to see the main site.
+
+*This is the default Django address. Django is able to run on any IP address and port.*
+```
+ python3 manage.py runserver <your IP address>:<desired port>
+```
