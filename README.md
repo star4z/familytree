@@ -42,3 +42,9 @@ To get this web application working:
 ```
  python3 manage.py runserver <your IP address>:<desired port>
 ```
+
+If the application does not work, please check to see if there is `migrations` folder inside the `webapp` folder. 
+
+If there isn't, please make a `migrations` folder inside the `webapp` folder.
+
+Then, create a file called `__init__.py` and place it inside the `migrations` folder.
