@@ -2,7 +2,7 @@
 An application that creates and displays user's family tree written in Django.
 
 ## Built With
-* <b>Language</b>: Python 3.7
+* <b>Language</b>: Python 3.8
 * <b>Framework</b>: Django
 * <b>Database</b>: MariaDB
 * <b>OS</b>: Ubuntu Server LTS
