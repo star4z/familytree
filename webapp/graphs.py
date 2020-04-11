@@ -155,12 +155,16 @@ class Graph:
             gen_size = max(3 if any(child for child in children if child.partnerships.exists()) else 1,
                            self.get_gen_size(partnership))
 
-            # partnerships are grouped with the person in the tree they are associated with, so they only count once
-            row_length = self.padding * gen_size * n
             extra = 0
             for i in range(n):
                 child: Person = children[i]
-                # pos = start of gen + distance between nodes + extra for partnerships
+                """
+                pos = start of gen + distance between nodes 
+                x is x of parents, so -n/2 to center all children
+                +1/2 since the child nodes are centered in the space allotted for them
+                scale by padding to spread them out
+                scale by gen_size to ensure all families have equal space
+                """
                 xi = gen_size * self.padding * ((1 - n) / 2 + i) + x
                 if child.partnerships.exists():
                     child_partnership = next(iter(child.partnerships.all()))
@@ -196,18 +200,6 @@ class Graph:
         for node in self.nodes:
             node.x += extra_padding - min_x
             node.y += extra_padding - min_y
-            #
-            # for other_node in self.nodes:
-            #     if node.is_overlapping(other_node):
-            #         # make node and other_node not overlap
-            #         edges = [edge for edge in self.edges if edge.source == node.id]
-            #         if any(target_node := self.get_node(edge.target) for edge in edges if node.x < target_node.x and node.y == target_node.y):
-            #             # node is right node
-            #             node.x += self.padding
-            #             self.apply_to_parents()
-            #         else:
-            #             # node is left node
-            #             pass
         return self
 
     def to_dict(self):
