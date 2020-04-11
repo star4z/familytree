@@ -1,4 +1,6 @@
 data = JSON.parse(document.getElementById('data').textContent);
+width = JSON.parse(document.getElementById('width').textContent);
+height = JSON.parse(document.getElementById('height').textContent);
 
 console.log(data);
 
@@ -20,15 +22,16 @@ G6.registerBehavior('activate-node', {
     }
 });
 
-//TODO: set width and height dynamically; pass values from Python
 const graph = new G6.Graph({
     container: "family-graph",
-    width: 1000,
-    height: 1000,
+    width: width,
+    height: height,
     modes: {
         default: ['activate-node'],
     },
 });
+
+console.log(graph);
 
 graph.data(data);
 graph.render();

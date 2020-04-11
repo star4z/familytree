@@ -6,7 +6,8 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.views import generic
 from django.views.decorators.http import require_POST
 
-from webapp.forms import AddPersonForm, AddNameForm, AddTreeForm, AddPartnershipForm, AlternateNameFormSet, PersonFormSet, PartnershipChildFormSet
+from webapp.forms import AddPersonForm, AddNameForm, AddTreeForm, AddPartnershipForm, AlternateNameFormSet, \
+    PersonFormSet, PartnershipChildFormSet
 from webapp.graphs import Graph
 from webapp.models import Person, Partnership, Location, LegalName, Tree
 
@@ -25,7 +26,7 @@ def add_tree(request):
 
             created_tree.creator = current_user
             created_tree.save()
-            
+
             # Redirect to the Tree's details page after a valid creation.
             return redirect('tree_detail', pk=created_tree.id)
 
@@ -34,6 +35,7 @@ def add_tree(request):
         tree_form = AddTreeForm()
 
     return render(request, 'webapp/add_tree.html', {'tree_form': tree_form})
+
 
 @login_required
 def edit_tree(request, tree_pk):
@@ -213,13 +215,13 @@ def edit_person(request, tree_pk, person_pk):
         # if a GET (or any other method) we'll create a blank form
         else:
             name_form = AddNameForm(instance=current_person.legal_name)
-            person_form = AddPersonForm(instance=current_person, 
-                initial={'birth_city': current_person.birth_location.city,
-                        'birth_state': current_person.birth_location.state,
-                        'birth_country': current_person.birth_location.country,
-                        'death_city': current_person.death_location.city,
-                        'death_state': current_person.death_location.state,
-                        'death_country': current_person.death_location.country})
+            person_form = AddPersonForm(instance=current_person,
+                                        initial={'birth_city': current_person.birth_location.city,
+                                                 'birth_state': current_person.birth_location.state,
+                                                 'birth_country': current_person.birth_location.country,
+                                                 'death_city': current_person.death_location.city,
+                                                 'death_state': current_person.death_location.state,
+                                                 'death_country': current_person.death_location.country})
             alt_name_formset = AlternateNameFormSet(instance=current_person)
 
         context = {
@@ -256,8 +258,9 @@ def add_partnership(request, tree_pk):
                 partnership_form.save_m2m()
 
                 # Formset for adding partner (Person) to Partnership
-                person_partner_formset = PersonFormSet(data=request.POST, instance=created_partnership, form_kwargs={'tree_id': tree_pk}, prefix="person_partner")
-                
+                person_partner_formset = PersonFormSet(data=request.POST, instance=created_partnership,
+                                                       form_kwargs={'tree_id': tree_pk}, prefix="person_partner")
+
                 # Save every added partner to reflect change.
                 if person_partner_formset.is_valid():
                     people = person_partner_formset.save(commit=False)
@@ -265,8 +268,10 @@ def add_partnership(request, tree_pk):
                         person.save()
 
                 # Add child (Person) to Partnership
-                partnership_child_formset = PartnershipChildFormSet(data=request.POST, instance=created_partnership, form_kwargs={'tree_id': tree_pk}, prefix="partnership_child")
-                
+                partnership_child_formset = PartnershipChildFormSet(data=request.POST, instance=created_partnership,
+                                                                    form_kwargs={'tree_id': tree_pk},
+                                                                    prefix="partnership_child")
+
                 # Save every added child to reflect change
                 if partnership_child_formset.is_valid():
                     children = partnership_child_formset.save(commit=False)
@@ -277,7 +282,8 @@ def add_partnership(request, tree_pk):
         else:
             partnership_form = AddPartnershipForm(tree_id=tree_pk)
             person_partner_formset = PersonFormSet(form_kwargs={'tree_id': tree_pk}, prefix="person_partner")
-            partnership_child_formset = PartnershipChildFormSet(form_kwargs={'tree_id': tree_pk}, prefix="partnership_child")
+            partnership_child_formset = PartnershipChildFormSet(form_kwargs={'tree_id': tree_pk},
+                                                                prefix="partnership_child")
 
         context = {
             'partnership_form': partnership_form,
@@ -285,10 +291,11 @@ def add_partnership(request, tree_pk):
             'partnership_child_formset': partnership_child_formset
         }
 
-        return render(request, 'webapp/add_partnership.html',context)
+        return render(request, 'webapp/add_partnership.html', context)
 
     else:
         raise Http404
+
 
 @login_required
 def edit_partnership(request, tree_pk, person_pk, partnership_pk):
@@ -305,28 +312,34 @@ def edit_partnership(request, tree_pk, person_pk, partnership_pk):
                 partnership_form.save()
 
                 # Formset for adding partner (Person) to Partnership
-                person_partner_formset = PersonFormSet(data=request.POST, instance=current_partnership, form_kwargs={'tree_id': tree_pk}, prefix="person_partner")
-                
+                person_partner_formset = PersonFormSet(data=request.POST, instance=current_partnership,
+                                                       form_kwargs={'tree_id': tree_pk}, prefix="person_partner")
+
                 # Save every added partner to reflect change.
                 if person_partner_formset.is_valid():
                     person_partner_formset.save()
 
                 # Add child (Person) to Partnership
-                partnership_child_formset = PartnershipChildFormSet(data=request.POST, instance=current_partnership, form_kwargs={'tree_id': tree_pk}, prefix="partnership_child")
-                
+                partnership_child_formset = PartnershipChildFormSet(data=request.POST, instance=current_partnership,
+                                                                    form_kwargs={'tree_id': tree_pk},
+                                                                    prefix="partnership_child")
+
                 # Save every added child to reflect change
                 if partnership_child_formset.is_valid():
                     partnership_child_formset.save()
-                
-                 # Redirect to Person detail view that the Edit Partnership 
-                 # button was clicked in.
+
+                # Redirect to Person detail view that the Edit Partnership
+                # button was clicked in.
                 return redirect('person_detail', pk=person_pk)
 
         # If request isn't POST, display forms with empty fields.
         else:
             partnership_form = AddPartnershipForm(instance=current_partnership, tree_id=tree_pk)
-            person_partner_formset = PersonFormSet(instance=current_partnership, form_kwargs={'tree_id': tree_pk}, prefix="person_partner")
-            partnership_child_formset = PartnershipChildFormSet(instance=current_partnership, form_kwargs={'tree_id': tree_pk}, prefix="partnership_child")
+            person_partner_formset = PersonFormSet(instance=current_partnership, form_kwargs={'tree_id': tree_pk},
+                                                   prefix="person_partner")
+            partnership_child_formset = PartnershipChildFormSet(instance=current_partnership,
+                                                                form_kwargs={'tree_id': tree_pk},
+                                                                prefix="partnership_child")
 
         context = {
             'partnership_form': partnership_form,
@@ -334,7 +347,7 @@ def edit_partnership(request, tree_pk, person_pk, partnership_pk):
             'partnership_child_formset': partnership_child_formset
         }
 
-        return render(request, 'webapp/edit_partnership.html',context)
+        return render(request, 'webapp/edit_partnership.html', context)
 
     else:
         raise Http404
@@ -470,8 +483,13 @@ def graph_person(request, pk):
 
     graph.normalize(extra_padding=50)
 
+    width = max(node.x for node in graph.nodes) + graph.padding
+    height = max(node.y for node in graph.nodes) + graph.padding
+
     context = {
         'person': person,
-        'data': graph.to_dict()
+        'data': graph.to_dict(),
+        'width': width,
+        'height': height,
     }
     return render(request, 'webapp/person_graph.html', context)
