@@ -123,6 +123,25 @@ class Graph:
                 if parent.parents():
                     self.add_parents(parent, depth=depth - 1)
 
+    def get_gen_size(self, partnership, max_depth=1):
+        """
+        Calculates the maximum number of children per family in the max_depth generation for padding the rows above it
+        properly
+        :param partnership: Partnership to obtain the children from
+        :param max_depth: number of generations to descend. 1 only obtains the first generation children of partnership
+        :return: the maximum number of children per family in the max_depth generation
+        """
+        if max_depth == 0:
+            return 1
+
+        next_gen_size = 0
+        children = partnership.children.all()
+        for child in children:
+            if child.partnerships.exists():
+                next_gen_size += max(next_gen_size,
+                                     self.get_gen_size(next(iter(child.partnerships.all())), max_depth - 1))
+        return len(children) * (next_gen_size or 1)
+
     def add_children(self, partnership, x=None, y=None, depth=1):
         if depth > 0:
             # default x and y to coordinates of the node matching partnership
@@ -131,14 +150,21 @@ class Graph:
 
             children = list(partnership.children.all())
             n = len(children)
+
+            # pad row to allow for children, allowing for there being more nodes in the parent row than any child group
+            gen_size = max(3 if any(child for child in children if child.partnerships.exists()) else 1,
+                           self.get_gen_size(partnership))
+
+            # partnerships are grouped with the person in the tree they are associated with, so they only count once
+            row_length = self.padding * gen_size * n
             extra = 0
             for i in range(n):
                 child: Person = children[i]
-                xi = -self.padding / 2 * (n - 1) + self.padding * i + x + extra
+                # pos = start of gen + distance between nodes + extra for partnerships
+                xi = gen_size * self.padding * ((1 - n) / 2 + i) + x
                 if child.partnerships.exists():
-                    px = xi + self.padding
                     child_partnership = next(iter(child.partnerships.all()))
-                    self.add_partnership(child_partnership, px, y + self.padding)
+                    self.add_partnership(child_partnership, xi, y + self.padding)
                     extra += self.padding * 2
                     self.add_children(child_partnership, depth=depth - 1)
                 else:

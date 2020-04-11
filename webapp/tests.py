@@ -234,6 +234,11 @@ class TestGraph(ModelTestCase):
         expected = {self.graph.get_node(self.margaret), self.graph.get_node(self.chris)}
         self.assertSetEqual(expected, self.graph.get_parents(self.opal))
 
+    def test_get_gen_size(self):
+        self.assertEqual(3, self.graph.get_gen_size(self.get_partnership(2), 2))
+        self.assertEqual(1, self.graph.get_gen_size(self.get_partnership(2), 1))
+        self.assertEqual(3, self.graph.get_gen_size(self.get_partnership(1), 1))
+
     @staticmethod
     def add_50_to_x(node):
         node.x += 50

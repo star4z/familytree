@@ -20,10 +20,11 @@ G6.registerBehavior('activate-node', {
     }
 });
 
+//TODO: set width and height dynamically; pass values from Python
 const graph = new G6.Graph({
     container: "family-graph",
-    width: 500,
-    height: 500,
+    width: 1000,
+    height: 1000,
     modes: {
         default: ['activate-node'],
     },
