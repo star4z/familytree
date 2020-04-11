@@ -273,6 +273,8 @@ def add_partnership(request, tree_pk):
                     for person in children:
                         person.save()
 
+                return redirect('partnership')
+
         # If request isn't POST, display forms with empty fields.
         else:
             partnership_form = AddPartnershipForm(tree_id=tree_pk)
