@@ -1,24 +1,22 @@
-{% extends "base_generic.html" %}
-
-{% block content %}
-    <h1>Partnership List</h1>
-    {% if partnership_list %}
-        <ul>
-            {% for partnership in partnership_list %}
-                <li>
-                    <b>Partners:</b>
-                    {% for people in partnership.person_set.all %}
-                        <a href="{{ people.get_absolute_url }}">{{ people.legal_name }}</a>
-                        {% if not forloop.last %},{% endif %}
-                    {% endfor %}
-                    <br>
-                    {% include "webapp/boolean_checkbox.html" with key="Married" value=partnership.married %}<br>
-                    {% include "webapp/boolean_checkbox.html" with key="Current" value=partnership.current %}<br>
-                </li>
+<h3 style = "display:inline">Partnerships</h3>
+&nbsp;
+<a href="{% url 'add_partnership' tree.id %}" style="color:grey;opacity: 0.9;">add</a>
+{% if partnership_list %}
+    <ul>
+        {% for partnership in partnership_list %}
+            <li>
+                <b>Partners:</b>
+                {% for people in partnership.person_set.all %}
+                    <a href="{{ people.get_absolute_url }}">{{ people.legal_name }}</a>
+                    {% if not forloop.last %},{% endif %}
+                {% endfor %}
                 <br>
-            {% endfor %}
-        </ul>
-    {% else %}
-        <p>There are no partnerships in the library.</p>
-    {% endif %}
-{% endblock %}
+                {% include "webapp/boolean_checkbox.html" with key="Married" value=partnership.married %}<br>
+                {% include "webapp/boolean_checkbox.html" with key="Current" value=partnership.current %}<br>
+            </li>
+            <br>
+        {% endfor %}
+    </ul>
+{% else %}
+    <p>There are no partnerships in the tree.</p>
+{% endif %}
