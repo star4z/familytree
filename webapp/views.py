@@ -130,7 +130,7 @@ def add_person(request, tree_pk):
                 created_person.save()
 
                 # redirect to page containing new Person instance's details
-                return redirect('person_detail', pk=created_person.id)
+                return redirect('tree_detail', pk=created_person.tree.id)
 
         # if a GET (or any other method) we'll create a blank form
         else:
