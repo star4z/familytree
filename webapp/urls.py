@@ -31,7 +31,6 @@ urlpatterns = [
     path('tree/<int:tree_pk>/add_person/', views.add_person, name='add_person'),
     path('tree/<int:tree_pk>/person/<int:person_pk>/edit/', views.edit_person, name='edit_person'),
     path('person/delete/<int:person_pk>/<int:name_pk>/<int:tree_pk>/', views.delete_person, name="delete_person"),
-    path('partnership/', views.PartnershipListView.as_view(), name='partnership'),
     path('tree/<int:tree_pk>/add_partnership/', views.add_partnership, name='add_partnership'),
     path('tree/<int:tree_pk>/person/<int:person_pk>/partnership/<int:partnership_pk>/edit/', views.edit_partnership, name='edit_partnership'),
     path('person/delete/<int:partnership_pk>/<int:person_pk>/', views.delete_partnership, name="delete_partnership"),
