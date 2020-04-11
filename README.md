@@ -52,4 +52,4 @@ Then, create a file called `__init__.py` and place it inside the `migrations` fo
 * Tri Minh Duong
 
 ## License
-This project is licensed under the GNU General Public License v3.0 License - see the [LICENSE.md](LICENSE.md) file for details
+This project is licensed under the GNU General Public License v3.0 License - see the [LICENSE](LICENSE) file for details
