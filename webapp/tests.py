@@ -227,64 +227,7 @@ class TestGraph(ModelTestCase):
         expected_added_people = {self.opal, self.margaret, self.chris}
         self.assertSetEqual(expected_added_people, self.graph.added_people)
 
-    def test_get_parents(self):
-        self.graph.add_person(self.opal)
-        self.graph.add_parents(self.opal)
-
-        expected = {self.graph.get_node(self.margaret), self.graph.get_node(self.chris)}
-        self.assertSetEqual(expected, self.graph.get_parents(self.opal))
-
     def test_get_gen_size(self):
         self.assertEqual(3, self.graph.get_gen_size(self.get_partnership(2), 2))
         self.assertEqual(1, self.graph.get_gen_size(self.get_partnership(2), 1))
         self.assertEqual(3, self.graph.get_gen_size(self.get_partnership(1), 1))
-
-    @staticmethod
-    def add_50_to_x(node):
-        node.x += 50
-
-    def test_apply_to_parents(self):
-        self.graph.add_person(self.opal)
-        self.graph.add_parents(self.opal)
-
-        chris_x0 = self.graph.get_node(self.chris).x
-        margaret_x0 = self.graph.get_node(self.margaret).x
-
-        self.graph.apply_to_parents(self.opal, self.add_50_to_x)
-
-        chris_x1 = self.graph.get_node(self.chris).x
-        margaret_x1 = self.graph.get_node(self.margaret).x
-
-        self.assertEqual(chris_x0 + 50, chris_x1)
-        self.assertEqual(margaret_x0 + 50, margaret_x1)
-
-    def test_get_children(self):
-        partnership = self.get_partnership(1)
-        self.graph.add_partnership(partnership)
-        self.graph.add_children(partnership)
-
-        expected = {
-            self.graph.get_node(self.talia),
-            self.graph.get_node(self.darrel),
-            self.graph.get_node(self.jacob)
-        }
-        self.assertEqual(expected, self.graph.get_children(partnership))
-
-    def test_apply_to_children(self):
-        partnership = self.get_partnership(1)
-        self.graph.add_partnership(partnership)
-        self.graph.add_children(partnership)
-
-        talia_x0 = self.graph.get_node(self.talia).x
-        darrel_x0 = self.graph.get_node(self.darrel).x
-        jacob_x0 = self.graph.get_node(self.jacob).x
-
-        self.graph.apply_to_children(partnership, self.add_50_to_x)
-
-        talia_x1 = self.graph.get_node(self.talia).x
-        darrel_x1 = self.graph.get_node(self.darrel).x
-        jacob_x1 = self.graph.get_node(self.jacob).x
-
-        self.assertEqual(talia_x0 + 50, talia_x1)
-        self.assertEqual(darrel_x0 + 50, darrel_x1)
-        self.assertEqual(jacob_x0 + 50, jacob_x1)

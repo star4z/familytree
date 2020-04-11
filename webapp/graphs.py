@@ -23,10 +23,6 @@ class Graph:
             for kwarg in kwargs:
                 setattr(self, kwarg, kwargs[kwarg])
 
-        def is_overlapping(self, other):
-            # TODO: replace with more robust function
-            return self.x == other.x and self.y == other.y
-
         def __eq__(self, other):
             return self.id == other.id
 
@@ -174,25 +170,6 @@ class Graph:
                 else:
                     self.add_person(child, xi, y + self.padding)
                 self.add_edge(self.gen_id(partnership), self.gen_id(child))
-
-    def get_parents(self, person):
-        person_node = self.get_node(person)
-        parent_partnerships = {edge.source for edge in self.edges if edge.target == person_node.id}
-        parents = {self.get_node(edge.source) for edge in self.edges if edge.target in parent_partnerships}
-        return parents
-
-    def apply_to_parents(self, person, function):
-        for parent in self.get_parents(person):
-            function(parent)
-
-    def get_children(self, partnership):
-        person_node = self.get_node(partnership)
-        children = {self.get_node(edge.target) for edge in self.edges if edge.source == person_node.id}
-        return children
-
-    def apply_to_children(self, partnership, function):
-        for child in self.get_children(partnership):
-            function(child)
 
     def normalize(self, extra_padding=0):
         min_x = min(node.x for node in self.nodes)
