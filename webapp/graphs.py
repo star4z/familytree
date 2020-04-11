@@ -134,7 +134,7 @@ class Graph:
         children = partnership.children.all()
         for child in children:
             if child.partnerships.exists():
-                next_gen_size += max(next_gen_size,
+                next_gen_size = max(next_gen_size,
                                      self.get_gen_size(next(iter(child.partnerships.all())), max_depth - 1))
         return len(children) * (next_gen_size or 1)
 
@@ -149,7 +149,7 @@ class Graph:
 
             # pad row to allow for children, allowing for there being more nodes in the parent row than any child group
             gen_size = max(3 if any(child for child in children if child.partnerships.exists()) else 1,
-                           self.get_gen_size(partnership))
+                           self.get_gen_size(partnership, depth))
 
             extra = 0
             for i in range(n):
