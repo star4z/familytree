@@ -1,4 +1,8 @@
 # Django FamilyTree
+![Django CI](https://github.com/star4z/familytree/workflows/Django%20CI/badge.svg)
+[![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
+![GitHub watchers](https://img.shields.io/github/watchers/star4z/familytree?style=social)
+
 An application that creates and displays user's family tree written in Django.
 
 ## Built With
@@ -7,11 +11,6 @@ An application that creates and displays user's family tree written in Django.
 * <b>Database</b>: MariaDB
 * <b>OS</b>: Ubuntu Server LTS
 * <b>IDE</b>: PyCharm (<i>optional</i>)
-
-## Authors
-* Ben Philips
-* Cynthia Ha
-* Tri Minh Duong
 
 ## Overview
 This web application creates family trees, where users can mangage and edit information on them.
@@ -46,3 +45,11 @@ To get this web application working:
 If the application does not work, please check to see if there is `migrations` folder inside the `webapp` folder.  
 If there isn't, please make a `migrations` folder inside the `webapp` folder.  
 Then, create a file called `__init__.py` and place it inside the `migrations` folder.  
+
+## Authors
+* Ben Philips
+* Cynthia Ha
+* Tri Minh Duong
+
+## License
+This project is licensed under the GNU General Public License v3.0 License - see the [LICENSE](LICENSE) file for details
