@@ -159,7 +159,6 @@ class Graph:
                 i: self.get_family_size(children[i].partnerships.all()[0], depth - 1)
                 if children[i].partnerships.exists() else 1 for i in range(n)}
 
-            extra = 0
             for i in range(n):
                 child: Person = children[i]
                 """
@@ -169,12 +168,11 @@ class Graph:
                 scale by padding to spread them out
                 scale by gen_size to ensure all families have equal space
                 """
-                xi = ((fam_sizes[i] - 1) / 2 + sum(list(fam_sizes.values())[:i]) - (
-                        sum(fam_sizes.values()) + 1) / 2) * self.padding + x
+                xi = ((fam_sizes[i]) / 2 + sum(list(fam_sizes.values())[:i])
+                      - (sum(fam_sizes.values())) / 2) * self.padding + x
                 if child.partnerships.exists():
                     child_partnership = next(iter(child.partnerships.all()))
                     self.add_partnership(child_partnership, xi, y + self.padding)
-                    extra += self.padding * 2
                     self.add_children(child_partnership, depth=depth - 1)
                 else:
                     self.add_person(child, xi, y + self.padding)
