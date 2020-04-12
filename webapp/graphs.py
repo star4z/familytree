@@ -6,6 +6,9 @@ from webapp.models import Person
 class Graph:
     """
     For use with antv/G6; see https://g6.antv.vision/en
+
+    This class currently uses a lot of inefficient calls; they could probably be replaced with a caching system for
+    performance improvements
     """
     padding = 50
 
@@ -135,8 +138,13 @@ class Graph:
         for child in children:
             if child.partnerships.exists():
                 next_gen_size = max(next_gen_size,
-                                     self.get_gen_size(next(iter(child.partnerships.all())), max_depth - 1))
+                                    self.get_gen_size(next(iter(child.partnerships.all())), max_depth - 1))
         return len(children) * (next_gen_size or 1)
+
+    def get_family_size(self, partnership, depth):
+        return max(3, sum(
+            self.get_family_size(child.partnerships.all()[0], depth - 1) if child.partnerships.exists() else 1 for child
+            in partnership.children.all()))
 
     def add_children(self, partnership, x=None, y=None, depth=1):
         if depth > 0:
@@ -147,9 +155,9 @@ class Graph:
             children = list(partnership.children.all())
             n = len(children)
 
-            # pad row to allow for children, allowing for there being more nodes in the parent row than any child group
-            gen_size = max(3 if any(child for child in children if child.partnerships.exists()) else 1,
-                           self.get_gen_size(partnership, depth))
+            fam_sizes = {
+                i: self.get_family_size(children[i].partnerships.all()[0], depth - 1)
+                if children[i].partnerships.exists() else 1 for i in range(n)}
 
             extra = 0
             for i in range(n):
@@ -161,7 +169,8 @@ class Graph:
                 scale by padding to spread them out
                 scale by gen_size to ensure all families have equal space
                 """
-                xi = gen_size * self.padding * ((1 - n) / 2 + i) + x
+                xi = ((fam_sizes[i] - 1) / 2 + sum(list(fam_sizes.values())[:i]) - (
+                        sum(fam_sizes.values()) + 1) / 2) * self.padding + x
                 if child.partnerships.exists():
                     child_partnership = next(iter(child.partnerships.all()))
                     self.add_partnership(child_partnership, xi, y + self.padding)
