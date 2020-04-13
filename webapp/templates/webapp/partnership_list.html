@@ -58,7 +58,7 @@
                 <td>
                     <button onclick="location.href='{% url 'edit_partnership' partnership.id %}'">edit</button>
                 </td>
-                <td> {% include "webapp/delete_partnership.html" %} </td>
+                <td> {% include "webapp/delete_confirmationbox.html" with type='Partnership' id=partnership.id str=partnership delete_function='delete_partnership' %} </td>
             {% endfor %}
             </tr>
             </tbody>

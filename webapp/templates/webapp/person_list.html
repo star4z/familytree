@@ -38,7 +38,7 @@
                 <td>
                     <button onclick="location.href='{% url 'edit_person' person.id %}'">edit</button>
                 </td>
-                <td> {% include "webapp/delete_confirmationbox.html" %} </td>
+                <td> {% include "webapp/delete_confirmationbox.html" with type='Person' id=person.id str=person.legal_name delete_function='delete_person' %} </td>
             {% endfor %}
             </tr>
             </tbody>
