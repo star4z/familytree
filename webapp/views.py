@@ -8,9 +8,9 @@ from django.views import generic
 from django.views.decorators.http import require_POST
 
 from webapp.forms import AddPersonForm, AddNameForm, AddTreeForm, AddPartnershipForm, AlternateNameFormSet, \
-    NewPartnerFormSet, AddPartnerFormSet, PartnershipChildFormSet
+    NewPartnerFormSet, PartnershipChildFormSet
 from webapp.graphs import Graph
-from webapp.models import Person, Partnership, Location, LegalName, Tree
+from webapp.models import Person, Partnership, Location, Tree
 
 
 @login_required
@@ -189,29 +189,37 @@ def edit_person(request, pk):
 
 
 @login_required
-def add_partnership(request, pk):
-    current_tree = Tree.objects.get(pk=pk)
-
-    # Allow tree to be accessed and modified through forms if tree's creator 
+def save_partnership(request, current_tree, template, current_partnership=None):
+    tree_pk = current_tree.pk
+    # Allow tree to be accessed and modified through forms if tree's creator
     # is the requesting user
     if current_tree.creator == request.user:
+        partnership_form = None
+        person_partner_formset = None
+        partnership_child_formset = None
+
         if request.method == 'POST':
-            partnership_form = AddPartnershipForm(data=request.POST, tree_id=pk)
+            partnership_form = AddPartnershipForm(data=request.POST, tree_id=tree_pk)
 
             if partnership_form.is_valid():
                 # Create the partnership from the form data, connect it to
                 # the tree it belongs in, and save it.
-                created_partnership = partnership_form.save(commit=False)
-                created_partnership.tree = current_tree
-                created_partnership.save()
+                if not current_partnership:
+                    current_partnership = partnership_form.save(commit=False)
+                    current_partnership.tree = current_tree
+                    current_partnership.save()
 
                 # Save the partnership's many-to-many relationships to reflect
                 # change to connected objects
-                partnership_form.save_m2m()
+                # partnership_form.save_m2m()
 
                 # Formset for adding partner (Person) to Partnership
-                person_partner_formset = NewPartnerFormSet(data=request.POST, instance=created_partnership,
-                                                           form_kwargs={'tree_id': pk}, prefix="person_partner")
+                person_partner_formset = NewPartnerFormSet(
+                    data=request.POST,
+                    instance=current_partnership,
+                    form_kwargs={'tree_id': tree_pk},
+                    prefix="person_partner"
+                )
 
                 # Save every added partner to reflect change.
                 if person_partner_formset.is_valid():
@@ -220,9 +228,11 @@ def add_partnership(request, pk):
                         person.save()
 
                 # Add child (Person) to Partnership
-                partnership_child_formset = PartnershipChildFormSet(data=request.POST, instance=created_partnership,
-                                                                    form_kwargs={'tree_id': pk},
-                                                                    prefix="partnership_child")
+                partnership_child_formset = PartnershipChildFormSet(
+                    data=request.POST, instance=current_partnership,
+                    form_kwargs={'tree_id': tree_pk},
+                    prefix="partnership_child"
+                )
 
                 # Save every added child to reflect change
                 if partnership_child_formset.is_valid():
@@ -232,14 +242,33 @@ def add_partnership(request, pk):
 
                 # redirect to back to the Tree detail page that
                 # Person was created in
-                return redirect('tree_detail', pk=created_partnership.tree.id)
+                return redirect('tree_detail', pk=tree_pk)
 
         # If request isn't POST, display forms with empty fields.
+        if current_partnership:
+            partnership_form = partnership_form or AddPartnershipForm(
+                instance=current_partnership,
+                tree_id=tree_pk
+            )
+            person_partner_formset = person_partner_formset or NewPartnerFormSet(
+                instance=current_partnership,
+                form_kwargs={'tree_id': tree_pk},
+                prefix="person_partner"
+            )
+            partnership_child_formset = partnership_child_formset or PartnershipChildFormSet(
+                instance=current_partnership,
+                form_kwargs={'tree_id': tree_pk},
+                prefix="partnership_child"
+            )
         else:
-            partnership_form = AddPartnershipForm(tree_id=pk)
-            person_partner_formset = NewPartnerFormSet(form_kwargs={'tree_id': pk}, prefix="person_partner")
-            partnership_child_formset = PartnershipChildFormSet(form_kwargs={'tree_id': pk},
-                                                                prefix="partnership_child")
+            partnership_form = partnership_form or AddPartnershipForm(tree_id=tree_pk)
+            person_partner_formset = person_partner_formset or NewPartnerFormSet(
+                form_kwargs={'tree_id': tree_pk},
+                prefix="person_partner"
+            )
+            partnership_child_formset = partnership_child_formset or PartnershipChildFormSet(
+                form_kwargs={'tree_id': tree_pk},
+                prefix="partnership_child")
 
         context = {
             'partnership_form': partnership_form,
@@ -247,69 +276,23 @@ def add_partnership(request, pk):
             'partnership_child_formset': partnership_child_formset
         }
 
-        return render(request, 'webapp/add_partnership.html', context)
+        return render(request, template, context)
 
     else:
         raise Http404
 
 
 @login_required
+def add_partnership(request, pk):
+    current_tree = Tree.objects.get(pk=pk)
+    return save_partnership(request, current_tree, 'webapp/add_partnership.html')
+
+
+@login_required
 def edit_partnership(request, pk):
     current_partnership = Partnership.objects.get(pk=pk)
     current_tree = current_partnership.tree
-
-    # Allow tree to be accessed and modified through forms if tree's creator 
-    # is the requesting user
-    if current_tree.creator == request.user:
-        if request.method == 'POST':
-            partnership_form = AddPartnershipForm(data=request.POST, instance=current_partnership,
-                                                  tree_id=current_tree.pk)
-
-            if partnership_form.is_valid():
-                partnership_form.save()
-
-                # Formset for adding partner (Person) to Partnership
-                person_partner_formset = AddPartnerFormSet(data=request.POST, instance=current_partnership,
-                                                           form_kwargs={'tree_id': current_tree.pk},
-                                                           prefix="person_partner")
-
-                # Save every added partner to reflect change.
-                if person_partner_formset.is_valid():
-                    person_partner_formset.save()
-
-                # Add child (Person) to Partnership
-                partnership_child_formset = PartnershipChildFormSet(data=request.POST, instance=current_partnership,
-                                                                    form_kwargs={'tree_id': current_tree.pk},
-                                                                    prefix="partnership_child")
-
-                # Save every added child to reflect change
-                if partnership_child_formset.is_valid():
-                    partnership_child_formset.save()
-
-                # Redirect to Person detail view that the Edit Partnership
-                # button was clicked in.
-                return redirect('tree_detail', pk=current_tree.pk)
-
-        # If request isn't POST, display forms with empty fields.
-        else:
-            partnership_form = AddPartnershipForm(instance=current_partnership, tree_id=current_tree.pk)
-            person_partner_formset = AddPartnerFormSet(instance=current_partnership,
-                                                       form_kwargs={'tree_id': current_tree.pk},
-                                                       prefix="person_partner")
-            partnership_child_formset = PartnershipChildFormSet(instance=current_partnership,
-                                                                form_kwargs={'tree_id': current_tree.pk},
-                                                                prefix="partnership_child")
-
-        context = {
-            'partnership_form': partnership_form,
-            'person_partner_formset': person_partner_formset,
-            'partnership_child_formset': partnership_child_formset
-        }
-
-        return render(request, 'webapp/edit_partnership.html', context)
-
-    else:
-        raise Http404
+    return save_partnership(request, current_tree, 'webapp/edit_partnership.html', current_partnership)
 
 
 @login_required
