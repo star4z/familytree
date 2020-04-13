@@ -209,9 +209,9 @@ def save_partnership(request, current_tree, template, current_partnership=None):
                     current_partnership.tree = current_tree
                     current_partnership.save()
 
-                # Save the partnership's many-to-many relationships to reflect
-                # change to connected objects
-                # partnership_form.save_m2m()
+                    # Save the partnership's many-to-many relationships to reflect
+                    # change to connected objects
+                    partnership_form.save_m2m()
 
                 # Formset for adding partner (Person) to Partnership
                 person_partner_formset = NewPartnerFormSet(
