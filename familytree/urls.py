@@ -18,8 +18,6 @@ from django.urls import include, path
 # Use to redirect root view to only app: webapp (Can be changed)
 from django.views.generic import RedirectView
 
-from accounts import views
-
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('webapp/', include('webapp.urls')),

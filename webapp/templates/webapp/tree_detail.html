@@ -7,7 +7,7 @@
     </h1>
     &nbsp;
     <a href="{% url 'edit_tree' tree.id %}" style="color:grey;opacity: 0.9;">edit</a>
-    {% include "webapp/delete_tree.html" %}
+    {% include "webapp/delete_confirmationbox.html" with type='Tree' id=tree.id str=tree.title delete_function='delete_tree' %}
     
     <p><strong>Notes:</strong> {{ tree.notes }}</p>
 

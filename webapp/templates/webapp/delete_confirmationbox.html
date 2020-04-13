@@ -1,14 +1,16 @@
-<button onclick="document.getElementById('id{{person.id}}').style.display='block'">delete</button>
+<button onclick="document.getElementById('{{ type }}_{{ id }}').style.display='block'">delete</button>
 
-<div id="id{{person.id}}" class="modal">
-    <form class="modal-content" action="{% url 'delete_person' person.id person.legal_name.id person.tree.id %}" method="POST">
+<div id="{{ type }}_{{ id }}" class="modal">
+    {# delete_function must be filled by a str referencing a view, ex. 'delete_person' #}
+    <form class="modal-content" action="{% url delete_function id %}" method="POST">
         {% csrf_token %}
-        <span onclick="document.getElementById('id{{person.id}}').style.display='none'" class="close"
+        <span onclick="document.getElementById('{{ type }}_{{ id }}').style.display='none'" class="close"
               title="Close Modal">&times;</span>
         <div class="container">
-            <br>Are you sure you want to delete <i>{{ person.legal_name }}</i>?
+            <br>Are you sure you want to delete <i>{{ str }}</i>?
             <div class="clearfix">
-                <button type="button" class="cancelbtn" onclick="document.getElementById('id{{person.id}}').style.display='none'"
+                <button type="button" class="cancelbtn"
+                        onclick="document.getElementById('{{ type }}_{{ id }}').style.display='none'"
                         title="Close Modal">Cancel
                 </button>
                 <button type="submit" class="deletebtn">Delete</button>

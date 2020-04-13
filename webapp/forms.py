@@ -1,8 +1,9 @@
 from django import forms
 from django.forms import ModelForm
-from django.forms import modelformset_factory
 from django.forms import inlineformset_factory
+
 from webapp.models import Person, LegalName, Location, Partnership, AlternateName, Tree
+
 
 class AddNameForm(ModelForm):
     class Meta:
@@ -16,26 +17,27 @@ class AddNameForm(ModelForm):
             'suffix': forms.TextInput(attrs={'size': '3'})
         }
 
+
 class AddPersonForm(ModelForm):
-    blank_choice = [('','----------------')]
-    birth_city = forms.CharField(label='City/Town/Village', 
-        max_length=50, required=False)
+    blank_choice = [('', '----------------')]
+    birth_city = forms.CharField(label='City/Town/Village',
+                                 max_length=50, required=False)
     birth_state = forms.CharField(label='State/Province/Region',
-        max_length=50, required=False)
-    birth_country = forms.ChoiceField(label='Country', 
-        choices=blank_choice + Location.Country.choices, required=False)
+                                  max_length=50, required=False)
+    birth_country = forms.ChoiceField(label='Country',
+                                      choices=blank_choice + Location.Country.choices, required=False)
 
     death_city = forms.CharField(label='City/Town/Village',
-        max_length=50, required=False)
-    death_state = forms.CharField(label='State/Province/Region', 
-        max_length=50, required=False)
-    death_country = forms.ChoiceField(label='Country', 
-        choices=blank_choice + Location.Country.choices, required=False)
+                                 max_length=50, required=False)
+    death_state = forms.CharField(label='State/Province/Region',
+                                  max_length=50, required=False)
+    death_country = forms.ChoiceField(label='Country',
+                                      choices=blank_choice + Location.Country.choices, required=False)
 
     class Meta:
         model = Person
-        fields = ['preferred_name', 'gender', 'birth_date', 'death_date', 
-            'living', 'notes']
+        fields = ['preferred_name', 'gender', 'birth_date', 'death_date',
+                  'living', 'notes']
         widgets = {
             'preferred_name': forms.TextInput(attrs={'size': '40'}),
             'birth_date': forms.DateInput(attrs={'type': 'date'}),
@@ -43,15 +45,17 @@ class AddPersonForm(ModelForm):
             'notes': forms.Textarea(attrs={'rows': 10, 'cols': '50'})
         }
 
-    field_order = ['preferred_name', 'gender', 'birth_date', 'birth_city', 
-        'birth_state','birth_country', 'living', 'death_date', 'death_city', 
-        'death_state', 'death_country', 'notes']
+    field_order = ['preferred_name', 'gender', 'birth_date', 'birth_city',
+                   'birth_state', 'birth_country', 'living', 'death_date', 'death_city',
+                   'death_state', 'death_country', 'notes']
+
 
 class AlternateNameForm(ModelForm):
     first_name = forms.CharField(required=False)
+
     class Meta:
         model = AlternateName
-        exclude = ['person','tree']
+        exclude = ['person', 'tree']
         widgets = {
             'prefix': forms.TextInput(attrs={'size': '4'}),
             'first_name': forms.TextInput(attrs={'size': '30'}),
@@ -62,6 +66,7 @@ class AlternateNameForm(ModelForm):
 
 
 AlternateNameFormSet = inlineformset_factory(Person, AlternateName, form=AlternateNameForm, extra=1, can_delete=True)
+
 
 class AddTreeForm(ModelForm):
     class Meta:
@@ -79,13 +84,14 @@ class AddPartnershipForm(ModelForm):
         }
 
     def __init__(self, *args, **kwargs):
-        tree = kwargs.pop('tree_id')        
+        tree = kwargs.pop('tree_id')
         super(AddPartnershipForm, self).__init__(*args, **kwargs)
         # self.fields['children'].queryset = Person.objects.filter(tree=tree)
 
+
 # Form for adding partner (Person) to Partnership
 class AddPersonPartnership(ModelForm):
-    class Meta: 
+    class Meta:
         model = Person.partnerships.through
         fields = '__all__'
 
@@ -94,12 +100,13 @@ class AddPersonPartnership(ModelForm):
         super(AddPersonPartnership, self).__init__(*args, **kwargs)
         self.fields['person'].queryset = Person.objects.filter(tree=tree)
 
+
 # Form for adding a child (Person) to a Partnership
 class AddPartnershipChild(ModelForm):
     class Meta:
         model = Partnership.children.through
         fields = '__all__'
-    
+
     def __init__(self, *args, **kwargs):
         tree = kwargs.pop('tree_id')
         super(AddPartnershipChild, self).__init__(*args, **kwargs)
@@ -109,12 +116,15 @@ class AddPartnershipChild(ModelForm):
 # Formset for form that adds partner (Person) to Partnership.
 # Specifically for an Add Partnership form, at least two slots are made avaiable
 # to add at least two people to the partnership
-NewPartnerFormSet = inlineformset_factory(Partnership, Person.partnerships.through, form=AddPersonPartnership, extra=2, can_delete=True)
+NewPartnerFormSet = inlineformset_factory(Partnership, Person.partnerships.through, form=AddPersonPartnership, extra=2,
+                                          can_delete=True)
 
 # Formset for form that adds partner (Person) to Partnership.
 # Specifically for an Edit Partnership form, at least one slot is made avaiable
 # to add at least one additional person to the partnership
-AddPartnerFormSet = inlineformset_factory(Partnership, Person.partnerships.through, form=AddPersonPartnership, extra=1, can_delete=True)
+AddPartnerFormSet = inlineformset_factory(Partnership, Person.partnerships.through, form=AddPersonPartnership, extra=1,
+                                          can_delete=True)
 
 # Formset for form that adds child (Person) to Partnership
-PartnershipChildFormSet = inlineformset_factory(Partnership, Partnership.children.through, form=AddPartnershipChild, extra=1, can_delete=True)
+PartnershipChildFormSet = inlineformset_factory(Partnership, Partnership.children.through, form=AddPartnershipChild,
+                                                extra=1, can_delete=True)

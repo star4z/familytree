@@ -1,7 +1,6 @@
 from django.contrib.auth.models import User
 from django.test import TestCase
 
-from accounts import views
 from accounts.tokens import account_activation_token
 
 

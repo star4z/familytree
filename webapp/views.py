@@ -1,15 +1,16 @@
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.core.handlers.wsgi import WSGIRequest
 from django.http import Http404
 from django.shortcuts import render, redirect, get_object_or_404
 from django.views import generic
 from django.views.decorators.http import require_POST
 
 from webapp.forms import AddPersonForm, AddNameForm, AddTreeForm, AddPartnershipForm, AlternateNameFormSet, \
-    NewPartnerFormSet, AddPartnerFormSet, PartnershipChildFormSet
+    NewPartnerFormSet, PartnershipChildFormSet
 from webapp.graphs import Graph
-from webapp.models import Person, Partnership, Location, LegalName, Tree
+from webapp.models import Person, Partnership, Location, Tree
 
 
 @login_required
@@ -38,8 +39,8 @@ def add_tree(request):
 
 
 @login_required
-def edit_tree(request, tree_pk):
-    current_tree = Tree.objects.get(pk=tree_pk)
+def edit_tree(request, pk):
+    current_tree = Tree.objects.get(pk=pk)
 
     # Check that the current user is the creator of this Tree before they
     # can modify it
@@ -63,15 +64,16 @@ def edit_tree(request, tree_pk):
 
 
 @login_required
-def add_person(request, tree_pk):
-    current_tree = Tree.objects.get(pk=tree_pk)
-
-    # User validation to prevent other users from adding to trees that aren't theirs
+def save_person(request, current_tree, template_name, current_person: Person = None):
     if current_tree.creator == request.user:
+        name_form = None
+        person_form = None
+        alt_name_formset = None
+
         if request.method == 'POST':
             # if this is a POST request we need to process the form data
-            name_form = AddNameForm(request.POST)
-            person_form = AddPersonForm(request.POST)
+            name_form = AddNameForm(request.POST, instance=current_person.legal_name if current_person else None)
+            person_form = AddPersonForm(request.POST, instance=current_person)
 
             # Tuple that contains validation status of each filled form
             form_validations = (
@@ -87,15 +89,16 @@ def add_person(request, tree_pk):
                 created_legal_name.tree = current_tree
                 created_legal_name.save()
 
-                # Create a Person instance from person form's data
-                # Person instance's Legal Name attribute will be a foreign key
-                created_person = person_form.save(commit=False)
-                created_person.tree = current_tree
-                created_person.legal_name = created_legal_name
-                created_person.save()
+                if not current_person:
+                    # Create a Person instance from person form's data
+                    # Person instance's Legal Name attribute will be a foreign key
+                    current_person = person_form.save(commit=False)
+                    current_person.tree = current_tree
+                    current_person.legal_name = created_legal_name
+                    current_person.save()
 
                 # Create Alternate Name for person
-                alt_name_formset = AlternateNameFormSet(request.POST, instance=created_person)
+                alt_name_formset = AlternateNameFormSet(request.POST, instance=current_person)
                 if alt_name_formset.is_valid():
                     alt_names = alt_name_formset.save(commit=False)
                     for alt_name in alt_names:
@@ -126,104 +129,37 @@ def add_person(request, tree_pk):
                     death_location.save()
 
                 # Assign the location instances as keys in Person instance
-                created_person.birth_location = birth_location
-                created_person.death_location = death_location
-
-                created_person.save()
-
-                # redirect to back to the Tree detail page that
-                # Person was created in
-                return redirect('tree_detail', pk=created_person.tree.id)
-
-        # if a GET (or any other method) we'll create a blank form
-        else:
-            name_form = AddNameForm()
-            person_form = AddPersonForm()
-            alt_name_formset = AlternateNameFormSet()
-
-        context = {
-            'name_form': name_form,
-            'person_form': person_form,
-            'alt_name_formset': alt_name_formset,
-        }
-
-        return render(request, 'webapp/add_person.html', context)
-
-    else:
-        raise Http404
-
-
-@login_required
-def edit_person(request, tree_pk, person_pk):
-    current_tree = Tree.objects.get(pk=tree_pk)
-    current_person = Person.objects.get(pk=person_pk)
-
-    # User validation to prevent other users from adding to trees that aren't theirs
-    if current_tree.creator == request.user:
-        if request.method == 'POST':
-            # if this is a POST request we need to process the form data
-            name_form = AddNameForm(request.POST, instance=current_person.legal_name)
-            person_form = AddPersonForm(request.POST, instance=current_person)
-
-            # Tuple that contains validation status of each filled form
-            form_validations = (
-                person_form.is_valid(),
-                name_form.is_valid(),
-            )
-
-            # Update/Save instances if all forms are valid.
-            if all(form_validations):
-
-                name_form.save()
-                person_form.save()
-
-                alt_name_formset = AlternateNameFormSet(request.POST, instance=current_person)
-                if alt_name_formset.is_valid():
-                    alt_name_formset.save()
-
-                # Check each location form's data and query for existing Location
-                # instances.
-                # If location exists, stores it in the corresponding location
-                # variable and sets location_created boolean to false
-                # If it doesn't exist, create a new instance from form's data and
-                # set location_created boolean to true
-                birth_location, birth_loc_was_created = Location.objects.get_or_create(
-                    city=person_form.cleaned_data['birth_city'],
-                    state=person_form.cleaned_data['birth_state'],
-                    country=person_form.cleaned_data['birth_country'])
-
-                death_location, death_loc_was_created = Location.objects.get_or_create(
-                    city=person_form.cleaned_data['death_city'],
-                    state=person_form.cleaned_data['death_state'],
-                    country=person_form.cleaned_data['death_country'])
-
-                # if new location instances were created, save them in the DB
-                if birth_loc_was_created:
-                    birth_location.save()
-
-                if death_loc_was_created:
-                    death_location.save()
-
-                # Assign the location instances as keys in Person instance
                 current_person.birth_location = birth_location
                 current_person.death_location = death_location
 
                 current_person.save()
 
-                # redirect to Person's details page to review changes
-                return redirect('person_detail', pk=current_person.id)
+                # redirect to back to the Tree detail page that
+                # Person was created in
+                return redirect('tree_detail', pk=current_person.tree.id)
 
         # if a GET (or any other method) we'll create a blank form
+        if current_person:
+            name_form = name_form or AddNameForm(instance=current_person.legal_name)
+            initial_data = dict()
+            if current_person.birth_location:
+                initial_data.update({
+                    'birth_city': current_person.birth_location.city,
+                    'birth_state': current_person.birth_location.state,
+                    'birth_country': current_person.birth_location.country,
+                })
+            if current_person.death_location:
+                initial_data.update({
+                    'death_city': current_person.death_location.city,
+                    'death_state': current_person.death_location.state,
+                    'death_country': current_person.death_location.country
+                })
+            person_form = person_form or AddPersonForm(instance=current_person, initial=initial_data)
+            alt_name_formset = alt_name_formset or AlternateNameFormSet()
         else:
-            name_form = AddNameForm(instance=current_person.legal_name)
-            person_form = AddPersonForm(instance=current_person,
-                                        initial={'birth_city': current_person.birth_location.city,
-                                                 'birth_state': current_person.birth_location.state,
-                                                 'birth_country': current_person.birth_location.country,
-                                                 'death_city': current_person.death_location.city,
-                                                 'death_state': current_person.death_location.state,
-                                                 'death_country': current_person.death_location.country})
-            alt_name_formset = AlternateNameFormSet(instance=current_person)
+            name_form = name_form or AddNameForm()
+            person_form = person_form or AddPersonForm()
+            alt_name_formset = alt_name_formset or AlternateNameFormSet()
 
         context = {
             'name_form': name_form,
@@ -231,36 +167,59 @@ def edit_person(request, tree_pk, person_pk):
             'alt_name_formset': alt_name_formset,
         }
 
-        return render(request, 'webapp/edit_person.html', context)
+        return render(request, template_name, context)
 
     else:
         raise Http404
 
 
 @login_required
-def add_partnership(request, tree_pk):
-    current_tree = Tree.objects.get(pk=tree_pk)
+def add_person(request, pk):
+    current_tree = Tree.objects.get(pk=pk)
 
-    # Allow tree to be accessed and modified through forms if tree's creator 
+    return save_person(request, current_tree, 'webapp/add_person.html')
+
+
+@login_required
+def edit_person(request, pk):
+    current_person = Person.objects.get(pk=pk)
+    current_tree = current_person.tree
+
+    return save_person(request, current_tree, 'webapp/edit_person.html', current_person)
+
+
+@login_required
+def save_partnership(request, current_tree, template, current_partnership=None):
+    tree_pk = current_tree.pk
+    # Allow tree to be accessed and modified through forms if tree's creator
     # is the requesting user
     if current_tree.creator == request.user:
+        partnership_form = None
+        person_partner_formset = None
+        partnership_child_formset = None
+
         if request.method == 'POST':
             partnership_form = AddPartnershipForm(data=request.POST, tree_id=tree_pk)
 
             if partnership_form.is_valid():
                 # Create the partnership from the form data, connect it to
                 # the tree it belongs in, and save it.
-                created_partnership = partnership_form.save(commit=False)
-                created_partnership.tree = current_tree
-                created_partnership.save()
+                if not current_partnership:
+                    current_partnership = partnership_form.save(commit=False)
+                    current_partnership.tree = current_tree
+                    current_partnership.save()
 
-                # Save the partnership's many-to-many relationships to reflect
-                # change to connected objects
-                partnership_form.save_m2m()
+                    # Save the partnership's many-to-many relationships to reflect
+                    # change to connected objects
+                    partnership_form.save_m2m()
 
                 # Formset for adding partner (Person) to Partnership
-                person_partner_formset = NewPartnerFormSet(data=request.POST, instance=created_partnership,
-                                                           form_kwargs={'tree_id': tree_pk}, prefix="person_partner")
+                person_partner_formset = NewPartnerFormSet(
+                    data=request.POST,
+                    instance=current_partnership,
+                    form_kwargs={'tree_id': tree_pk},
+                    prefix="person_partner"
+                )
 
                 # Save every added partner to reflect change.
                 if person_partner_formset.is_valid():
@@ -269,9 +228,11 @@ def add_partnership(request, tree_pk):
                         person.save()
 
                 # Add child (Person) to Partnership
-                partnership_child_formset = PartnershipChildFormSet(data=request.POST, instance=created_partnership,
-                                                                    form_kwargs={'tree_id': tree_pk},
-                                                                    prefix="partnership_child")
+                partnership_child_formset = PartnershipChildFormSet(
+                    data=request.POST, instance=current_partnership,
+                    form_kwargs={'tree_id': tree_pk},
+                    prefix="partnership_child"
+                )
 
                 # Save every added child to reflect change
                 if partnership_child_formset.is_valid():
@@ -281,14 +242,33 @@ def add_partnership(request, tree_pk):
 
                 # redirect to back to the Tree detail page that
                 # Person was created in
-                return redirect('tree_detail', pk=created_partnership.tree.id)
+                return redirect('tree_detail', pk=tree_pk)
 
         # If request isn't POST, display forms with empty fields.
+        if current_partnership:
+            partnership_form = partnership_form or AddPartnershipForm(
+                instance=current_partnership,
+                tree_id=tree_pk
+            )
+            person_partner_formset = person_partner_formset or NewPartnerFormSet(
+                instance=current_partnership,
+                form_kwargs={'tree_id': tree_pk},
+                prefix="person_partner"
+            )
+            partnership_child_formset = partnership_child_formset or PartnershipChildFormSet(
+                instance=current_partnership,
+                form_kwargs={'tree_id': tree_pk},
+                prefix="partnership_child"
+            )
         else:
-            partnership_form = AddPartnershipForm(tree_id=tree_pk)
-            person_partner_formset = NewPartnerFormSet(form_kwargs={'tree_id': tree_pk}, prefix="person_partner")
-            partnership_child_formset = PartnershipChildFormSet(form_kwargs={'tree_id': tree_pk},
-                                                                prefix="partnership_child")
+            partnership_form = partnership_form or AddPartnershipForm(tree_id=tree_pk)
+            person_partner_formset = person_partner_formset or NewPartnerFormSet(
+                form_kwargs={'tree_id': tree_pk},
+                prefix="person_partner"
+            )
+            partnership_child_formset = partnership_child_formset or PartnershipChildFormSet(
+                form_kwargs={'tree_id': tree_pk},
+                prefix="partnership_child")
 
         context = {
             'partnership_form': partnership_form,
@@ -296,105 +276,56 @@ def add_partnership(request, tree_pk):
             'partnership_child_formset': partnership_child_formset
         }
 
-        return render(request, 'webapp/add_partnership.html', context)
+        return render(request, template, context)
 
     else:
         raise Http404
 
 
 @login_required
-def edit_partnership(request, tree_pk, person_pk, partnership_pk):
-    current_tree = Tree.objects.get(pk=tree_pk)
-    current_partnership = Partnership.objects.get(pk=partnership_pk)
+def add_partnership(request, pk):
+    current_tree = Tree.objects.get(pk=pk)
+    return save_partnership(request, current_tree, 'webapp/add_partnership.html')
 
-    # Allow tree to be accessed and modified through forms if tree's creator 
-    # is the requesting user
-    if current_tree.creator == request.user:
-        if request.method == 'POST':
-            partnership_form = AddPartnershipForm(data=request.POST, instance=current_partnership, tree_id=tree_pk)
 
-            if partnership_form.is_valid():
-                partnership_form.save()
-
-                # Formset for adding partner (Person) to Partnership
-                person_partner_formset = AddPartnerFormSet(data=request.POST, instance=current_partnership,
-                                                           form_kwargs={'tree_id': tree_pk}, prefix="person_partner")
-
-                # Save every added partner to reflect change.
-                if person_partner_formset.is_valid():
-                    person_partner_formset.save()
-
-                # Add child (Person) to Partnership
-                partnership_child_formset = PartnershipChildFormSet(data=request.POST, instance=current_partnership,
-                                                                    form_kwargs={'tree_id': tree_pk},
-                                                                    prefix="partnership_child")
-
-                # Save every added child to reflect change
-                if partnership_child_formset.is_valid():
-                    partnership_child_formset.save()
-
-                # Redirect to Person detail view that the Edit Partnership
-                # button was clicked in.
-                return redirect('person_detail', pk=person_pk)
-
-        # If request isn't POST, display forms with empty fields.
-        else:
-            partnership_form = AddPartnershipForm(instance=current_partnership, tree_id=tree_pk)
-            person_partner_formset = AddPartnerFormSet(instance=current_partnership, form_kwargs={'tree_id': tree_pk},
-                                                       prefix="person_partner")
-            partnership_child_formset = PartnershipChildFormSet(instance=current_partnership,
-                                                                form_kwargs={'tree_id': tree_pk},
-                                                                prefix="partnership_child")
-
-        context = {
-            'partnership_form': partnership_form,
-            'person_partner_formset': person_partner_formset,
-            'partnership_child_formset': partnership_child_formset
-        }
-
-        return render(request, 'webapp/edit_partnership.html', context)
-
-    else:
-        raise Http404
+@login_required
+def edit_partnership(request, pk):
+    current_partnership = Partnership.objects.get(pk=pk)
+    current_tree = current_partnership.tree
+    return save_partnership(request, current_tree, 'webapp/edit_partnership.html', current_partnership)
 
 
 @login_required
 @require_POST
-def delete_person(request, person_pk, name_pk, tree_pk):
-    person_obj = Person.objects.get(pk=person_pk)
+def delete_person(request, pk):
+    person_obj = Person.objects.get(pk=pk)
     alt_name_list = person_obj.alternate_name.all()
     alt_name_list.delete()
     person_obj.delete()
-    query = LegalName.objects.get(pk=name_pk)
+    query = person_obj.legal_name
     query.delete()
-    return redirect('tree_detail', pk=tree_pk)
+    return redirect('tree_detail', pk=person_obj.tree.pk)
 
 
 @login_required
 @require_POST
-def delete_partnership(request, partnership_pk, person_pk):
-    partnership_obj = Partnership.objects.get(pk=partnership_pk)
+def delete_partnership(request: WSGIRequest, pk):
+    partnership_obj = Partnership.objects.get(pk=pk)
     partnership_obj.delete()
-    return redirect('person_detail', pk=person_pk)
+    return redirect('tree_detail', pk=partnership_obj.tree.pk)
 
 
 @login_required
 @require_POST
-def delete_tree(request, tree_pk):
-    tree = Tree.objects.get(pk=tree_pk)
+def delete_tree(request, pk):
+    tree = Tree.objects.get(pk=pk)
     people = Person.objects.filter(tree=tree)
     for person in people:
-        delete_person(request, person.id, person.legal_name.id, tree.id)
+        delete_person(request, person.id)
     partnerships = Partnership.objects.filter(tree=tree)
     partnerships.delete()
     tree.delete()
     return redirect('tree')
-
-
-@login_required
-@require_POST
-def go_back_tree(request, tree_pk):
-    return redirect('tree_detail', pk=tree_pk)
 
 
 toast_messages = {

@@ -177,7 +177,7 @@ class Person(models.Model):
                         if partnership.divorced:
                             relationship_statuses.add(Partnership.MaritalStatus.DIVORCED)
                             if partnership.current:
-                                max_death_date = Partnership.max_death_date()
+                                max_death_date = partnership.max_death_date()
                                 if self.death_date and max_death_date and self.death_date > max_death_date:
                                     relationship_statuses.add(Partnership.MaritalStatus.DIVORCED)
                                 else:

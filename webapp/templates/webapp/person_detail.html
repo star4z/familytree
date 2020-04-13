@@ -2,7 +2,7 @@
 
 {% block content %}
     <p>
-    <h3 style = "display:inline">
+    <h3 style="display:inline">
         {{ person.legal_name.prefix }}
         {{ person.legal_name.first_name }}
         {{ person.legal_name.middle_name }}
@@ -10,10 +10,10 @@
         [{{ person.id }}]
     </h3>
     &nbsp;
-    <a href="{% url 'edit_person' person.tree.id person.id %}" style="color:grey;">edit</a>
-    {% include "webapp/delete_confirmationbox.html" %}
+    <a href="{% url 'edit_person' person.id %}" style="color:grey;">edit</a>
+    {% include "webapp/delete_confirmationbox.html" with type='Person' id=person.id str=person.legal_name delete_function='delete_person' %}
     <br>
-    <a href="{% url 'go_back_tree' person.tree.id %}">Back to Tree</a>
+    <a href="{% url 'tree_detail' person.tree.id %}">Back to Tree</a>
     <p><a href="{{ request.path }}graph/">view graph</a></p>
 
     <p><strong>Alternate names:</strong></p>
@@ -62,15 +62,15 @@
     {% endwith %}
     <p><strong>Siblings</strong></p>
     {% with siblings=person.siblings %}
-    {% if siblings %}
-        <ul>
-            {% for sibling in siblings %}
-                <li><a href="{{ sibling.get_absolute_url }}">{{ sibling.legal_name }}</a></li>
-            {% endfor %}
-        </ul>
-    {% else %}
-        <p>None</p>
-    {% endif %}
+        {% if siblings %}
+            <ul>
+                {% for sibling in siblings %}
+                    <li><a href="{{ sibling.get_absolute_url }}">{{ sibling.legal_name }}</a></li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            <p>None</p>
+        {% endif %}
     {% endwith %}
 
     <p><strong>Notes:</strong></p>
@@ -81,62 +81,64 @@
             <div class="table-responsive">
                 <table class="table table-striped table-sm">
                     <thead>
-                        <tr>
-                            <th> Partnership </th>
-                            <th> Current </th>
-                            <th> Married </th>
-                            <th> Marriage Date </th>
-                            <th> Divorced </th>
-                            <th> Divorced Date </th>
-                            <th> Children </th>
-                            <th>  </th>
-                            <th> </th>
-                        </tr>
+                    <tr>
+                        <th> Partnership</th>
+                        <th> Current</th>
+                        <th> Married</th>
+                        <th> Marriage Date</th>
+                        <th> Divorced</th>
+                        <th> Divorced Date</th>
+                        <th> Children</th>
+                        <th></th>
+                        <th></th>
+                    </tr>
                     </thead>
                     <tbody>
-                        {% for partnership in partnerships %}
-                            <tr>
-                                <td>
-                                    {% for partner in partnership.partners %}
-                                        {% if person != partner %}
-                                            <li><a href="{{ partner.get_absolute_url }}">{{ partner }}</a></li>
-                                        {% endif %}
-                                    {% endfor %}
-                                </td>
-                                <td>{% include "webapp/boolean_checkbox.html" with key="" value=partnership.current %}</td>
-                                <td>{% include "webapp/boolean_checkbox.html" with key="" value=partnership.married %}</td>
-                                <td>
-                                    {% if partnership.married %}
-                                        {{ partnership.marriage_date }}
-                                    {% else %}
-                                        Not Married
-                                    {% endif %}
-                                </td>
-                                <td>{% include "webapp/boolean_checkbox.html" with key="" value=partnership.divorced %}</td>
-                                <td>
-                                    {% if partnership.divorced %}
-                                        {{ partnership.divorce_date }}
-                                    {% else %}
-                                        Not divorced
-                                    {% endif %}
-                                </td>
-                                <td>
-                                    {% with children=partnership.children.all %}
-                                        {% if children %}
-                                            <ul>
-                                                {% for child in children %}
-                                                    <li><a href="{{ child.get_absolute_url }}">{{ child }}</a></li>
-                                                {% endfor %}
-                                            </ul>
-                                        {% else %}
-                                            <p>None</p>
-                                        {% endif %}
-                                    {% endwith %}
-                                </td>
-                                <td> <button onclick="location.href='{% url 'edit_partnership' person.tree.id person.id partnership.id %}'">edit</button> </td>
-                                <td> {% include "webapp/delete_partnership.html" %} </td>
+                    {% for partnership in partnerships %}
+                        <tr>
+                        <td>
+                            {% for partner in partnership.partners %}
+                                {% if person != partner %}
+                                    <li><a href="{{ partner.get_absolute_url }}">{{ partner }}</a></li>
+                                {% endif %}
                             {% endfor %}
-                        </tr>
+                        </td>
+                        <td>{% include "webapp/boolean_checkbox.html" with value=partnership.current %}</td>
+                        <td>{% include "webapp/boolean_checkbox.html" with value=partnership.married %}</td>
+                        <td>
+                            {% if partnership.married %}
+                                {{ partnership.marriage_date }}
+                            {% else %}
+                                Not Married
+                            {% endif %}
+                        </td>
+                        <td>{% include "webapp/boolean_checkbox.html" with value=partnership.divorced %}</td>
+                        <td>
+                            {% if partnership.divorced %}
+                                {{ partnership.divorce_date }}
+                            {% else %}
+                                Not divorced
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% with children=partnership.children.all %}
+                                {% if children %}
+                                    <ul>
+                                        {% for child in children %}
+                                            <li><a href="{{ child.get_absolute_url }}">{{ child }}</a></li>
+                                        {% endfor %}
+                                    </ul>
+                                {% else %}
+                                    <p>None</p>
+                                {% endif %}
+                            {% endwith %}
+                        </td>
+                        <td>
+                            <button onclick="location.href='{% url 'edit_partnership' partnership.id %}'">edit</button>
+                        </td>
+                        <td> {% include "webapp/delete_confirmationbox.html" with type='Partnership' id=partnership.id str=partnership delete_function='delete_partnership' %} </td>
+                    {% endfor %}
+                    </tr>
                     </tbody>
                 </table>
             </div>
