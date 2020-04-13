@@ -68,6 +68,10 @@ def add_person(request, tree_pk):
 
     # User validation to prevent other users from adding to trees that aren't theirs
     if current_tree.creator == request.user:
+        name_form = None
+        person_form = None
+        alt_name_formset = None
+
         if request.method == 'POST':
             # if this is a POST request we need to process the form data
             name_form = AddNameForm(request.POST)
@@ -136,10 +140,9 @@ def add_person(request, tree_pk):
                 return redirect('tree_detail', pk=created_person.tree.id)
 
         # if a GET (or any other method) we'll create a blank form
-        else:
-            name_form = AddNameForm()
-            person_form = AddPersonForm()
-            alt_name_formset = AlternateNameFormSet()
+        name_form = name_form or AddNameForm()
+        person_form = person_form or AddPersonForm()
+        alt_name_formset = alt_name_formset or AlternateNameFormSet()
 
         context = {
             'name_form': name_form,
@@ -216,6 +219,9 @@ def edit_person(request, tree_pk, person_pk):
         # if a GET (or any other method) we'll create a blank form
         else:
             name_form = AddNameForm(instance=current_person.legal_name)
+            initial_location_data = dict()
+            if current_person.birth_location:
+                initial_location_data
             person_form = AddPersonForm(instance=current_person,
                                         initial={'birth_city': current_person.birth_location.city,
                                                  'birth_state': current_person.birth_location.state,

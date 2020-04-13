@@ -53,6 +53,7 @@ MIDDLEWARE = [
 
 ROOT_URLCONF = 'familytree.urls'
 
+# noinspection PyUnresolvedReferences
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
