@@ -1,20 +1,49 @@
-<h3 style = "display:inline">People</h3>
+<h3 style="display:inline">People</h3>
 &nbsp;
 <a href="{% url 'add_person' tree.id %}" style="color:grey;opacity: 0.9;">add</a>
 {% if person_list %}
-     <ul>
-        {% for person in person_list %}
-            <li>
-                <a href="{{ person.get_absolute_url }}">{{ person.legal_name }}</a>
-                {% if person.birth_date %}
-                    ({{ person.birth_date.year }} - {{ person.death_date.year }})
-                {% endif %}
-                &nbsp; 
-                <a href="{% url 'edit_person' person.id %}" style="color:grey;opacity: 0.9;">edit</a>
-                {% include "webapp/delete_confirmationbox.html" %}
-            </li>
-        {% endfor %}
-    </ul>
+    <div class="table-responsive">
+        <table class="table table-striped table-sm">
+            <thead>
+            <tr>
+                <th> Name</th>
+                <th> Gender</th>
+                <th> Birth Date</th>
+                <th> Birth Location</th>
+                <th> Living</th>
+                <th></th>
+                <th></th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for person in person_list %}
+                <tr>
+                <td>
+                    <a href="{% url 'person_detail' person.pk %}">
+                        {% with name=person.legal_name %}
+                            {% if name.prefix %}
+                                {{ name.prefix }}
+                            {% endif %}
+                            {{ name.first_name }}
+                            {{ name.middle_name }}
+                            {{ name.last_name }}
+                            {{ name.suffix }}
+                        {% endwith %}
+                    </a>
+                </td>
+                <td>{{ person.gender }}</td>
+                <td>{{ person.birth_date }}</td>
+                <td>{{ person.birth_location }}</td>
+                <td>{% include "webapp/boolean_checkbox.html" with key="" value=person.living %}</td>
+                <td>
+                    <button onclick="location.href='{% url 'edit_person' person.id %}'">edit</button>
+                </td>
+                <td> {% include "webapp/delete_confirmationbox.html" %} </td>
+            {% endfor %}
+            </tr>
+            </tbody>
+        </table>
+    </div>
 {% else %}
     <p>There are no people in the tree.</p>
 {% endif %}
