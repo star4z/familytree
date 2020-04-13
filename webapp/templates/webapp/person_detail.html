@@ -13,7 +13,7 @@
     <a href="{% url 'edit_person' person.id %}" style="color:grey;">edit</a>
     {% include "webapp/delete_confirmationbox.html" %}
     <br>
-    <a href="{% url 'go_back_tree' person.tree.id %}">Back to Tree</a>
+    <a href="{% url 'tree_detail' person.tree.id %}">Back to Tree</a>
     <p><a href="{{ request.path }}graph/">view graph</a></p>
 
     <p><strong>Alternate names:</strong></p>

@@ -38,8 +38,8 @@ def add_tree(request):
 
 
 @login_required
-def edit_tree(request, tree_pk):
-    current_tree = Tree.objects.get(pk=tree_pk)
+def edit_tree(request, pk):
+    current_tree = Tree.objects.get(pk=pk)
 
     # Check that the current user is the creator of this Tree before they
     # can modify it
@@ -173,29 +173,29 @@ def save_person(request, current_tree, template_name, current_person: Person = N
 
 
 @login_required
-def add_person(request, tree_pk):
-    current_tree = Tree.objects.get(pk=tree_pk)
+def add_person(request, pk):
+    current_tree = Tree.objects.get(pk=pk)
 
     return save_person(request, current_tree, 'webapp/add_person.html')
 
 
 @login_required
-def edit_person(request, person_pk):
-    current_person = Person.objects.get(pk=person_pk)
+def edit_person(request, pk):
+    current_person = Person.objects.get(pk=pk)
     current_tree = current_person.tree
 
     return save_person(request, current_tree, 'webapp/edit_person.html', current_person)
 
 
 @login_required
-def add_partnership(request, tree_pk):
-    current_tree = Tree.objects.get(pk=tree_pk)
+def add_partnership(request, pk):
+    current_tree = Tree.objects.get(pk=pk)
 
     # Allow tree to be accessed and modified through forms if tree's creator 
     # is the requesting user
     if current_tree.creator == request.user:
         if request.method == 'POST':
-            partnership_form = AddPartnershipForm(data=request.POST, tree_id=tree_pk)
+            partnership_form = AddPartnershipForm(data=request.POST, tree_id=pk)
 
             if partnership_form.is_valid():
                 # Create the partnership from the form data, connect it to
@@ -210,7 +210,7 @@ def add_partnership(request, tree_pk):
 
                 # Formset for adding partner (Person) to Partnership
                 person_partner_formset = NewPartnerFormSet(data=request.POST, instance=created_partnership,
-                                                           form_kwargs={'tree_id': tree_pk}, prefix="person_partner")
+                                                           form_kwargs={'tree_id': pk}, prefix="person_partner")
 
                 # Save every added partner to reflect change.
                 if person_partner_formset.is_valid():
@@ -220,7 +220,7 @@ def add_partnership(request, tree_pk):
 
                 # Add child (Person) to Partnership
                 partnership_child_formset = PartnershipChildFormSet(data=request.POST, instance=created_partnership,
-                                                                    form_kwargs={'tree_id': tree_pk},
+                                                                    form_kwargs={'tree_id': pk},
                                                                     prefix="partnership_child")
 
                 # Save every added child to reflect change
@@ -235,9 +235,9 @@ def add_partnership(request, tree_pk):
 
         # If request isn't POST, display forms with empty fields.
         else:
-            partnership_form = AddPartnershipForm(tree_id=tree_pk)
-            person_partner_formset = NewPartnerFormSet(form_kwargs={'tree_id': tree_pk}, prefix="person_partner")
-            partnership_child_formset = PartnershipChildFormSet(form_kwargs={'tree_id': tree_pk},
+            partnership_form = AddPartnershipForm(tree_id=pk)
+            person_partner_formset = NewPartnerFormSet(form_kwargs={'tree_id': pk}, prefix="person_partner")
+            partnership_child_formset = PartnershipChildFormSet(form_kwargs={'tree_id': pk},
                                                                 prefix="partnership_child")
 
         context = {
@@ -330,8 +330,8 @@ def delete_partnership(request, partnership_pk, person_pk):
 
 @login_required
 @require_POST
-def delete_tree(request, tree_pk):
-    tree = Tree.objects.get(pk=tree_pk)
+def delete_tree(request, pk):
+    tree = Tree.objects.get(pk=pk)
     people = Person.objects.filter(tree=tree)
     for person in people:
         delete_person(request, person.id)
@@ -339,12 +339,6 @@ def delete_tree(request, tree_pk):
     partnerships.delete()
     tree.delete()
     return redirect('tree')
-
-
-@login_required
-@require_POST
-def go_back_tree(request, tree_pk):
-    return redirect('tree_detail', pk=tree_pk)
 
 
 toast_messages = {
