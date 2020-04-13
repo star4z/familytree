@@ -34,7 +34,7 @@
                 <td>{{ person.gender }}</td>
                 <td>{{ person.birth_date }}</td>
                 <td>{{ person.birth_location }}</td>
-                <td>{% include "webapp/boolean_checkbox.html" with key="" value=person.living %}</td>
+                <td>{% include "webapp/boolean_checkbox.html" with value=person.living %}</td>
                 <td>
                     <button onclick="location.href='{% url 'edit_person' person.id %}'">edit</button>
                 </td>
