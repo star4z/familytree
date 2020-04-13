@@ -1,7 +1,7 @@
 <button onclick="document.getElementById('id{{person.id}}').style.display='block'">delete</button>
 
 <div id="id{{person.id}}" class="modal">
-    <form class="modal-content" action="{% url 'delete_person' person.id person.legal_name.id person.tree.id %}" method="POST">
+    <form class="modal-content" action="{% url 'delete_person' person.id %}" method="POST">
         {% csrf_token %}
         <span onclick="document.getElementById('id{{person.id}}').style.display='none'" class="close"
               title="Close Modal">&times;</span>

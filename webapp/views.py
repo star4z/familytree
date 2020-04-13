@@ -310,14 +310,14 @@ def edit_partnership(request, tree_pk, person_pk, partnership_pk):
 
 @login_required
 @require_POST
-def delete_person(request, person_pk, name_pk, tree_pk):
-    person_obj = Person.objects.get(pk=person_pk)
+def delete_person(request, pk):
+    person_obj = Person.objects.get(pk=pk)
     alt_name_list = person_obj.alternate_name.all()
     alt_name_list.delete()
     person_obj.delete()
-    query = LegalName.objects.get(pk=name_pk)
+    query = person_obj.legal_name
     query.delete()
-    return redirect('tree_detail', pk=tree_pk)
+    return redirect('tree_detail', pk=person_obj.tree.pk)
 
 
 @login_required
@@ -334,7 +334,7 @@ def delete_tree(request, tree_pk):
     tree = Tree.objects.get(pk=tree_pk)
     people = Person.objects.filter(tree=tree)
     for person in people:
-        delete_person(request, person.id, person.legal_name.id, tree.id)
+        delete_person(request, person.id)
     partnerships = Partnership.objects.filter(tree=tree)
     partnerships.delete()
     tree.delete()
