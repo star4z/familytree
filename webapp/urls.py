@@ -31,7 +31,6 @@ urlpatterns = [
     path('person/<int:pk>/edit/', views.edit_person, name='edit_person'),
     path('person/<int:pk>/delete/', views.delete_person, name="delete_person"),
     path('person/<int:pk>/graph/', views.graph_person, name='person_graph'),
-    path('tree/<int:tree_pk>/person/<int:person_pk>/partnership/<int:partnership_pk>/edit/', views.edit_partnership,
-         name='edit_partnership'),
-    path('person/delete/<int:partnership_pk>/<int:person_pk>/', views.delete_partnership, name="delete_partnership"),
+    path('partnership/<int:pk>/edit/', views.edit_partnership, name='edit_partnership'),
+    path('partnership/<int:pk>/delete/', views.delete_partnership, name="delete_partnership"),
 ]

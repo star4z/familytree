@@ -1,6 +1,7 @@
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.core.handlers.wsgi import WSGIRequest
 from django.http import Http404
 from django.shortcuts import render, redirect, get_object_or_404
 from django.views import generic
@@ -253,22 +254,24 @@ def add_partnership(request, pk):
 
 
 @login_required
-def edit_partnership(request, tree_pk, person_pk, partnership_pk):
-    current_tree = Tree.objects.get(pk=tree_pk)
-    current_partnership = Partnership.objects.get(pk=partnership_pk)
+def edit_partnership(request, pk):
+    current_partnership = Partnership.objects.get(pk=pk)
+    current_tree = current_partnership.tree
 
     # Allow tree to be accessed and modified through forms if tree's creator 
     # is the requesting user
     if current_tree.creator == request.user:
         if request.method == 'POST':
-            partnership_form = AddPartnershipForm(data=request.POST, instance=current_partnership, tree_id=tree_pk)
+            partnership_form = AddPartnershipForm(data=request.POST, instance=current_partnership,
+                                                  tree_id=current_tree.pk)
 
             if partnership_form.is_valid():
                 partnership_form.save()
 
                 # Formset for adding partner (Person) to Partnership
                 person_partner_formset = AddPartnerFormSet(data=request.POST, instance=current_partnership,
-                                                           form_kwargs={'tree_id': tree_pk}, prefix="person_partner")
+                                                           form_kwargs={'tree_id': current_tree.pk},
+                                                           prefix="person_partner")
 
                 # Save every added partner to reflect change.
                 if person_partner_formset.is_valid():
@@ -276,7 +279,7 @@ def edit_partnership(request, tree_pk, person_pk, partnership_pk):
 
                 # Add child (Person) to Partnership
                 partnership_child_formset = PartnershipChildFormSet(data=request.POST, instance=current_partnership,
-                                                                    form_kwargs={'tree_id': tree_pk},
+                                                                    form_kwargs={'tree_id': current_tree.pk},
                                                                     prefix="partnership_child")
 
                 # Save every added child to reflect change
@@ -285,15 +288,16 @@ def edit_partnership(request, tree_pk, person_pk, partnership_pk):
 
                 # Redirect to Person detail view that the Edit Partnership
                 # button was clicked in.
-                return redirect('person_detail', pk=person_pk)
+                return redirect('tree_detail', pk=current_tree.pk)
 
         # If request isn't POST, display forms with empty fields.
         else:
-            partnership_form = AddPartnershipForm(instance=current_partnership, tree_id=tree_pk)
-            person_partner_formset = AddPartnerFormSet(instance=current_partnership, form_kwargs={'tree_id': tree_pk},
+            partnership_form = AddPartnershipForm(instance=current_partnership, tree_id=current_tree.pk)
+            person_partner_formset = AddPartnerFormSet(instance=current_partnership,
+                                                       form_kwargs={'tree_id': current_tree.pk},
                                                        prefix="person_partner")
             partnership_child_formset = PartnershipChildFormSet(instance=current_partnership,
-                                                                form_kwargs={'tree_id': tree_pk},
+                                                                form_kwargs={'tree_id': current_tree.pk},
                                                                 prefix="partnership_child")
 
         context = {
@@ -322,10 +326,10 @@ def delete_person(request, pk):
 
 @login_required
 @require_POST
-def delete_partnership(request, partnership_pk, person_pk):
-    partnership_obj = Partnership.objects.get(pk=partnership_pk)
+def delete_partnership(request: WSGIRequest, pk):
+    partnership_obj = Partnership.objects.get(pk=pk)
     partnership_obj.delete()
-    return redirect('person_detail', pk=person_pk)
+    return redirect('tree_detail', pk=partnership_obj.tree.pk)
 
 
 @login_required
