@@ -1,9 +1,14 @@
+from django.db.models import Model
+
 from webapp.models import Person
 
 
 class Graph:
     """
     For use with antv/G6; see https://g6.antv.vision/en
+
+    This class currently uses a lot of inefficient calls; they could probably be replaced with a caching system for
+    performance improvements
     """
     padding = 50
 
@@ -57,8 +62,11 @@ class Graph:
     def gen_id(model_object):
         return f'{type(model_object).__name__}_{model_object.pk}'
 
-    def get_node(self, model_object):
-        return next(node for node in self.nodes if node.id == self.gen_id(model_object))
+    def get_node(self, arg):
+        if isinstance(arg, Model):
+            return next(node for node in self.nodes if node.id == self.gen_id(arg))
+        else:
+            return next(node for node in self.nodes if node.id == arg)
 
     def add_node(self, node):
         if node not in self.nodes:
@@ -70,7 +78,7 @@ class Graph:
         self.nodes.remove(node)
         self.edges = [edge for edge in self.edges if edge.source != node.id and edge.target != node.id]
 
-    def add_person(self, person, x, y):
+    def add_person(self, person, x=0, y=0):
         self.add_node(self.Node(self.gen_id(person), x, y, str(person)))
         self.added_people.add(person)
 
@@ -81,15 +89,18 @@ class Graph:
     def add_edge(self, source_id, target_id):
         self.edges.add(self.Edge(source_id, target_id))
 
+    def get_edge(self, source_id, target_id):
+        return next(edge for edge in self.edges if edge.source == source_id and edge.target == target_id)
+
     def remove_edge(self, source_id, target_id):
         self.edges.remove(self.Edge(source_id, target_id))
 
-    def add_partnership(self, partnership, x, y):
+    def add_partnership(self, partnership, x=0, y=0, padding_mult=1):
         self.add_node(self.Node(self.gen_id(partnership), x, y, size=1))
         partners = partnership.partners()
         if len(partners) == 2:
-            self.add_person(partners[0], x - self.padding, y)
-            self.add_person(partners[1], x + self.padding, y)
+            self.add_person(partners[0], x - self.padding * padding_mult, y)
+            self.add_person(partners[1], x + self.padding * padding_mult, y)
             self.add_edge(self.gen_id(partners[0]), self.gen_id(partnership))
             self.add_edge(self.gen_id(partners[1]), self.gen_id(partnership))
         # TODO: add logic for other numbers of partners
@@ -98,12 +109,12 @@ class Graph:
         if depth > 0:
             # default x and y to coordinates of the node matching person
             person_node = self.get_node(person)
-            x = x or person_node.x
-            y = y or person_node.y
+            x = x or person_node.x or 0
+            y = y or person_node.y or 0
 
             # TODO: add support for multiple partnerships
             parents = person.parents()[0]
-            self.add_partnership(parents, x, y - self.padding)
+            self.add_partnership(parents, x, y - self.padding, padding_mult=depth)
             self.add_edge(self.gen_id(parents), self.gen_id(person))
 
             # TODO: add support for >2 partners
@@ -111,23 +122,57 @@ class Graph:
                 if parent.parents():
                     self.add_parents(parent, depth=depth - 1)
 
+    def get_gen_size(self, partnership, max_depth=1):
+        """
+        Calculates the maximum number of children per family in the max_depth generation for padding the rows above it
+        properly
+        :param partnership: Partnership to obtain the children from
+        :param max_depth: number of generations to descend. 1 only obtains the first generation children of partnership
+        :return: the maximum number of children per family in the max_depth generation
+        """
+        if max_depth == 0:
+            return 1
+
+        next_gen_size = 0
+        children = partnership.children.all()
+        for child in children:
+            if child.partnerships.exists():
+                next_gen_size = max(next_gen_size,
+                                    self.get_gen_size(next(iter(child.partnerships.all())), max_depth - 1))
+        return len(children) * (next_gen_size or 1)
+
+    def get_family_size(self, partnership, depth):
+        return max(3, sum(
+            self.get_family_size(child.partnerships.all()[0], depth - 1) if child.partnerships.exists() else 1 for child
+            in partnership.children.all()))
+
     def add_children(self, partnership, x=None, y=None, depth=1):
         if depth > 0:
             # default x and y to coordinates of the node matching partnership
-            x = x or self.get_node(partnership).x
-            y = y or self.get_node(partnership).y
+            x = x or self.get_node(partnership).x or 0
+            y = y or self.get_node(partnership).y or 0
 
             children = list(partnership.children.all())
             n = len(children)
-            extra = 0
+
+            fam_sizes = {
+                i: self.get_family_size(children[i].partnerships.all()[0], depth - 1)
+                if children[i].partnerships.exists() else 1 for i in range(n)}
+
             for i in range(n):
                 child: Person = children[i]
-                xi = -self.padding / 2 * (n - 1) + self.padding * i + x + extra
+                """
+                pos = start of gen + distance between nodes 
+                x is x of parents, so -n/2 to center all children
+                +1/2 since the child nodes are centered in the space allotted for them
+                scale by padding to spread them out
+                scale by gen_size to ensure all families have equal space
+                """
+                xi = ((fam_sizes[i]) / 2 + sum(list(fam_sizes.values())[:i])
+                      - (sum(fam_sizes.values())) / 2) * self.padding + x
                 if child.partnerships.exists():
-                    px = xi + self.padding
                     child_partnership = next(iter(child.partnerships.all()))
-                    self.add_partnership(child_partnership, px, y + self.padding)
-                    extra += self.padding * 2
+                    self.add_partnership(child_partnership, xi, y + self.padding)
                     self.add_children(child_partnership, depth=depth - 1)
                 else:
                     self.add_person(child, xi, y + self.padding)

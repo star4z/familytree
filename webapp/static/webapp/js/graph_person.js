@@ -1,4 +1,6 @@
 data = JSON.parse(document.getElementById('data').textContent);
+width = JSON.parse(document.getElementById('width').textContent);
+height = JSON.parse(document.getElementById('height').textContent);
 
 console.log(data);
 
@@ -22,12 +24,14 @@ G6.registerBehavior('activate-node', {
 
 const graph = new G6.Graph({
     container: "family-graph",
-    width: 500,
-    height: 500,
+    width: width,
+    height: height,
     modes: {
         default: ['activate-node'],
     },
 });
+
+console.log(graph);
 
 graph.data(data);
 graph.render();
