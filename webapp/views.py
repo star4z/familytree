@@ -63,10 +63,7 @@ def edit_tree(request, tree_pk):
 
 
 @login_required
-def add_person(request, tree_pk):
-    current_tree = Tree.objects.get(pk=tree_pk)
-
-    # User validation to prevent other users from adding to trees that aren't theirs
+def save_person(request, current_tree, template_name, current_person: Person = None):
     if current_tree.creator == request.user:
         name_form = None
         person_form = None
@@ -74,8 +71,8 @@ def add_person(request, tree_pk):
 
         if request.method == 'POST':
             # if this is a POST request we need to process the form data
-            name_form = AddNameForm(request.POST)
-            person_form = AddPersonForm(request.POST)
+            name_form = AddNameForm(request.POST, instance=current_person.legal_name if current_person else None)
+            person_form = AddPersonForm(request.POST, instance=current_person)
 
             # Tuple that contains validation status of each filled form
             form_validations = (
@@ -91,15 +88,16 @@ def add_person(request, tree_pk):
                 created_legal_name.tree = current_tree
                 created_legal_name.save()
 
-                # Create a Person instance from person form's data
-                # Person instance's Legal Name attribute will be a foreign key
-                created_person = person_form.save(commit=False)
-                created_person.tree = current_tree
-                created_person.legal_name = created_legal_name
-                created_person.save()
+                if not current_person:
+                    # Create a Person instance from person form's data
+                    # Person instance's Legal Name attribute will be a foreign key
+                    current_person = person_form.save(commit=False)
+                    current_person.tree = current_tree
+                    current_person.legal_name = created_legal_name
+                    current_person.save()
 
                 # Create Alternate Name for person
-                alt_name_formset = AlternateNameFormSet(request.POST, instance=created_person)
+                alt_name_formset = AlternateNameFormSet(request.POST, instance=current_person)
                 if alt_name_formset.is_valid():
                     alt_names = alt_name_formset.save(commit=False)
                     for alt_name in alt_names:
@@ -130,19 +128,37 @@ def add_person(request, tree_pk):
                     death_location.save()
 
                 # Assign the location instances as keys in Person instance
-                created_person.birth_location = birth_location
-                created_person.death_location = death_location
+                current_person.birth_location = birth_location
+                current_person.death_location = death_location
 
-                created_person.save()
+                current_person.save()
 
                 # redirect to back to the Tree detail page that
                 # Person was created in
-                return redirect('tree_detail', pk=created_person.tree.id)
+                return redirect('tree_detail', pk=current_person.tree.id)
 
         # if a GET (or any other method) we'll create a blank form
-        name_form = name_form or AddNameForm()
-        person_form = person_form or AddPersonForm()
-        alt_name_formset = alt_name_formset or AlternateNameFormSet()
+        if current_person:
+            name_form = name_form or AddNameForm(instance=current_person.legal_name)
+            initial_data = dict()
+            if current_person.birth_location:
+                initial_data.update({
+                    'birth_city': current_person.birth_location.city,
+                    'birth_state': current_person.birth_location.state,
+                    'birth_country': current_person.birth_location.country,
+                })
+            if current_person.death_location:
+                initial_data.update({
+                    'death_city': current_person.death_location.city,
+                    'death_state': current_person.death_location.state,
+                    'death_country': current_person.death_location.country
+                })
+            person_form = person_form or AddPersonForm(instance=current_person, initial=initial_data)
+            alt_name_formset = alt_name_formset or AlternateNameFormSet()
+        else:
+            name_form = name_form or AddNameForm()
+            person_form = person_form or AddPersonForm()
+            alt_name_formset = alt_name_formset or AlternateNameFormSet()
 
         context = {
             'name_form': name_form,
@@ -150,97 +166,25 @@ def add_person(request, tree_pk):
             'alt_name_formset': alt_name_formset,
         }
 
-        return render(request, 'webapp/add_person.html', context)
+        return render(request, template_name, context)
 
     else:
         raise Http404
 
 
 @login_required
-def edit_person(request, tree_pk, person_pk):
+def add_person(request, tree_pk):
     current_tree = Tree.objects.get(pk=tree_pk)
+
+    return save_person(request, current_tree, 'webapp/add_person.html')
+
+
+@login_required
+def edit_person(request, person_pk):
     current_person = Person.objects.get(pk=person_pk)
+    current_tree = current_person.tree
 
-    # User validation to prevent other users from adding to trees that aren't theirs
-    if current_tree.creator == request.user:
-        if request.method == 'POST':
-            # if this is a POST request we need to process the form data
-            name_form = AddNameForm(request.POST, instance=current_person.legal_name)
-            person_form = AddPersonForm(request.POST, instance=current_person)
-
-            # Tuple that contains validation status of each filled form
-            form_validations = (
-                person_form.is_valid(),
-                name_form.is_valid(),
-            )
-
-            # Update/Save instances if all forms are valid.
-            if all(form_validations):
-
-                name_form.save()
-                person_form.save()
-
-                alt_name_formset = AlternateNameFormSet(request.POST, instance=current_person)
-                if alt_name_formset.is_valid():
-                    alt_name_formset.save()
-
-                # Check each location form's data and query for existing Location
-                # instances.
-                # If location exists, stores it in the corresponding location
-                # variable and sets location_created boolean to false
-                # If it doesn't exist, create a new instance from form's data and
-                # set location_created boolean to true
-                birth_location, birth_loc_was_created = Location.objects.get_or_create(
-                    city=person_form.cleaned_data['birth_city'],
-                    state=person_form.cleaned_data['birth_state'],
-                    country=person_form.cleaned_data['birth_country'])
-
-                death_location, death_loc_was_created = Location.objects.get_or_create(
-                    city=person_form.cleaned_data['death_city'],
-                    state=person_form.cleaned_data['death_state'],
-                    country=person_form.cleaned_data['death_country'])
-
-                # if new location instances were created, save them in the DB
-                if birth_loc_was_created:
-                    birth_location.save()
-
-                if death_loc_was_created:
-                    death_location.save()
-
-                # Assign the location instances as keys in Person instance
-                current_person.birth_location = birth_location
-                current_person.death_location = death_location
-
-                current_person.save()
-
-                # redirect to Person's details page to review changes
-                return redirect('person_detail', pk=current_person.id)
-
-        # if a GET (or any other method) we'll create a blank form
-        else:
-            name_form = AddNameForm(instance=current_person.legal_name)
-            initial_location_data = dict()
-            if current_person.birth_location:
-                initial_location_data
-            person_form = AddPersonForm(instance=current_person,
-                                        initial={'birth_city': current_person.birth_location.city,
-                                                 'birth_state': current_person.birth_location.state,
-                                                 'birth_country': current_person.birth_location.country,
-                                                 'death_city': current_person.death_location.city,
-                                                 'death_state': current_person.death_location.state,
-                                                 'death_country': current_person.death_location.country})
-            alt_name_formset = AlternateNameFormSet(instance=current_person)
-
-        context = {
-            'name_form': name_form,
-            'person_form': person_form,
-            'alt_name_formset': alt_name_formset,
-        }
-
-        return render(request, 'webapp/edit_person.html', context)
-
-    else:
-        raise Http404
+    return save_person(request, current_tree, 'webapp/edit_person.html', current_person)
 
 
 @login_required

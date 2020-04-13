@@ -10,7 +10,7 @@
                     ({{ person.birth_date.year }} - {{ person.death_date.year }})
                 {% endif %}
                 &nbsp; 
-                <a href="{% url 'edit_person' person.tree.id person.id %}" style="color:grey;opacity: 0.9;">edit</a>
+                <a href="{% url 'edit_person' person.id %}" style="color:grey;opacity: 0.9;">edit</a>
                 {% include "webapp/delete_confirmationbox.html" %}
             </li>
         {% endfor %}

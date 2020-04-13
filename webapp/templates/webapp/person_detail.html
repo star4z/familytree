@@ -10,7 +10,7 @@
         [{{ person.id }}]
     </h3>
     &nbsp;
-    <a href="{% url 'edit_person' person.tree.id person.id %}" style="color:grey;">edit</a>
+    <a href="{% url 'edit_person' person.id %}" style="color:grey;">edit</a>
     {% include "webapp/delete_confirmationbox.html" %}
     <br>
     <a href="{% url 'go_back_tree' person.tree.id %}">Back to Tree</a>
