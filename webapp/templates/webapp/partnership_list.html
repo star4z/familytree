@@ -1,22 +1,69 @@
-<h3 style = "display:inline">Partnerships</h3>
+<h3 style="display:inline">Partnerships</h3>
 &nbsp;
 <a href="{% url 'add_partnership' tree.id %}" style="color:grey;opacity: 0.9;">add</a>
 {% if partnership_list %}
-    <ul>
-        {% for partnership in partnership_list %}
-            <li>
-                <b>Partners:</b>
-                {% for people in partnership.person_set.all %}
-                    <a href="{{ people.get_absolute_url }}">{{ people.legal_name }}</a>
-                    {% if not forloop.last %},{% endif %}
-                {% endfor %}
-                <br>
-                {% include "webapp/boolean_checkbox.html" with key="Married" value=partnership.married %}<br>
-                {% include "webapp/boolean_checkbox.html" with key="Current" value=partnership.current %}<br>
-            </li>
-            <br>
-        {% endfor %}
-    </ul>
+    <div class="table-responsive">
+        <table class="table table-striped table-sm">
+            <thead>
+            <tr>
+                <th> Partnership</th>
+                <th> Current</th>
+                <th> Married</th>
+                <th> Marriage Date</th>
+                <th> Divorced</th>
+                <th> Divorced Date</th>
+                <th> Children</th>
+                <th></th>
+                <th></th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for partnership in partnership_list %}
+                <tr>
+                <td>
+                    {% for partner in partnership.partners %}
+                        <li><a href="{{ partner.get_absolute_url }}">{{ partner }}</a></li>
+                    {% endfor %}
+                </td>
+                <td>{% include "webapp/boolean_checkbox.html" with key="" value=partnership.current %}</td>
+                <td>{% include "webapp/boolean_checkbox.html" with key="" value=partnership.married %}</td>
+                <td>
+                    {% if partnership.married %}
+                        {{ partnership.marriage_date }}
+                    {% else %}
+                        Not Married
+                    {% endif %}
+                </td>
+                <td>{% include "webapp/boolean_checkbox.html" with key="" value=partnership.divorced %}</td>
+                <td>
+                    {% if partnership.divorced %}
+                        {{ partnership.divorce_date }}
+                    {% else %}
+                        Not divorced
+                    {% endif %}
+                </td>
+                <td>
+                    {% with children=partnership.children.all %}
+                        {% if children %}
+                            <ul>
+                                {% for child in children %}
+                                    <li><a href="{{ child.get_absolute_url }}">{{ child }}</a></li>
+                                {% endfor %}
+                            </ul>
+                        {% else %}
+                            <p>None</p>
+                        {% endif %}
+                    {% endwith %}
+                </td>
+                <td>
+                    <button onclick="location.href='{% url 'edit_partnership' partnership.id %}'">edit</button>
+                </td>
+                <td> {% include "webapp/delete_partnership.html" %} </td>
+            {% endfor %}
+            </tr>
+            </tbody>
+        </table>
+    </div>
 {% else %}
     <p>There are no partnerships in the tree.</p>
 {% endif %}
