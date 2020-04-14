@@ -1,12 +1,13 @@
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 
-class Location(models.Model):
-    city = models.CharField(verbose_name='City/Town/Village', max_length=50, 
-        blank=True)
 
-    state = models.CharField(verbose_name='State/Province/Region', 
-        max_length=50, blank=True)
+class Location(models.Model):
+    city = models.CharField(verbose_name='City/Town/Village', max_length=50,
+                            blank=True)
+
+    state = models.CharField(verbose_name='State/Province/Region',
+                             max_length=50, blank=True)
 
     class Country(models.TextChoices):
         # ISO 3166-1 standard for countries
@@ -257,9 +258,9 @@ class Location(models.Model):
         YEMEN = 'YE', _('Yemen')
         ZAMBIA = 'ZM', _('Zambia')
         ZIMBABWE = 'ZW', _('Zimbabwe')
-        
-    country = models.CharField(max_length=2, choices=Country.choices, 
-        blank=True)
+
+    country = models.CharField(max_length=2, choices=Country.choices,
+                               blank=True)
 
     class Meta:
         unique_together = ["city", "state", "country"]

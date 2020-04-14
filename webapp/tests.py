@@ -237,7 +237,7 @@ class TestGraph(ModelTestCase):
         self.assertEqual(3, self.graph.get_family_size(self.get_partnership(2), 1))
         self.assertEqual(3, self.graph.get_family_size(self.get_partnership(1), 1))
 
-        peter = self.create_person('Peter', 'M', [3])
+        self.create_person('Peter', 'M', [3])
         sasha = self.create_person('Sasha', 'F', [3])
         self.get_partnership(2).children.add(sasha)
 

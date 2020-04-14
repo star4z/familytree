@@ -84,7 +84,7 @@ class AddPartnershipForm(ModelForm):
         }
 
     def __init__(self, *args, **kwargs):
-        tree = kwargs.pop('tree_id')
+        # tree = kwargs.pop('tree_id')
         super(AddPartnershipForm, self).__init__(*args, **kwargs)
         # self.fields['children'].queryset = Person.objects.filter(tree=tree)
 
