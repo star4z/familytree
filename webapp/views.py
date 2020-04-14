@@ -15,7 +15,7 @@ from webapp.models import Person, Partnership, Location, Tree
 
 @login_required
 def add_tree(request):
-    # If request is POST, create and save Tree from valid form's values and 
+    # If request is POST, create and save Tree from valid form's values and
     # assign the current user as the tree's creator.
     if request.method == 'POST':
         tree_form = AddTreeForm(request.POST)

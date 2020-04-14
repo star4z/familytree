@@ -162,7 +162,7 @@ class Graph:
             for i in range(n):
                 child: Person = children[i]
                 """
-                pos = start of gen + distance between nodes 
+                pos = start of gen + distance between nodes
                 x is x of parents, so -n/2 to center all children
                 +1/2 since the child nodes are centered in the space allotted for them
                 scale by padding to spread them out
