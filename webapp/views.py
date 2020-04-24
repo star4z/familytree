@@ -329,6 +329,9 @@ def delete_tree(request, pk):
 
 
 def index(request):
+    if request.user.is_authenticated:
+        return redirect('tree')
+
     # Generate counts of Tree, Person, and Partnership
     num_tree = Tree.objects.all().count()
     num_person = Person.objects.all().count()
