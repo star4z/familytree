@@ -83,7 +83,7 @@ DATABASES = {
         'USER': 'familytreedefault',
         'PASSWORD': 'familytreedefaultpwd',
         'HOST': 'localhost',
-        'PORT': '',
+        'PORT': 3306,
     }
 }
 
