@@ -1,6 +1,7 @@
+from django.contrib import messages
 from django.contrib.auth import login
 from django.contrib.auth.models import User
-from django.contrib.auth.views import PasswordChangeView
+from django.contrib.auth.views import PasswordChangeView, LogoutView, LoginView
 from django.contrib.sites.shortcuts import get_current_site
 from django.shortcuts import redirect, render
 from django.template.loader import render_to_string
@@ -49,10 +50,31 @@ def activate(request, uidb64, token):
         user.is_active = True
         user.save()
         login(request, user)
-        return redirect('/webapp/?message=activation_success')
+        messages.add_message(request, messages.SUCCESS,
+                             'Your account was activated successfully. Welcome to Family Tree')
+        return redirect('/webapp/')
     else:
         return render(request, 'activation_invalid.html')
 
 
+class AccountLoginView(LoginView):
+    # Redirect url is in settings.py
+    def get_success_url(self):
+        messages.add_message(self.request, messages.SUCCESS, 'Logged in successfully. Welcome to Family Tree')
+        return super().get_success_url()
+
+
+class AccountLogoutView(LogoutView):
+    next_page = '/webapp/'
+
+    def get_next_page(self):
+        messages.add_message(self.request, messages.SUCCESS, 'Logged out.')
+        return super().get_next_page()
+
+
 class GoHomeAfterPasswordChange(PasswordChangeView):
-    success_url = '/webapp/?message=password_reset'
+    success_url = '/webapp/'
+
+    def get_success_url(self):
+        messages.add_message(self.request, messages.SUCCESS, 'Password reset successfully.')
+        return super().get_success_url()
