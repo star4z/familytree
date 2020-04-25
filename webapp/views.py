@@ -1,4 +1,3 @@
-from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.handlers.wsgi import WSGIRequest
@@ -328,14 +327,10 @@ def delete_tree(request, pk):
     return redirect('tree')
 
 
-toast_messages = {
-    'logged_in': (messages.SUCCESS, 'Logged in successfully. Welcome to Family Tree'),
-    'password_reset': (messages.SUCCESS, 'Password reset successfully.'),
-    'activation_success': (messages.SUCCESS, 'Your account was activated successfully. Welcome to Family Tree')
-}
-
-
 def index(request):
+    if request.user.is_authenticated:
+        return redirect('tree')
+
     # Generate counts of Tree, Person, and Partnership
     num_tree = Tree.objects.all().count()
     num_person = Person.objects.all().count()
@@ -345,12 +340,6 @@ def index(request):
         'num_person': num_person,
         'num_partnerships': num_partnerships,
     }
-
-    message = request.GET.get('message')
-    if message and message in toast_messages:
-        messages.add_message(request, *toast_messages[message])
-        # Redirect to remove message parameter from url
-        return redirect('/webapp/')
 
     return render(request, 'index.html', context=context)
 
