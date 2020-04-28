@@ -343,16 +343,18 @@ def index(request):
 
     return render(request, 'index.html', context=context)
 
+
 class TreeListView(LoginRequiredMixin, generic.ListView):
     model = Tree
     paginate_by = 10
     ordering = ['id']
     template_name = 'webapp/tree_list.html'
     context_object_name = 'tree_list'
-    
+
     # Get Tree object only under the current user
     def get_queryset(self):
         return Tree.objects.filter(creator=self.request.user)
+
 
 # class SidebarTreeListView(LoginRequiredMixin, generic.ListView):
 #     model = Tree
@@ -364,6 +366,7 @@ class TreeListView(LoginRequiredMixin, generic.ListView):
 #     # Get Tree object only under the current user
 #     def get_queryset(self):
 #         return Tree.objects.filter(creator=self.request.user)
+
 
 # Have not integrate the partnership yet.
 class PartnershipListView(LoginRequiredMixin, generic.ListView):
