@@ -46,7 +46,8 @@
                         <li><a href="{% url 'logout' %}?next=/">Logout</a></li>
                         <li><a href="{% url 'password_change' %}">Change password</a></li>
                         <p></p>
-                        <li><a href="{% url 'tree' %}">My Trees</a></li>
+                        {% load tree_tag %}
+                        {% render_sidebar_trees %}
                     {% else %}
                         <li><a href="{% url 'login' %}">Login</a></li>
                         <li><a href="{% url 'signup' %}">Create Account</a></li>
