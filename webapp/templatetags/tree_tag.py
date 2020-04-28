@@ -14,8 +14,8 @@ def render_sidebar_trees(context):
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
 
-    context = {
+    contexts = {
         'sidebar_tree_list': sidebar_tree_list,
         'page_obj': page_obj
     }
-    return context
+    return contexts
