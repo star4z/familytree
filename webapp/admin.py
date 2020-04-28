@@ -108,8 +108,8 @@ class PersonAdmin(admin.ModelAdmin):
 class PartnershipAdmin(admin.ModelAdmin):
     inlines = [PersonInline]
 
-    list_display = ('id', 'partners_str', 'married', 'divorced', 'current')
+    list_display = ('id', 'partners_str', 'marital_status')
     list_display_links = ('id', 'partners_str')
-    list_filter = ('married', 'divorced', 'current')
+    list_filter = ('marital_status',)
     search_fields = ('person__legal_name__first_name', 'person__legal_name__middle_name',
                      'person__legal_name__last_name')

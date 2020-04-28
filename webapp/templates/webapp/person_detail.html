@@ -44,7 +44,6 @@
         <p><strong>Death date:</strong> {{ person.death_date }}</p>
         <p><strong>Death location:</strong> {{ person.death_location }}</p>
     {% endif %}
-    <p><strong>Marital status:</strong> {{ person.marital_status }}</p>
 
     <p><strong>Parents</strong></p>
     {% with parents=person.parents %}
@@ -83,12 +82,9 @@
                     <thead>
                     <tr>
                         <th> Partnership</th>
-                        <th> Current</th>
-                        <th> Married</th>
+                        <th> Marital Status</th>
                         <th> Marriage Date</th>
-                        <th> Divorced</th>
                         <th> Divorced Date</th>
-                        <th> Children</th>
                         <th></th>
                         <th></th>
                     </tr>
@@ -103,23 +99,9 @@
                                 {% endif %}
                             {% endfor %}
                         </td>
-                        <td>{% include "webapp/boolean_checkbox.html" with value=partnership.current %}</td>
-                        <td>{% include "webapp/boolean_checkbox.html" with value=partnership.married %}</td>
-                        <td>
-                            {% if partnership.married %}
-                                {{ partnership.marriage_date }}
-                            {% else %}
-                                Not Married
-                            {% endif %}
-                        </td>
-                        <td>{% include "webapp/boolean_checkbox.html" with value=partnership.divorced %}</td>
-                        <td>
-                            {% if partnership.divorced %}
-                                {{ partnership.divorce_date }}
-                            {% else %}
-                                Not divorced
-                            {% endif %}
-                        </td>
+                        <td>{{ partnership.marital_status }}</td>
+                        <td>{{ partnership.marriage_date }}</td>
+                        <td>{{ partnership.divorce_date }}</td>
                         <td>
                             {% with children=partnership.children.all %}
                                 {% if children %}

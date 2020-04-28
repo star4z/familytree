@@ -25,23 +25,9 @@
                         <li><a href="{{ partner.get_absolute_url }}">{{ partner }}</a></li>
                     {% endfor %}
                 </td>
-                <td>{% include "webapp/boolean_checkbox.html" with value=partnership.current %}</td>
-                <td>{% include "webapp/boolean_checkbox.html" with value=partnership.married %}</td>
-                <td>
-                    {% if partnership.married %}
-                        {{ partnership.marriage_date }}
-                    {% else %}
-                        Not Married
-                    {% endif %}
-                </td>
-                <td>{% include "webapp/boolean_checkbox.html" with value=partnership.divorced %}</td>
-                <td>
-                    {% if partnership.divorced %}
-                        {{ partnership.divorce_date }}
-                    {% else %}
-                        Not divorced
-                    {% endif %}
-                </td>
+                <td>{{ partnership.marital_status }}</td>
+                <td>{{ partnership.marriage_date }}</td>
+                <td>{{ partnership.divorce_date }}</td>
                 <td>
                     {% with children=partnership.children.all %}
                         {% if children %}
