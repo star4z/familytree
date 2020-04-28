@@ -6,10 +6,7 @@
                 <a href="{{ tree.get_absolute_url }}">{{ tree.title }}</a>   
             </li>
         {% endfor %}
-        {% if page_obj.has_next %}
-            . . .</br>
-            <a href="{% url 'tree' %}">View All</a>
-        {% endif %}
+        <a href="{% url 'tree' %}">View All</a>
     </ul>
 {% else %}
     <ul>
