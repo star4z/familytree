@@ -8,8 +8,9 @@
         {% endfor %}
         {% if trees.has_next %}
             . . .</br>
-            <a href="{% url 'tree' %}">View All</a>
+            <a href="{% url 'tree' %}">View All</a></br>
         {% endif %}
+        <a href="{% url 'add_tree' %}">Add Tree</a>
     </ul>
 {% else %}
     <ul>
