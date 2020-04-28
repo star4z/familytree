@@ -343,16 +343,27 @@ def index(request):
 
     return render(request, 'index.html', context=context)
 
-
 class TreeListView(LoginRequiredMixin, generic.ListView):
     model = Tree
     paginate_by = 10
     ordering = ['id']
+    template_name = 'webapp/tree_list.html'
+    context_object_name = 'tree_list'
+    
+    # Get Tree object only under the current user
+    def get_queryset(self):
+        return Tree.objects.filter(creator=self.request.user)
+
+class SidebarTreeListView(LoginRequiredMixin, generic.ListView):
+    model = Tree
+    paginate_by = 5
+    ordering = ['id']
+    template_name = 'webapp/sidebar_tree_list.html'
+    context_object_name = 'sidebar_tree_list'
 
     # Get Tree object only under the current user
     def get_queryset(self):
-        return super(TreeListView, self).get_queryset().filter(creator=self.request.user).select_related('creator')
-
+        return Tree.objects.filter(creator=self.request.user)
 
 # Have not integrate the partnership yet.
 class PartnershipListView(LoginRequiredMixin, generic.ListView):

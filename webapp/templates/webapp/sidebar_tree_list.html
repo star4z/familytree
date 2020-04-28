@@ -1,0 +1,18 @@
+<h4>My Trees</h4>
+{% if sidebar_tree_list %}
+    <ul>
+        {% for tree in sidebar_tree_list %}
+            <li>
+                <a href="{{ tree.get_absolute_url }}">{{ tree.title }}</a>   
+            </li>
+        {% endfor %}
+        {% if page_obj.has_next %}
+            . . .</br>
+            <a href="{% url 'tree' %}">View All</a>
+        {% endif %}
+    </ul>
+{% else %}
+    <ul>
+        <a href="{% url 'add_tree' %}">Create First Tree</a>
+    </ul>
+{% endif %}
