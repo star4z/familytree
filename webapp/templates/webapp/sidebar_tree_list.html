@@ -1,12 +1,12 @@
 <h4>My Trees</h4>
-{% if sidebar_tree_list %}
+{% if trees %}
     <ul>
-        {% for tree in sidebar_tree_list|slice:":5" %}
+        {% for tree in trees %}
             <li>
                 <a href="{{ tree.get_absolute_url }}">{{ tree.title }}</a>   
             </li>
         {% endfor %}
-        {% if page_obj.has_next %}
+        {% if trees.has_next %}
             . . .</br>
             <a href="{% url 'tree' %}">View All</a>
         {% endif %}
