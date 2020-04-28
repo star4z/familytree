@@ -1,7 +1,7 @@
 <h4>My Trees</h4>
 {% if sidebar_tree_list %}
     <ul>
-        {% for tree in sidebar_tree_list %}
+        {% for tree in sidebar_tree_list|slice:":5" %}
             <li>
                 <a href="{{ tree.get_absolute_url }}">{{ tree.title }}</a>   
             </li>

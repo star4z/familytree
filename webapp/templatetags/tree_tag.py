@@ -5,7 +5,7 @@ register = template.Library()
 
 
 @register.inclusion_tag('webapp/sidebar_tree_list.html', takes_context=True)
-def render_recent_trees(context):
+def render_sidebar_trees(context):
     request = context['request']
 
     sidebar_tree_list = Tree.objects.filter(creator=request.user).order_by("id")
