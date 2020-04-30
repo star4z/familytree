@@ -372,8 +372,8 @@ class TreeDetailView(LoginRequiredMixin, generic.DetailView):
         # Call the base implementation first to get a context
         context = super(TreeDetailView, self).get_context_data(**kwargs)
         # Add extra context from another model
-        context['person_list'] = Person.objects.filter(tree_id=self.kwargs['pk'])
-        context['partnership_list'] = Partnership.objects.filter(tree_id=self.kwargs['pk'])
+        context['persons'] = Person.objects.filter(tree_id=self.kwargs['pk'])
+        context['partnerships'] = Partnership.objects.filter(tree_id=self.kwargs['pk'])
         return context
 
     # Get Tree object only under the current user
