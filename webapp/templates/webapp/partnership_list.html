@@ -1,16 +1,15 @@
 <h3 style="display:inline">Partnerships</h3>
-&nbsp;
-<a href="{% url 'add_partnership' tree.id %}" style="color:grey;opacity: 0.9;">add</a>
-{% if partnership_list %}
+&nbsp;{% if not person %}
+    <a href="{% url 'add_partnership' tree.id %}" style="color:grey;opacity: 0.9;">add</a>
+{% endif %}
+{% if partnerships %}
     <div class="table-responsive">
         <table class="table table-striped table-sm">
             <thead>
             <tr>
                 <th> Partnership</th>
-                <th> Current</th>
-                <th> Married</th>
+                <th> Marital status</th>
                 <th> Marriage Date</th>
-                <th> Divorced</th>
                 <th> Divorced Date</th>
                 <th> Children</th>
                 <th></th>
@@ -18,30 +17,18 @@
             </tr>
             </thead>
             <tbody>
-            {% for partnership in partnership_list %}
+            {% for partnership in partnerships %}
                 <tr>
                 <td>
                     {% for partner in partnership.partners %}
-                        <li><a href="{{ partner.get_absolute_url }}">{{ partner }}</a></li>
+                        {% if person != partner %}
+                            <li><a href="{{ partner.get_absolute_url }}">{{ partner }}</a></li>
+                        {% endif %}
                     {% endfor %}
                 </td>
-                <td>{% include "webapp/boolean_checkbox.html" with value=partnership.current %}</td>
-                <td>{% include "webapp/boolean_checkbox.html" with value=partnership.married %}</td>
-                <td>
-                    {% if partnership.married %}
-                        {{ partnership.marriage_date }}
-                    {% else %}
-                        Not Married
-                    {% endif %}
-                </td>
-                <td>{% include "webapp/boolean_checkbox.html" with value=partnership.divorced %}</td>
-                <td>
-                    {% if partnership.divorced %}
-                        {{ partnership.divorce_date }}
-                    {% else %}
-                        Not divorced
-                    {% endif %}
-                </td>
+                <td>{{ partnership.marital_status }}</td>
+                <td>{{ partnership.marriage_date }}</td>
+                <td>{{ partnership.divorce_date }}</td>
                 <td>
                     {% with children=partnership.children.all %}
                         {% if children %}

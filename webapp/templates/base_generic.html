@@ -40,19 +40,21 @@
     <div class="row">
         <div class="col-sm-2 sidebar">
             {% block sidebar %}
-                <ul class="sidebar-nav">
-                    {% if user.is_authenticated %}
+                {% if user.is_authenticated %}
+                    <ul class="sidebar-nav">
                         <li>User: {{ user.get_username }}</li>
                         <li><a href="{% url 'logout' %}?next=/">Logout</a></li>
                         <li><a href="{% url 'password_change' %}">Change password</a></li>
-                        <p></p>
-                        {% load tree_tag %}
-                        {% render_sidebar_trees %}
-                    {% else %}
+                    </ul>
+                    {% load tree_tag %}
+                    {% render_sidebar_trees %}
+                {% else %}
+                    <ul class="sidebar-nav">
                         <li><a href="{% url 'login' %}">Login</a></li>
                         <li><a href="{% url 'signup' %}">Create Account</a></li>
-                    {% endif %}
-                </ul>
+                    </ul>
+
+                {% endif %}
             {% endblock %}
         </div>
         <div class="col-sm-10 content">{% block content %}{% endblock %}</div>

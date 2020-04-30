@@ -19,7 +19,7 @@ html, body {
 }
 
 .sidebar-nav {
-    height: 100%;
+    /*height: 100%;*/
     overflow-y: auto;
     margin-top: 20px;
     padding: 0;
@@ -68,7 +68,7 @@ button {
 }
 
 button:hover {
-    opacity:0.9;
+    opacity: 0.9;
     text-decoration: underline;
 }
 
@@ -137,9 +137,9 @@ hr {
 
 /* Change styles for cancel button and delete button on extra small screens */
 @media screen and (max-width: 300px) {
-  .cancelbtn, .deletebtn {
+    .cancelbtn, .deletebtn {
         width: 100%;
-  }
+    }
 }
 
 #toast-box {

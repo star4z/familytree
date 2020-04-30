@@ -198,7 +198,7 @@ def save_partnership(request, current_tree, template, current_partnership=None):
         partnership_child_formset = None
 
         if request.method == 'POST':
-            partnership_form = AddPartnershipForm(data=request.POST, tree_id=tree_pk)
+            partnership_form = AddPartnershipForm(data=request.POST)
 
             if partnership_form.is_valid():
                 # Create the partnership from the form data, connect it to
@@ -245,10 +245,7 @@ def save_partnership(request, current_tree, template, current_partnership=None):
 
         # If request isn't POST, display forms with empty fields.
         if current_partnership:
-            partnership_form = partnership_form or AddPartnershipForm(
-                instance=current_partnership,
-                tree_id=tree_pk
-            )
+            partnership_form = partnership_form or AddPartnershipForm(instance=current_partnership)
             person_partner_formset = person_partner_formset or NewPartnerFormSet(
                 instance=current_partnership,
                 form_kwargs={'tree_id': tree_pk},
@@ -260,7 +257,7 @@ def save_partnership(request, current_tree, template, current_partnership=None):
                 prefix="partnership_child"
             )
         else:
-            partnership_form = partnership_form or AddPartnershipForm(tree_id=tree_pk)
+            partnership_form = partnership_form or AddPartnershipForm()
             person_partner_formset = person_partner_formset or NewPartnerFormSet(
                 form_kwargs={'tree_id': tree_pk},
                 prefix="person_partner"
@@ -375,8 +372,8 @@ class TreeDetailView(LoginRequiredMixin, generic.DetailView):
         # Call the base implementation first to get a context
         context = super(TreeDetailView, self).get_context_data(**kwargs)
         # Add extra context from another model
-        context['person_list'] = Person.objects.filter(tree_id=self.kwargs['pk'])
-        context['partnership_list'] = Partnership.objects.filter(tree_id=self.kwargs['pk'])
+        context['persons'] = Person.objects.filter(tree_id=self.kwargs['pk'])
+        context['partnerships'] = Partnership.objects.filter(tree_id=self.kwargs['pk'])
         return context
 
     # Get Tree object only under the current user
