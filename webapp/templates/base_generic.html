@@ -1,3 +1,5 @@
+{% load socialaccount %}
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -52,8 +54,8 @@
                     <ul class="sidebar-nav">
                         <li><a href="{% url 'login' %}">Login</a></li>
                         <li><a href="{% url 'signup' %}">Create Account</a></li>
+                        <li><a href="{% provider_login_url 'google' %}">Login with Google</a></li>
                     </ul>
-
                 {% endif %}
             {% endblock %}
         </div>
