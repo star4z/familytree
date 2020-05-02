@@ -47,6 +47,7 @@
                         <li>User: {{ user.get_username }}</li>
                         <li><a href="{% url 'logout' %}?next=/">Logout</a></li>
                         <li><a href="{% url 'password_change' %}">Change password</a></li>
+                        <li><a href="{% url 'socialaccount_connections' %}">Connect Google account</a></li>
                     </ul>
                     {% load tree_tag %}
                     {% render_sidebar_trees %}
