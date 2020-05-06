@@ -1,3 +1,5 @@
+{% load socialaccount %}
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -45,6 +47,7 @@
                         <li>User: {{ user.get_username }}</li>
                         <li><a href="{% url 'logout' %}?next=/">Logout</a></li>
                         <li><a href="{% url 'password_change' %}">Change password</a></li>
+                        <li><a href="{% url 'socialaccount_connections' %}">Connect Google account</a></li>
                     </ul>
                     {% load tree_tag %}
                     {% render_sidebar_trees %}
@@ -52,8 +55,8 @@
                     <ul class="sidebar-nav">
                         <li><a href="{% url 'login' %}">Login</a></li>
                         <li><a href="{% url 'signup' %}">Create Account</a></li>
+                        <li><a href="{% provider_login_url 'google' %}">Login with Google</a></li>
                     </ul>
-
                 {% endif %}
             {% endblock %}
         </div>
