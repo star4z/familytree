@@ -327,18 +327,8 @@ def delete_tree(request, pk):
 def index(request):
     if request.user.is_authenticated:
         return redirect('tree')
-
-    # Generate counts of Tree, Person, and Partnership
-    num_tree = Tree.objects.all().count()
-    num_person = Person.objects.all().count()
-    num_partnerships = Partnership.objects.all().count()
-    context = {
-        'num_tree': num_tree,
-        'num_person': num_person,
-        'num_partnerships': num_partnerships,
-    }
-
-    return render(request, 'index.html', context=context)
+    else:
+        return redirect('/accounts/signup')
 
 
 class TreeListView(LoginRequiredMixin, generic.ListView):
