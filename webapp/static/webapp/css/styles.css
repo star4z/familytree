@@ -59,7 +59,7 @@ html, body {
 
 button {
     color: grey;
-    background-color: white;
+    background-color: transparent;
     padding: 0 20px;
     margin: 8px 0;
     border: none;
@@ -144,4 +144,21 @@ hr {
 
 #toast-box {
     background-color: lightsteelblue;
+}
+
+.bg-rosybrown {
+    background-color: rosybrown;
+}
+
+.sidebar-item {
+    color: white;
+    background-color: transparent;
+}
+
+.sidebar-system-text {
+    color: #4f4f4f;
+}
+
+.sidebar-item:hover {
+    background-color: #ffffff55;
 }

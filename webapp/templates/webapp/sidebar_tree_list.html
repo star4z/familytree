@@ -1,19 +1,12 @@
-<a href="{% url 'tree' %}" style="color:black;"><h5>My Trees</h5></a>
+<b><a href="{% url 'tree' %}" class="list-group-item list-group-item-action sidebar-item sidebar-system-text">My Trees</a></b>
 {% if trees %}
-    <ul class="sidebar-tree-list">
-        {% for tree in trees %}
-            <li>
-                <a href="{{ tree.get_absolute_url }}">{{ tree.title }}</a>
-            </li>
-        {% endfor %}
-        {% if trees.has_next %}
-            . . .<br>
-            <a href="{% url 'tree' %}">View All</a><br>
-        {% endif %}
-        <a href="{% url 'add_tree' %}">Add Tree</a>
-    </ul>
+    {% for tree in trees %}
+        <a href="{{ tree.get_absolute_url }}" class="list-group-item list-group-item-action sidebar-item">{{ tree.title }}</a>
+    {% endfor %}
+    {% if trees.has_next %}
+        <a href="{% url 'tree' %}" class="list-group-item list-group-item-action sidebar-item sidebar-system-text">View All My Trees</a>
+    {% endif %}
+    <a href="{% url 'add_tree' %}" class="list-group-item list-group-item-action sidebar-item sidebar-system-text">Add Tree</a>
 {% else %}
-    <ul>
-        <a href="{% url 'add_tree' %}">Create First Tree</a>
-    </ul>
+    <a href="{% url 'add_tree' %}" class="list-group-item list-group-item-action sidebar-item sidebar-system-text">Create First Tree</a>
 {% endif %}
