@@ -162,3 +162,7 @@ hr {
 .sidebar-item:hover {
     background-color: #ffffff55;
 }
+
+.page-icon {
+    vertical-align: middle;
+}

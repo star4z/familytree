@@ -1,20 +1,3 @@
 <button onclick="document.getElementById('{{ type }}_{{ id }}').style.display='block'">delete</button>
 
-<div id="{{ type }}_{{ id }}" class="modal">
-    {# delete_function must be filled by a str referencing a view, ex. 'delete_person' #}
-    <form class="modal-content" action="{% url delete_function id %}" method="POST">
-        {% csrf_token %}
-        <span onclick="document.getElementById('{{ type }}_{{ id }}').style.display='none'" class="close"
-              title="Close Modal">&times;</span>
-        <div class="container">
-            <br>Are you sure you want to delete <i>{{ str }}</i>?
-            <div class="clearfix">
-                <button type="button" class="cancelbtn"
-                        onclick="document.getElementById('{{ type }}_{{ id }}').style.display='none'"
-                        title="Close Modal">Cancel
-                </button>
-                <button type="submit" class="deletebtn">Delete</button>
-            </div>
-        </div>
-    </form>
-</div>
+{% include "webapp/delete_modal.html"%}
