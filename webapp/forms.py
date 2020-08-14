@@ -127,3 +127,7 @@ AddPartnerFormSet = inlineformset_factory(Partnership, Person.partnerships.throu
 # Formset for form that adds child (Person) to Partnership
 PartnershipChildFormSet = inlineformset_factory(Partnership, Partnership.children.through, form=AddPartnershipChild,
                                                 extra=1, can_delete=True)
+
+
+class UploadFileForm(forms.Form):
+    file = forms.FileField()

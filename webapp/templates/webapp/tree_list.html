@@ -1,9 +1,10 @@
 {% extends "base_generic.html" %}
 
 {% block content %}
-    <h1 style="display:inline">My Trees</h1>
+    <h3 style="display:inline">My Trees</h3>
     &nbsp;
     <a href="{% url 'add_tree' %}" style="color:grey;opacity: 0.9;">add</a>
+    <a href="{% url 'import_tree' %}" style="color:grey;opacity: 0.9;">import</a>
     {% if tree_list %}
         <ul>
             {% for tree in tree_list %}

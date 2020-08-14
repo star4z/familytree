@@ -22,6 +22,7 @@ urlpatterns = [
     path('', views.index, name='index'),
     path('tree/', views.TreeListView.as_view(), name='tree'),
     path('tree/add_tree/', views.add_tree, name='add_tree'),
+    path('tree/import/', views.import_gedcom, name='import_tree'),
     path('tree/<int:pk>/', views.TreeDetailView.as_view(), name='tree_detail'),
     path('tree/<int:pk>/edit/', views.edit_tree, name='edit_tree'),
     path('tree/<int:pk>/delete/', views.delete_tree, name="delete_tree"),
