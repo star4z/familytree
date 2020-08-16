@@ -1,0 +1,17 @@
+# noinspection PyUnresolvedReferences
+from gedcom.tags import *
+
+# Header tags
+GEDCOM_TAG_HEAD = 'HEAD'
+GEDCOM_TAG_CHARSET = 'CHAR'
+GEDCOM_TAG_GEDCOM = 'GEDC'
+GEDCOM_TAG_VERSION = 'VERS'
+GEDCOM_TAG_FORM = 'FORM'
+GEDCOM_TAG_SUBMITTER = 'SUBM'
+GEDCOM_TAG_CORP = 'CORP'
+
+# Charsets
+GEDCOM_CHARSET_ASCII = 'ASCII'
+
+# Fields
+GEDCOM_TAG_AGE = 'AGE'
