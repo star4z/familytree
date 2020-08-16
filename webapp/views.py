@@ -1,18 +1,14 @@
-from datetime import datetime
-
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.core.files.uploadedfile import UploadedFile
 from django.core.handlers.wsgi import WSGIRequest
 from django.http import Http404, HttpResponseRedirect
 from django.shortcuts import render, redirect, get_object_or_404
 from django.views import generic
 from django.views.decorators.http import require_POST
 
-from gedcom.parser import Parser
-
 from webapp.forms import AddPersonForm, AddNameForm, AddTreeForm, AddPartnershipForm, AlternateNameFormSet, \
     NewPartnerFormSet, PartnershipChildFormSet, UploadFileForm
+from webapp.gedcom_parsing import parse_file
 from webapp.graphs import Graph
 from webapp.models import Person, Partnership, Location, Tree
 
@@ -415,19 +411,13 @@ def graph_person(request, pk):
     return render(request, 'webapp/person_graph.html', context)
 
 
-def handle_uploaded_file(f: UploadedFile, user):
-    parser = Parser()
-    parser.parse(f)
-    parser.print_gedcom()
-
-
 @login_required
 def import_gedcom(request):
     if request.method == 'POST':
         form = UploadFileForm(request.POST, request.FILES)
         print(form.is_valid())
         if form.is_valid():
-            handle_uploaded_file(request.FILES['file'], request.user)
+            parse_file(request.FILES['file'], request.user)
             return HttpResponseRedirect('/')
     else:
         form = UploadFileForm()
