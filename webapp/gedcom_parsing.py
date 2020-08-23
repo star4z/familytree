@@ -7,24 +7,33 @@ from webapp.models import *
 
 
 def parse_file(f: UploadedFile, user):
-    parser = Parser()
-    parser.parse(f)
-    root = parser.get_root_element()
+    root = get_root_element(f)
+
+    tree = Tree()
+
     for child_element in root.get_child_elements():
         if type(child_element) is IndividualElement:
             # noinspection PyTypeChecker
-            parse_individual(child_element)
+            child = parse_individual(child_element, tree)
         elif type(child_element) is FamilyElement:
             # noinspection PyTypeChecker
-            parse_family(child_element)
-    parser.print_gedcom()
+            child = parse_family(child_element, tree)
+
+    # tree.save()
 
 
-def parse_individual(element: IndividualElement):
+def get_root_element(f):
+    parser = Parser()
+    parser.parse(f)
+    root = parser.get_root_element()
+    return root
+
+
+def parse_individual(element: IndividualElement, tree):
     child = Person()
 
     # get names from element
-    names = get_names(element)
+    names = list(get_names(element))
 
     # save legal name
     legal_name = LegalName()
@@ -39,24 +48,25 @@ def parse_individual(element: IndividualElement):
         alternate_name.person = child
         alternate_name.save()
 
+    return child
+
 
 def parse_name_dict(name_dict, obj: Name):
-    prefix = name_dict['title']
-    if prefix:
-        obj.prefix = prefix
-    first = name_dict['first']
-    if first:
-        obj.first_name = first
-    middle = name_dict['middle']
-    if middle:
-        obj.middle_name = middle
-    last = name_dict['last']
-    if last:
-        obj.last_name = last
-    suffix = name_dict['suffix']
-    if suffix:
-        obj.suffix = suffix
+    if 'title' in name_dict:
+        obj.prefix = name_dict['title']
+    if 'first' in name_dict:
+        obj.first_name = name_dict['first']
+    if 'middle' in name_dict:
+        obj.middle_name = name_dict['middle']
+    if 'last' in name_dict:
+        obj.last_name = name_dict['last']
+    if 'suffix' in name_dict:
+        obj.suffix = name_dict['suffix']
 
 
-def parse_family(element: FamilyElement):
+def parse_family(element: FamilyElement, tree):
     partnership = Partnership()
+
+    partnership.tree = tree
+
+    return partnership
