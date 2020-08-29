@@ -1,6 +1,10 @@
-import shlex
+import re
 
 from nameparser.parser import *
+
+
+def split_with_slash_support(s: str):
+    return re.findall(r"(?<=/)\w[\w\s]*(?=/)|(?<=\s)[\w]+", s)
 
 
 def parse_full_name(self):
@@ -81,13 +85,9 @@ def parse_full_name(self):
         # only, and allows potential first names to be in suffixes, e.g.
         # "Johnson, Bart"
 
-        lex = shlex.shlex(parts[1], posix=True)
-        lex.quotes = "/"
-        post_comma_pieces = self.parse_pieces(list(iter(lex.get_token, None)), 1)
+        post_comma_pieces = self.parse_pieces(split_with_slash_support(parts[1]), 1)
 
-        lex = shlex.shlex(parts[0], posix=True)
-        lex.quotes = "/"
-        parts0 = list(iter(lex.get_token, None))
+        parts0 = split_with_slash_support(parts[0])
         if self.are_suffixes(parts[1].split(' ')) \
                 and len(parts0) > 1:
 
@@ -129,9 +129,7 @@ def parse_full_name(self):
             log.debug("post-comma pieces: %s", u(post_comma_pieces))
 
             # lastname part may have suffixes in it
-            lex = shlex.shlex(parts[0], posix=True)
-            lex.quotes = "/"
-            lastname_pieces = self.parse_pieces(list(iter(lex.get_token, None)), 1)
+            lastname_pieces = self.parse_pieces(parts0, 1)
             for piece in lastname_pieces:
                 # the first one is always a last name, even if it looks like
                 # a suffix
@@ -198,9 +196,7 @@ def parse_pieces(self, parts, additional_parts_count=0):
                             "Got {0}".format(type(part)))
         # Custom logic for familytree: doesn't split between /'s.
         # Example: /Tri Minh/ Doung -> first: "Tri Minh", last: "Doung"
-        lex = shlex.shlex(part, posix=True)
-        lex.quotes = "/"
-        output += [x.strip(' ,') for x in iter(lex.get_token, None)]
+        output += [x.strip(' ,') for x in split_with_slash_support(part)]
 
     # If part contains periods, check if it's multiple titles or suffixes
     # together without spaces if so, add the new part with periods to the
