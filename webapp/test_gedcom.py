@@ -12,7 +12,7 @@ from webapp.models import *
 def gen_individual():
     """
     0 @FATHER@ INDI
-        1 NAME /Father/
+        1 NAME /Some/
         1 SEX M
         1 BIRT
             2 PLAC birth place
@@ -23,7 +23,7 @@ def gen_individual():
         1 FAMS @FAMILY@
     :return:
     """
-    individual = gedcom_helpers.create_individual('@FATHER', '/Father/ Guy', 'M', 'birth place', '1 JAN 1899',
+    individual = gedcom_helpers.create_individual('@FATHER', '/Some/ Guy', 'M', 'birth place', '1 JAN 1899',
                                                   'death_place', '31 DEC 1990', '@FAMILY')
 
     return individual
@@ -45,10 +45,11 @@ class GedcomTestCase(TestCase):
     def test_get_names(self):
         names = gedcom_helpers.get_names(gen_individual())
         name = next(names)
-        self.assertDictEqual(name, {'first': 'Father', 'last': 'Guy'})
+        expected = {'title': '', 'first': 'Some', 'middle': '', 'last': 'Guy', 'suffix': '', 'nickname': ''}
+        self.assertDictEqual(name, expected)
 
     def test_parse_individual(self):
         individual = gen_individual()
 
         person = gedcom_parsing.parse_individual(individual, self.tree)
-        self.assertEqual(person.legal_name.first_name, 'Father')
+        self.assertEqual(person.legal_name.first_name, 'Some')

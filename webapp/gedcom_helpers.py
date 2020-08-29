@@ -1,6 +1,6 @@
 from gedcom.element.element import Element
 from gedcom.element.individual import IndividualElement
-from nameparser import HumanName
+from webapp.name_parser_ext import *
 
 import webapp.tags_ext as tags
 
