@@ -1,6 +1,6 @@
 from gedcom.element.element import Element
 from gedcom.element.individual import IndividualElement
-from webapp.name_parser_ext import *
+from webapp.name_parser_ext import GedcomName
 
 import webapp.tags_ext as tags
 
@@ -29,7 +29,7 @@ Element.filter_child_elements = filter_child_elements
 def get_name(self: IndividualElement):
     name = get_next_child_element(self, tag=tags.GEDCOM_TAG_NAME)
     if name is not None:
-        return HumanName(name.get_value()).as_dict()
+        return GedcomName(name.get_value()).as_dict()
     return get_name_dict_from_name_tags(self)
 
 
@@ -64,7 +64,7 @@ def get_names(self: IndividualElement):
     """
     names = filter_child_elements(self, tag=tags.GEDCOM_TAG_NAME)
     if names:
-        return (HumanName(name.get_value()).as_dict() for name in names)
+        return (GedcomName(name.get_value()).as_dict() for name in names)
     return get_name_dict_from_name_tags(self),
 
 
