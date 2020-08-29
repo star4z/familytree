@@ -34,7 +34,7 @@ class GedcomTestCase(TestCase):
         self.tree = Tree.objects.create(title='test tree')
 
     def test_get_root(self):
-        with open("webapp/simple.ged") as f:
+        with open("gedcom_examples/simple.ged") as f:
             root = gedcom_parsing.get_root_element(f.buffer)
             self.assertIsNotNone(root)
 
