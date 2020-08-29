@@ -1,11 +1,8 @@
 from django.test import TestCase
-from gedcom.element.element import Element
-from gedcom.element.individual import IndividualElement
-from gedcom.parser import Parser
 
-from webapp import gedcom_parsing
 import webapp.tags_ext as tags
 from webapp import gedcom_helpers
+from webapp import gedcom_parsing
 from webapp.models import *
 
 
