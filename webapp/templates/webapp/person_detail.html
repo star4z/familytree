@@ -46,10 +46,7 @@
     <p><strong>Gender:</strong> {{ person.gender }}</p>
     <p><strong>Birth date:</strong> {{ person.birth_date }}</p>
     <p><strong>Birth location:</strong> {{ person.birth_location }} </p>
-    <label><strong>Living:</strong>
-        &nbsp;
-        <input type="checkbox" {% if person.living %}checked{% endif %} disabled>
-    </label>
+    <p><strong>Living:</strong> {{ person.living }}</p>
     {% if not person.living %}
         <p><strong>Death date:</strong> {{ person.death_date }}</p>
         <p><strong>Death location:</strong> {{ person.death_location }}</p>

@@ -53,6 +53,12 @@ class AlternateName(Name):
 
 
 class Person(models.Model):
+    LIVING_CHOICES = [
+        ('Alive', 'Alive'),
+        ('Dead', 'Dead'),
+        ('Unknown', 'Unknown')
+    ]
+
     GENDER_CHOICES = [
         ('Male', 'Male'),
         ('Female', 'Female'),
@@ -69,7 +75,7 @@ class Person(models.Model):
                                        blank=True)
     death_location = models.ForeignKey(Location, related_name="death_location", on_delete=models.DO_NOTHING, null=True,
                                        blank=True)
-    living = models.BooleanField(default=True)
+    living = models.TextField(choices=LIVING_CHOICES, default='Unknown')
     gender = models.CharField(max_length=8, choices=GENDER_CHOICES)
     partnerships = models.ManyToManyField('Partnership', blank=True, through='PersonPartnership')
     notes = models.TextField(blank=True, default='')
