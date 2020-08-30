@@ -13,6 +13,7 @@ def get_next_child_element(self: Element, tag: str = None, pointer: str = None, 
                 , None)
 
 
+# TODO: reevaluate monkey-patching as a strategy
 Element.get_next_child_element = get_next_child_element
 
 
