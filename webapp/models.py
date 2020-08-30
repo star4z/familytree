@@ -58,6 +58,7 @@ class Person(models.Model):
         ('Female', 'Female'),
         ('Intersex', 'Intersex'),
         ('Other', 'Other'),
+        ('Unknown', 'Unknown')
     ]
 
     legal_name = models.OneToOneField('LegalName', on_delete=models.CASCADE, related_name='legal_name', default='')
