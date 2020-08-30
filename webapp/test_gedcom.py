@@ -20,8 +20,8 @@ def gen_individual():
         1 FAMS @FAMILY@
     :return:
     """
-    individual = gedcom_helpers.create_individual('@FATHER', '/Some/ Guy', 'M', 'birth place', '1 JAN 1899',
-                                                  'death_place', '31 DEC 1990', '@FAMILY')
+    individual = gedcom_helpers.create_individual('@FATHER', '/Some/ Guy', 'M', 'city, state, US', '1 JAN 1899',
+                                                  'city', '31 DEC 1990', '@FAMILY')
 
     return individual
 
@@ -45,8 +45,44 @@ class GedcomTestCase(TestCase):
         expected = {'title': '', 'first': 'Some', 'middle': '', 'last': 'Guy', 'suffix': '', 'nickname': ''}
         self.assertDictEqual(name, expected)
 
+    def test_parse_country(self):
+        country = gedcom_parsing.parse_country("US")
+        self.assertEqual(country, "US")
+        country = gedcom_parsing.parse_country("United States")
+        self.assertEqual(country, "US")
+        country = gedcom_parsing.parse_country("UNITED_STATES")
+        self.assertEqual(country, "US")
+
+    def test_parse_gender(self):
+        gender = gedcom_parsing.parse_gender("M")
+        self.assertEqual(gender, "Male")
+        gender = gedcom_parsing.parse_gender("F")
+        self.assertEqual(gender, "Female")
+        gender = gedcom_parsing.parse_gender("U")
+        self.assertEqual(gender, "Unknown")
+
+    def test_parse_event_location(self):
+        event = gedcom_helpers.create_event(tags.GEDCOM_TAG_BIRTH, 'city, state, US', '12 JAN 1998')
+        location = gedcom_parsing.parse_event_location(event)
+        self.assertEqual(location.city, 'city')
+        self.assertEqual(location.state, 'state')
+        self.assertEqual(location.country, 'US')
+
+    def test_parse_event_date(self):
+        event = gedcom_helpers.create_event(tags.GEDCOM_TAG_BIRTH, 'city, state, US', '12 JAN 1998')
+        date = gedcom_parsing.parse_event_date(event)
+        self.assertEqual(date, datetime.date(1998, 1, 12))
+
     def test_parse_individual(self):
         individual = gen_individual()
 
         person = gedcom_parsing.parse_individual(individual, self.tree)
         self.assertEqual(person.legal_name.first_name, 'Some')
+        self.assertEqual(person.legal_name.last_name, 'Guy')
+        self.assertEqual(person.gender, 'Male')
+        self.assertEqual(person.birth_date, datetime.date(1899, 1, 1))
+        self.assertEqual(person.birth_location.city, 'city')
+        self.assertEqual(person.birth_location.state, 'state')
+        self.assertEqual(person.birth_location.country, 'US')
+        self.assertEqual(person.death_date, datetime.date(1990, 12, 31))
+        self.assertEqual(person.death_location.city, 'city')
