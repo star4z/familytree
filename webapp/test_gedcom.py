@@ -86,3 +86,12 @@ class GedcomTestCase(TestCase):
         self.assertEqual(person.birth_location.country, 'US')
         self.assertEqual(person.death_date, datetime.date(1990, 12, 31))
         self.assertEqual(person.death_location.city, 'city')
+        self.assertEqual(person.living, 'Unknown')
+
+    def test_minimal_person(self):
+        individual = gedcom_helpers.create_individual('@P1@', 'John Cho')
+
+        person = gedcom_parsing.parse_individual(individual, self.tree)
+        self.assertEqual(person.legal_name.first_name, 'John')
+        self.assertEqual(person.legal_name.last_name, 'Cho')
+        self.assertEqual(person.living, 'Unknown')

@@ -84,12 +84,16 @@ def parse_individual(element: IndividualElement, tree):
 
     # Is saving related models necessary, or will it cascade?
     birth_event_element = get_next_child_element(element, tags.GEDCOM_TAG_BIRTH)
-    child.birth_date = parse_event_date(birth_event_element)
-    child.birth_location = parse_event_location(birth_event_element)
+    if birth_event_element:
+        child.birth_date = parse_event_date(birth_event_element)
+        child.birth_location = parse_event_location(birth_event_element)
 
     death_event_element = get_next_child_element(element, tags.GEDCOM_TAG_DEATH)
-    child.death_date = parse_event_date(death_event_element)
-    child.death_location = parse_event_location(death_event_element)
+    if death_event_element:
+        child.death_date = parse_event_date(death_event_element)
+        child.death_location = parse_event_location(death_event_element)
+
+    # living defaults to Unknown; change to living = has birth year and not has death year?
 
     return child
 
