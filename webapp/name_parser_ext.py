@@ -2,12 +2,12 @@ import re
 
 from nameparser.parser import HumanName
 from nameparser.util import log
-from nameparser.util import u
 from nameparser.util import text_types
+from nameparser.util import u
 
 
 def split_with_slash_support(s: str):
-    return re.findall(r"(?<=/)\w[\w\s]*(?=/)|(?<=\s)[\w]+", s)
+    return re.findall(r"(?<=/)\w[\w\s]*(?=/)|(?<=\s)[\w]+|^[\w]+", s)
 
 
 # noinspection DuplicatedCode,PyAttributeOutsideInit

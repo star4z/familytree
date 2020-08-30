@@ -1,7 +1,7 @@
 from django.test import TestCase
 
 import webapp.tags_ext as tags
-from webapp import gedcom_helpers
+from webapp import gedcom_helpers, name_parser_ext
 from webapp import gedcom_parsing
 from webapp.models import *
 
@@ -24,6 +24,23 @@ def gen_individual():
                                                   'city', '31 DEC 1990', '@FAMILY')
 
     return individual
+
+
+class GedcomNameTestCase(TestCase):
+
+    def test_split_name(self):
+        parts = name_parser_ext.split_with_slash_support("/Tri Minh/ Doung")
+        self.assertEqual(["Tri Minh", "Doung"], parts)
+        parts = name_parser_ext.split_with_slash_support("/David/ /Gregory/ /Smith/")
+        self.assertEqual(["David", "Gregory", "Smith"], parts)
+        parts = name_parser_ext.split_with_slash_support("David /Gregory Smith/")
+        self.assertEqual(["David", "Gregory Smith"], parts)
+        parts = name_parser_ext.split_with_slash_support("David Gregory Smith")
+        self.assertEqual(["David", "Gregory", "Smith"], parts)
+        parts = name_parser_ext.split_with_slash_support("David /Gregory/ Smith")
+        self.assertEqual(["David", "Gregory", "Smith"], parts)
+        parts = name_parser_ext.split_with_slash_support("/David/ Gregory /Smith/")
+        self.assertEqual(["David", "Gregory", "Smith"], parts)
 
 
 class GedcomTestCase(TestCase):
