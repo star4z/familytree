@@ -1,4 +1,5 @@
 from django.test import TestCase
+from gedcom.element.element import Element
 
 import webapp.tags_ext as tags
 from webapp import gedcom_helpers, name_parser_ext
@@ -9,13 +10,13 @@ from webapp.models import *
 def gen_individual():
     """
     0 @FATHER@ INDI
-        1 NAME /Some/
+        1 NAME /Some/ Guy
         1 SEX M
         1 BIRT
-            2 PLAC birth place
+            2 PLAC city, state, US
             2 DATE 1 JAN 1899
         1 DEAT
-            2 PLAC death place
+            2 PLAC city
             2 DATE 31 DEC 1990
         1 FAMS @FAMILY@
     :return:
@@ -53,8 +54,35 @@ class GedcomTestCase(TestCase):
             self.assertIsNotNone(root)
 
     def test_filter_child_elements(self):
-        name_elements = gedcom_helpers.filter_child_elements(gen_individual(), tags.GEDCOM_TAG_NAME)
-        self.assertNotEqual(name_elements, [])
+        individual = gen_individual()
+        elements_with_name_tag = gedcom_helpers.filter_child_elements(individual, tag=tags.GEDCOM_TAG_NAME)
+        for element in elements_with_name_tag:
+            self.assertEqual(element.get_tag(), tags.GEDCOM_TAG_NAME)
+
+        elements_with_name_value = gedcom_helpers.filter_child_elements(individual, value="/Some/ Guy")
+        for element in elements_with_name_value:
+            self.assertEqual(element.get_value(), '/Some/ Guy')
+
+        # This is not a real case where a pointer would be used in GEDCOM, this is just for testing
+        individual.add_child_element(Element(1, '@P1@', tags.GEDCOM_TAG_INDIVIDUAL, ''))
+        elements_with_family_pointer = gedcom_helpers.filter_child_elements(individual, pointer="@P1@")
+        for element in elements_with_family_pointer:
+            self.assertEqual(element.get_pointer(), '@P1@')
+
+        elements_with_tag_and_value = gedcom_helpers.filter_child_elements(individual, tag=tags.GEDCOM_TAG_SEX,
+                                                                           value='M')
+        for element in elements_with_tag_and_value:
+            self.assertEqual(element.get_tag(), tags.GEDCOM_TAG_SEX)
+            self.assertEqual(element.get_value(), 'M')
+
+        match_tag_with_multiple_tags = gedcom_helpers \
+            .filter_child_elements(individual, (tags.GEDCOM_TAG_NAME, tags.GEDCOM_TAG_SEX))
+        for element in match_tag_with_multiple_tags:
+            self.assertIn(element.get_tag(), (tags.GEDCOM_TAG_NAME, tags.GEDCOM_TAG_SEX))
+
+        # tags should not be empty, and we know this is true for the example
+        no_elements = gedcom_helpers.filter_child_elements(individual, tag="")
+        self.assertEqual(no_elements, [])
 
     def test_get_names(self):
         names = gedcom_helpers.get_names(gen_individual())

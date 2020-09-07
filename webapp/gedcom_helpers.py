@@ -1,8 +1,8 @@
 from gedcom.element.element import Element
 from gedcom.element.individual import IndividualElement
-from webapp.name_parser_ext import GedcomName
 
 import webapp.tags_ext as tags
+from webapp.name_parser_ext import GedcomName
 
 
 def get_next_child_element(self: Element, tag: str = None, pointer: str = None, value: str = None):
@@ -13,18 +13,21 @@ def get_next_child_element(self: Element, tag: str = None, pointer: str = None, 
                 , None)
 
 
-# TODO: reevaluate monkey-patching as a strategy
-Element.get_next_child_element = get_next_child_element
+def filter_child_elements(self: Element, tag=None, pointer=None, value=None):
+    def condition(value_to_match, value_to_check):
+        if value_to_match is None:
+            return True
+        elif isinstance(value_to_match, str):
+            return value_to_check == value_to_match
+        elif isinstance(value_to_match, (list, tuple, set)):
+            return value_to_check in value_to_match
+        else:
+            return False
 
-
-def filter_child_elements(self: Element, tag: str = None, pointer: str = None, value: str = None):
     return [child for child in self.get_child_elements()
-            if (tag is None or child.get_tag() == tag)
-            and (pointer is None or child.get_pointer() == pointer)
-            and (value is None or child.get_value() == value)]
-
-
-Element.filter_child_elements = filter_child_elements
+            if condition(tag, child.get_tag())
+            and condition(pointer, child.get_pointer())
+            and condition(value, child.get_value())]
 
 
 def get_name(self: IndividualElement):
