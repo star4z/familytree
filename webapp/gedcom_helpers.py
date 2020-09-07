@@ -5,18 +5,30 @@ import webapp.tags_ext as tags
 from webapp.name_parser_ext import GedcomName
 
 
-def get_next_child_element(self: Element, tag: str = None, pointer: str = None, value: str = None):
-    return next((child for child in self.get_child_elements()
-                 if (pointer is None or child.get_pointer() == pointer)
-                 and (tag is None or child.get_tag() == tag)
-                 and (value is None or child.get_value() == value))
-                , None)
+def get_next_child_element(self: Element, tag=None, pointer=None, value=None):
+    return next(filter_child_elements(self, tag, pointer, value), None)
 
 
 def filter_child_elements(self: Element, tag=None, pointer=None, value=None):
+    """
+    Gets all the child elements of the given element that meet the given conditions.
+    When no conditions are specified, all child elements are returned.
+    Passing True to a filter returns all elements that have a value for that filter that is not None or empty.
+    Passing False to a filter returns all elements that have a value for that filter that is None or empty.
+    Passing a str to a filter returns all elements that have a value for that filter that is equal to the filter.
+    Passing a set, list, or tuple to a filter returns all elements that have a value contained in the filter.
+    :param self: Element to search
+    :param tag: tag filter
+    :param pointer: pointer filter
+    :param value: value filter
+    :return: a list of all child elements matching the filters
+    """
+
     def condition(value_to_match, value_to_check):
         if value_to_match is None:
             return True
+        elif isinstance(value_to_match, bool):
+            return bool(value_to_check) == value_to_match
         elif isinstance(value_to_match, str):
             return value_to_check == value_to_match
         elif isinstance(value_to_match, (list, tuple, set)):
@@ -62,7 +74,6 @@ def get_name_dict_from_name_tags(self):
 def get_names(self: IndividualElement):
     """
     Gets names from element.
-    Assumes the first name in order is the primary name.
     :param self:
     :return: tuple of dicts of name parts for each name
     """

@@ -84,6 +84,14 @@ class GedcomTestCase(TestCase):
         no_elements = gedcom_helpers.filter_child_elements(individual, tag="")
         self.assertEqual(no_elements, [])
 
+        contains_tag = gedcom_helpers.filter_child_elements(individual, tag=True)
+        for element in contains_tag:
+            self.assertNotIn(element.get_tag(), ('', None))
+
+        not_contains_value = gedcom_helpers.filter_child_elements(individual, value=False)
+        for element in not_contains_value:
+            self.assertIn(element.get_value(), ('', None))
+
     def test_get_names(self):
         names = gedcom_helpers.get_names(gen_individual())
         name = next(names)
