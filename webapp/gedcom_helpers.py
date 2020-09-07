@@ -6,7 +6,22 @@ from webapp.name_parser_ext import GedcomName
 
 
 def get_next_child_element(self: Element, tag=None, pointer=None, value=None):
-    return next(filter_child_elements(self, tag, pointer, value), None)
+    def condition(value_to_match, value_to_check):
+        if value_to_match is None:
+            return True
+        elif isinstance(value_to_match, bool):
+            return bool(value_to_check) == value_to_match
+        elif isinstance(value_to_match, str):
+            return value_to_check == value_to_match
+        elif isinstance(value_to_match, (list, tuple, set)):
+            return value_to_check in value_to_match
+        else:
+            return False
+
+    return next((child for child in self.get_child_elements()
+                if condition(tag, child.get_tag())
+                and condition(pointer, child.get_pointer())
+                and condition(value, child.get_value())), None)
 
 
 def filter_child_elements(self: Element, tag=None, pointer=None, value=None):

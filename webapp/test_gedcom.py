@@ -129,7 +129,7 @@ class GedcomTestCase(TestCase):
     def test_parse_individual(self):
         individual = gen_individual()
 
-        person = gedcom_parsing.parse_individual(individual, self.tree)
+        ptr, person = gedcom_parsing.parse_individual(individual, self.tree)
         self.assertEqual(person.legal_name.first_name, 'Some')
         self.assertEqual(person.legal_name.last_name, 'Guy')
         self.assertEqual(person.gender, 'Male')
@@ -144,7 +144,7 @@ class GedcomTestCase(TestCase):
     def test_minimal_person(self):
         individual = gedcom_helpers.create_individual('@P1@', 'John Cho')
 
-        person = gedcom_parsing.parse_individual(individual, self.tree)
+        ptr, person = gedcom_parsing.parse_individual(individual, self.tree)
         self.assertEqual(person.legal_name.first_name, 'John')
         self.assertEqual(person.legal_name.last_name, 'Cho')
         self.assertEqual(person.living, 'Unknown')
