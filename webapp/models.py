@@ -144,14 +144,13 @@ class Partnership(models.Model):
     marriage_date = models.DateField(null=True, blank=True)
     divorce_date = models.DateField(null=True, blank=True)
 
-    # TODO: remove MaritalStatus and rename
-    class MaritalStatuses(models.TextChoices):
+    class MaritalStatus(models.TextChoices):
         MARRIED = 'Married', _('Married')
         PARTNERED = 'Partnered', _('Partnered')
         LEGALLY_SEPARATED = 'Legally separated', _('Legally Separated')
         DIVORCED = 'Divorced', _('Divorced')
 
-    marital_status = models.CharField(max_length=25, choices=MaritalStatuses.choices, default=MaritalStatuses.MARRIED)
+    marital_status = models.CharField(max_length=25, choices=MaritalStatus.choices, default=MaritalStatus.MARRIED)
 
     notes = models.TextField(blank=True, default='')
 
