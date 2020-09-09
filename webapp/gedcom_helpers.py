@@ -1,4 +1,7 @@
+from typing import Tuple
+
 from gedcom.element.element import Element
+from gedcom.element.family import FamilyElement
 from gedcom.element.individual import IndividualElement
 
 import webapp.tags_ext as tags
@@ -19,9 +22,9 @@ def get_next_child_element(self: Element, tag=None, pointer=None, value=None):
             return False
 
     return next((child for child in self.get_child_elements()
-                if condition(tag, child.get_tag())
-                and condition(pointer, child.get_pointer())
-                and condition(value, child.get_value())), None)
+                 if condition(tag, child.get_tag())
+                 and condition(pointer, child.get_pointer())
+                 and condition(value, child.get_value())), None)
 
 
 def filter_child_elements(self: Element, tag=None, pointer=None, value=None):
@@ -113,6 +116,7 @@ def get_value(self: Element, tag: str):
 
 
 def create_individual(ptr: str,
+                      level: int = 0,
                       name: str = None,
                       sex: str = None,
                       birth_place: str = None,
@@ -121,26 +125,55 @@ def create_individual(ptr: str,
                       death_date: str = None,
                       family_spouse_ptr: str = None,
                       family_child_ptr: str = None):
-    individual_element = IndividualElement(0, ptr, tags.GEDCOM_TAG_INDIVIDUAL, '')
+    individual_element = IndividualElement(level, ptr, tags.GEDCOM_TAG_INDIVIDUAL, '')
     if name is not None:
-        individual_element.add_child_element(Element(1, '', tags.GEDCOM_TAG_NAME, name))
+        individual_element.add_child_element(Element(level + 1, '', tags.GEDCOM_TAG_NAME, name))
     if sex is not None:
-        individual_element.add_child_element(Element(1, '', tags.GEDCOM_TAG_SEX, sex))
-    if birth_place is not None and birth_date is not None:
-        individual_element.add_child_element(create_event(tags.GEDCOM_TAG_BIRTH, birth_place, birth_date))
-    if death_place is not None and death_date is not None:
-        individual_element.add_child_element(create_event(tags.GEDCOM_TAG_DEATH, death_place, death_date))
+        individual_element.add_child_element(Element(level + 1, '', tags.GEDCOM_TAG_SEX, sex))
+    if birth_place is not None or birth_date is not None:
+        individual_element.add_child_element(create_event(tags.GEDCOM_TAG_BIRTH, birth_place, birth_date, level + 1))
+    if death_place is not None or death_date is not None:
+        individual_element.add_child_element(create_event(tags.GEDCOM_TAG_DEATH, death_place, death_date, level + 1))
     if family_spouse_ptr is not None:
-        individual_element.add_child_element(Element(1, '', tags.GEDCOM_TAG_FAMILY_SPOUSE, family_spouse_ptr))
+        individual_element.add_child_element(Element(level + 1, '', tags.GEDCOM_TAG_FAMILY_SPOUSE, family_spouse_ptr))
     if family_child_ptr is not None:
-        individual_element.add_child_element(Element(1, '', tags.GEDCOM_TAG_FAMILY_CHILD, family_child_ptr))
+        individual_element.add_child_element(Element(level + 1, '', tags.GEDCOM_TAG_FAMILY_CHILD, family_child_ptr))
     return individual_element
 
 
-def create_event(tag_type: str, place: str, date: str):
-    event_element = Element(1, '', tag_type, '')
-    event_place_element = Element(2, '', tags.GEDCOM_TAG_PLACE, place)
-    event_element.add_child_element(event_place_element)
-    event_date_element = Element(2, '', tags.GEDCOM_TAG_DATE, date)
-    event_element.add_child_element(event_date_element)
+def create_event(tag_type: str, place: str = None, date: str = None, level: int = 1):
+    event_element = Element(level, '', tag_type, '')
+    if place is not None:
+        event_place_element = Element(level + 1, '', tags.GEDCOM_TAG_PLACE, place)
+        event_element.add_child_element(event_place_element)
+
+    if date is not None:
+        event_date_element = Element(level + 1, '', tags.GEDCOM_TAG_DATE, date)
+        event_element.add_child_element(event_date_element)
     return event_element
+
+
+def create_family(ptr: str,
+                  level: int = 0,
+                  husb_ptrs: Tuple[str] = None,
+                  wife_ptrs: Tuple[str] = None,
+                  child_ptrs: Tuple[str] = None,
+                  marriage_place: str = None,
+                  marriage_date: str = None,
+                  divorce_place: str = None,
+                  divorce_date: str = None):
+    family_element = FamilyElement(level, ptr, tags.GEDCOM_TAG_FAMILY, '')
+    if husb_ptrs:
+        for husb_ptr in husb_ptrs:
+            family_element.add_child_element(Element(level + 1, '', tags.GEDCOM_TAG_HUSBAND, husb_ptr))
+    if wife_ptrs:
+        for wife_ptr in wife_ptrs:
+            family_element.add_child_element(Element(level + 1, '', tags.GEDCOM_TAG_WIFE, wife_ptr))
+    if child_ptrs:
+        for child_ptr in child_ptrs:
+            family_element.add_child_element(Element(level + 1, '', tags.GEDCOM_TAG_CHILD, child_ptr))
+    if marriage_date is not None or marriage_place is not None:
+        family_element.add_child_element(create_event(tags.GEDCOM_TAG_MARRIAGE, marriage_place, marriage_date, level + 1))
+    if divorce_place is not None or divorce_date is not None:
+        family_element.add_child_element(create_event(tags.GEDCOM_TAG_DIVORCE, divorce_place, divorce_date, level + 1))
+    return family_element

@@ -21,7 +21,7 @@ def gen_individual():
         1 FAMS @FAMILY@
     :return:
     """
-    individual = gedcom_helpers.create_individual('@FATHER', '/Some/ Guy', 'M', 'city, state, US', '1 JAN 1899',
+    individual = gedcom_helpers.create_individual('@FATHER', 0, '/Some/ Guy', 'M', 'city, state, US', '1 JAN 1899',
                                                   'city', '31 DEC 1990', '@FAMILY')
 
     return individual
@@ -142,9 +142,43 @@ class GedcomTestCase(TestCase):
         self.assertEqual(person.living, 'Unknown')
 
     def test_minimal_person(self):
-        individual = gedcom_helpers.create_individual('@P1@', 'John Cho')
+        individual = gedcom_helpers.create_individual('@P1@', name='John Cho')
 
         ptr, person = gedcom_parsing.parse_individual(individual, self.tree)
         self.assertEqual(person.legal_name.first_name, 'John')
         self.assertEqual(person.legal_name.last_name, 'Cho')
         self.assertEqual(person.living, 'Unknown')
+
+    def test_parse_family(self):
+        legal_name_1 = LegalName(first_name='Spouse', last_name='1')
+        legal_name_1.save()
+        person_1 = Person(legal_name=legal_name_1)
+        person_1.save()
+        legal_name_2 = LegalName(first_name='Spouse', last_name='2')
+        legal_name_2.save()
+        person_2 = Person(legal_name=legal_name_2)
+        person_2.save()
+        legal_name_3 = LegalName(first_name='Child', last_name='1')
+        legal_name_3.save()
+        person_3 = Person(legal_name=legal_name_3)
+        person_3.save()
+        persons = {
+            '@P1@': person_1,
+            '@P2@': person_2,
+            '@P3@': person_3
+        }
+        family_element = gedcom_helpers.create_family('@F1@',
+                                                      husb_ptrs=('@P1@',),
+                                                      wife_ptrs=('@P2@',),
+                                                      child_ptrs=('@P3@',),
+                                                      marriage_place="city, state, US",
+                                                      marriage_date='13 JAN 1900',
+                                                      divorce_date='14 JAN 1911')
+
+        partnership = gedcom_parsing.parse_family(family_element, persons, self.tree)
+        partners = tuple(p for p in partnership.partners())
+        self.assertEqual(partners, (person_1, person_2))
+        children = tuple(c for c in partnership.children.all())
+        self.assertEqual(children, (person_3,))
+        self.assertEqual(partnership.marriage_date, datetime.date(1900, 1, 13))
+        self.assertEqual(partnership.divorce_date, datetime.date(1911, 1, 14))

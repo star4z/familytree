@@ -1,5 +1,6 @@
+from typing import Dict
+
 from django.core.files.uploadedfile import UploadedFile
-from gedcom.element.family import FamilyElement
 from gedcom.parser import Parser
 
 from webapp.gedcom_helpers import *
@@ -11,13 +12,19 @@ def parse_file(f: UploadedFile, user):
 
     tree = Tree()
 
+    persons = dict()
+    family_elements = list()
     for child_element in root.get_child_elements():
         if type(child_element) is IndividualElement:
             # noinspection PyTypeChecker
-            child = parse_individual(child_element, tree)
+            ptr, person = parse_individual(child_element, tree)
+            persons[ptr] = person
         elif type(child_element) is FamilyElement:
-            # noinspection PyTypeChecker
-            child = parse_family(child_element, tree)
+            family_elements.append(child_element)
+
+    for family_element in family_elements:
+        # noinspection PyTypeChecker
+        partnership = parse_family(family_element, persons, tree)
 
     # tree.save()
 
@@ -48,6 +55,8 @@ def parse_event_location(event_element):
     if len_parts >= 3:
         location.country = parse_country(parts[2])
 
+    location.save()
+
     return location
 
 
@@ -68,6 +77,7 @@ def parse_individual(element: IndividualElement, tree):
     names = list(get_names(element))
 
     # save legal name
+    # assumes first name in list is primary name
     legal_name = LegalName()
     parse_name_dict(names[0], legal_name)
     legal_name.save()
@@ -95,7 +105,11 @@ def parse_individual(element: IndividualElement, tree):
 
     # living defaults to Unknown; change to living = has birth year and not has death year?
 
-    return child
+    child.tree = tree
+
+    child.save()
+
+    return element.get_pointer(), child
 
 
 def parse_name_dict(name_dict, obj: Name):
@@ -111,16 +125,43 @@ def parse_name_dict(name_dict, obj: Name):
         obj.suffix = name_dict['suffix']
 
 
-def parse_family(element: FamilyElement, tree):
+def parse_family(element: FamilyElement, persons: Dict[str, Person], tree):
     partnership = Partnership()
 
+    partnership.marital_status = Partnership.MaritalStatus.PARTNERED
+
+    marriage_event_element = get_next_child_element(element, tag=tags.GEDCOM_TAG_MARRIAGE)
+    if marriage_event_element:
+        partnership.marital_status = Partnership.MaritalStatus.MARRIED
+        partnership.marriage_date = parse_event_date(marriage_event_element)
+        # TODO: add support for storing marriage location
+
+    divorce_event_element = get_next_child_element(element, tag=tags.GEDCOM_TAG_DIVORCE)
+    if divorce_event_element:
+        partnership.marital_status = Partnership.MaritalStatus.DIVORCED
+        partnership.divorce_date = parse_event_date(divorce_event_element)
+
     partnership.tree = tree
+
+    partnership.save()
+
+    # Create partner relations
+    for partner_element in filter_child_elements(element, tag=(tags.GEDCOM_TAG_HUSBAND, tags.GEDCOM_TAG_WIFE)):
+        person_partnership = PersonPartnership(partnership=partnership, person=persons[partner_element.get_value()])
+        person_partnership.save()
+
+    # Create children relations
+    partnership_children = Partnership.children.through
+    for child_element in filter_child_elements(element, tag=tags.GEDCOM_TAG_CHILD):
+        relation = partnership_children(partnership=partnership)
+        relation.person = persons[child_element.get_value()]
+        relation.save()
 
     return partnership
 
 
 def parse_gender(gender: str):
-    # Intersex and Other are technically unsupported by the GEDCOM standard
+    # Intersex and Other are unsupported by the GEDCOM standard
     if gender == 'M':
         return 'Male'
     elif gender == 'F':
