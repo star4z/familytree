@@ -121,6 +121,12 @@ class GedcomTestCase(TestCase):
         self.assertEqual(location.state, 'state')
         self.assertEqual(location.country, 'US')
 
+        # Test to make sure trying to create a duplicate location is handled properly
+        location = gedcom_parsing.parse_event_location(event)
+        self.assertEqual(location.city, 'city')
+        self.assertEqual(location.state, 'state')
+        self.assertEqual(location.country, 'US')
+
     def test_parse_event_date(self):
         event = gedcom_helpers.create_event(tags.GEDCOM_TAG_BIRTH, 'city, state, US', '12 JAN 1998')
         date = gedcom_parsing.parse_event_date(event)
@@ -182,3 +188,10 @@ class GedcomTestCase(TestCase):
         self.assertEqual(children, (person_3,))
         self.assertEqual(partnership.marriage_date, datetime.date(1900, 1, 13))
         self.assertEqual(partnership.divorce_date, datetime.date(1911, 1, 14))
+
+    def test_parse_file(self):
+        user = User(username="test_user", password="test_password")
+        user.save()
+        with open("gedcom_examples/simple.ged") as f:
+            tree = gedcom_parsing.parse_file(f.buffer, user)
+            self.assertIsNotNone(tree)

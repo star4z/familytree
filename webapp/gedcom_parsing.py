@@ -1,16 +1,17 @@
 from typing import Dict
 
-from django.core.files.uploadedfile import UploadedFile
 from gedcom.parser import Parser
 
 from webapp.gedcom_helpers import *
 from webapp.models import *
 
 
-def parse_file(f: UploadedFile, user):
+def parse_file(f, user):
     root = get_root_element(f)
 
     tree = Tree()
+    tree.save()
+    tree.authorized_users.add(user)
 
     persons = dict()
     family_elements = list()
@@ -24,9 +25,9 @@ def parse_file(f: UploadedFile, user):
 
     for family_element in family_elements:
         # noinspection PyTypeChecker
-        partnership = parse_family(family_element, persons, tree)
+        parse_family(family_element, persons, tree)
 
-    # tree.save()
+    return tree
 
 
 def get_root_element(f):
@@ -45,17 +46,18 @@ def parse_event_date(event_element):
 def parse_event_location(event_element):
     place = get_value(event_element, tags.GEDCOM_TAG_PLACE)
     parts = place.split(' ')
-    location = Location()
+
+    city, state, country = '', '', ''
 
     len_parts = len(parts)
     if len_parts >= 1:
-        location.city = parts[0].strip(',')
+        city = parts[0].strip(',')
     if len_parts >= 2:
-        location.state = parts[1].strip(',')
+        state = parts[1].strip(',')
     if len_parts >= 3:
-        location.country = parse_country(parts[2])
+        country = parse_country(parts[2])
 
-    location.save()
+    location, created = Location.objects.get_or_create(city=city, state=state, country=country)
 
     return location
 
