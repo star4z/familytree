@@ -12,6 +12,7 @@ def parse_file(f, user):
     tree = Tree()
     tree.save()
     tree.authorized_users.add(user)
+    tree.save()
 
     persons = dict()
     family_elements = list()
