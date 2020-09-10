@@ -11,6 +11,7 @@ def parse_file(f, user):
 
     tree = Tree()
     tree.save()
+    tree.creator = user
     tree.authorized_users.add(user)
     tree.save()
 
