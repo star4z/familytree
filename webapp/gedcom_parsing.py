@@ -106,6 +106,7 @@ def parse_individual(element: IndividualElement, tree):
     if death_event_element:
         child.death_date = parse_event_date(death_event_element)
         child.death_location = parse_event_location(death_event_element)
+        child.living = 'Dead'
 
     # living defaults to Unknown; change to living = has birth year and not has death year?
 
