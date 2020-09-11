@@ -6,11 +6,13 @@ from webapp.gedcom_helpers import *
 from webapp.models import *
 
 
-def parse_file(f, user):
+def parse_file(f, user, title):
     root = get_root_element(f)
 
     tree = Tree()
+    tree.title = title
     tree.save()
+    # This needs to be saved after tree is created because this implicitly creates through instances
     tree.creator = user
     tree.authorized_users.add(user)
     tree.save()
@@ -84,6 +86,7 @@ def parse_individual(element: IndividualElement, tree):
     # assumes first name in list is primary name
     legal_name = LegalName()
     parse_name_dict(names[0], legal_name)
+    legal_name.tree = tree
     legal_name.save()
     child.legal_name = legal_name
 
@@ -92,6 +95,7 @@ def parse_individual(element: IndividualElement, tree):
         alternate_name = AlternateName()
         parse_name_dict(name_dict, alternate_name)
         alternate_name.person = child
+        alternate_name.tree = tree
         alternate_name.save()
 
     child.gender = parse_gender(get_value(element, tags.GEDCOM_TAG_SEX))

@@ -417,7 +417,7 @@ def import_gedcom(request):
         form = UploadFileForm(request.POST, request.FILES)
         print(form.is_valid())
         if form.is_valid():
-            parse_file(request.FILES['file'], request.user)
+            parse_file(request.FILES['file'], request.user, form.cleaned_data['title'])
             return HttpResponseRedirect('/')
     else:
         form = UploadFileForm()
