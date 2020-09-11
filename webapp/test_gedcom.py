@@ -43,6 +43,13 @@ class GedcomNameTestCase(TestCase):
         parts = name_parser_ext.split_with_slash_support("/David/ Gregory /Smith/")
         self.assertEqual(["David", "Gregory", "Smith"], parts)
 
+    def test_parse_name(self):
+        self.assertEqual(name_parser_ext.GedcomName("Henry Ford").as_dict(False), {'first': 'Henry', 'last': 'Ford'})
+        self.assertEqual(name_parser_ext.GedcomName("Robert Louis Stevenson").as_dict(False),
+                         {'first': 'Robert', 'middle': 'Louis', 'last': 'Stevenson'})
+        self.assertEqual(name_parser_ext.GedcomName("Dr. Martin Luther King, Jr.").as_dict(False),
+                         {'title': 'Dr', 'first': 'Martin', 'middle': 'Luther', 'last': 'King', 'suffix': 'Jr.'})
+
 
 class GedcomTestCase(TestCase):
     def setUp(self):
