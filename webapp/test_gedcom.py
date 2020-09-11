@@ -145,6 +145,8 @@ class GedcomTestCase(TestCase):
         self.assertEqual(person.birth_location.country, 'US')
         self.assertEqual(person.death_date, datetime.date(1990, 12, 31))
         self.assertEqual(person.death_location.city, 'city')
+        self.assertEqual(person.death_location.state, '')
+        self.assertEqual(person.death_location.country, '')
         self.assertEqual(person.living, 'Unknown')
 
     def test_minimal_person(self):
