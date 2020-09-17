@@ -17,6 +17,9 @@ class Tree(models.Model):
     authorized_users = models.ManyToManyField(User, related_name='authorized_users', blank=True)
     notes = models.TextField(blank=True)
 
+    class Meta:
+        ordering = ['title']
+
     def __str__(self):
         return f'[{self.id}] {self.title}'
 
