@@ -36,15 +36,19 @@ def parse_file(f, user, title):
 
 def get_root_element(f):
     parser = Parser()
-    parser.parse(f)
+    parser.parse(f, strict=False)
     root = parser.get_root_element()
     return root
 
 
 def parse_event_date(event_element):
     date = get_value(event_element, tags.GEDCOM_TAG_DATE)
-    # TODO: Support other date formats. Some require alternate date storage formats, like a custom string, or a range.
-    return datetime.datetime.strptime(date, "%d %b %Y").date()
+    # TODO: Support other date formats. Some require alternate date storage formats, like a custom string, or a range,
+    #  or just a year.
+    try:
+        return datetime.datetime.strptime(date, "%d %b %Y").date()
+    except ValueError:
+        return None
 
 
 def parse_event_location(event_element):
