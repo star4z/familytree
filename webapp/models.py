@@ -46,6 +46,9 @@ class Name(models.Model):
     class Meta:
         abstract = True
 
+    def full_name(self):
+        return f'{self.prefix} {self.first_name} {self.middle_name} {self.last_name} {self.suffix}'
+
 
 class LegalName(Name):
     pass
@@ -56,18 +59,25 @@ class AlternateName(Name):
 
 
 class Person(models.Model):
+    ALIVE = 'Alive'
+    DEAD = 'Dead'
+    UNKNOWN = 'Unknown'
     LIVING_CHOICES = [
-        ('Alive', 'Alive'),
-        ('Dead', 'Dead'),
-        ('Unknown', 'Unknown')
+        (ALIVE, ALIVE),
+        (DEAD, DEAD),
+        (UNKNOWN, UNKNOWN)
     ]
 
+    MALE = 'Male'
+    FEMALE = 'Female'
+    INTERSEX = 'Intersex'
+    OTHER = 'Other'
     GENDER_CHOICES = [
-        ('Male', 'Male'),
-        ('Female', 'Female'),
-        ('Intersex', 'Intersex'),
-        ('Other', 'Other'),
-        ('Unknown', 'Unknown')
+        (MALE, MALE),
+        (FEMALE, FEMALE),
+        (INTERSEX, INTERSEX),
+        (OTHER, OTHER),
+        (UNKNOWN, UNKNOWN)
     ]
 
     legal_name = models.OneToOneField('LegalName', on_delete=models.CASCADE, related_name='legal_name', default='')
@@ -78,7 +88,7 @@ class Person(models.Model):
                                        blank=True)
     death_location = models.ForeignKey(Location, related_name="death_location", on_delete=models.DO_NOTHING, null=True,
                                        blank=True)
-    living = models.TextField(choices=LIVING_CHOICES, default='Unknown')
+    living = models.TextField(choices=LIVING_CHOICES, default=UNKNOWN)
     gender = models.CharField(max_length=8, choices=GENDER_CHOICES)
     partnerships = models.ManyToManyField('Partnership', blank=True, through='PersonPartnership')
     notes = models.TextField(blank=True, default='')
@@ -140,6 +150,18 @@ class Person(models.Model):
                 raise self.IllegalAgeError()
         else:
             raise self.IllegalAgeError()
+
+    GEDCOM_SEX = {
+        MALE: 'M',
+        FEMALE: 'F',
+        UNKNOWN: 'U'
+    }
+
+    def gender_shorthand(self, gedcom_safe=False):
+        if gedcom_safe:
+            return self.GEDCOM_SEX.get(self.gender, 'U')
+        else:
+            return self.gender[0].upper()
 
 
 class Partnership(models.Model):

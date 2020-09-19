@@ -1,4 +1,5 @@
 from gedcom.element.element import Element
+from gedcom.element.individual import IndividualElement
 from gedcom.parser import Parser
 
 import webapp.tags_ext as tags
@@ -26,6 +27,47 @@ def gen_head_and_submitter(tree):
         return head_element, None
 
 
+def gen_event(level, tag, date: datetime, location):
+    event_element = Element(level, '', tag, '')
+    if date:
+        event_element.add_child_element(Element(level + 1, '', tags.GEDCOM_TAG_DATE, date.strftime("%d %b %Y").upper()))
+    if location:
+        event_element.add_child_element(Element(level + 1, '', tags.GEDCOM_TAG_PLACE, str(location)))
+    return event_element
+
+
+def gen_individual(person: Person):
+    ptr = f"@PERSON_{person.id}@"
+    individual_element = IndividualElement(0, ptr, tags.GEDCOM_TAG_INDIVIDUAL, '')
+
+    legal_name = person.legal_name.full_name()
+    individual_element.add_child_element(Element(1, '', tags.GEDCOM_TAG_NAME, legal_name))
+
+    for name in person.alternate_name.all():
+        individual_element.add_child_element(Element(1, '', tags.GEDCOM_TAG_NAME, name.full_name()))
+
+    individual_element.add_child_element(Element(1, '', tags.GEDCOM_TAG_SEX, person.gender_shorthand()))
+
+    if person.birth_date or person.birth_location:
+        individual_element.add_child_element(
+            gen_event(1, tags.GEDCOM_TAG_BIRTH, person.birth_date, person.birth_location))
+
+    if person.death_date or person.death_location:
+        individual_element.add_child_element(
+            gen_event(1, tags.GEDCOM_TAG_DEATH, person.death_date, person.death_location))
+
+    return ptr, individual_element
+
+
+def gen_family(partnership):
+    ptr = f"@PARTNERSHIP_{partnership.id}@"
+    family_element = Element(0, ptr, tags.GEDCOM_TAG_FAMILY, '')
+
+    # todo
+
+    return ptr, family_element
+
+
 def generate_file(tree: Tree):
     parser = Parser()
     parser.parse([])
@@ -34,3 +76,13 @@ def generate_file(tree: Tree):
     root.add_child_element(head_element)
     if submitter_element is not None:
         root.add_child_element(submitter_element)
+
+    individuals = dict()
+    for person in Person.objects.filter(tree=tree):
+        ptr, individual = gen_individual(person)
+        individuals[ptr] = individual
+
+    families = dict()
+    for partnership in Partnership.objects.filter(tree=tree):
+        ptr, family = gen_family(partnership)
+        families[ptr] = family
