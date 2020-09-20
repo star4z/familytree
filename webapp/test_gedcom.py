@@ -202,7 +202,7 @@ class GedcomTestCase(TestCase):
         user = User(username="test_user", password="test_password")
         user.save()
         with open("gedcom_examples/simple.ged") as f:
-            tree = gedcom_parsing.parse_file(f.buffer, user)
+            tree = gedcom_parsing.parse_file(f.buffer, user, 'Tree')
             self.assertIsNotNone(tree)
 
     def test_gen_individual(self):
