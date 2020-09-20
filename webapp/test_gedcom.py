@@ -2,12 +2,12 @@ from django.test import TestCase
 from gedcom.element.element import Element
 
 import webapp.tags_ext as tags
-from webapp import gedcom_helpers, name_parser_ext
+from webapp import gedcom_helpers, name_parser_ext, gedcom_generator
 from webapp import gedcom_parsing
 from webapp.models import *
 
 
-def gen_individual():
+def gen_test_individual():
     """
     0 @FATHER@ INDI
         1 NAME /Some/ Guy
@@ -61,7 +61,7 @@ class GedcomTestCase(TestCase):
             self.assertIsNotNone(root)
 
     def test_filter_child_elements(self):
-        individual = gen_individual()
+        individual = gen_test_individual()
         elements_with_name_tag = gedcom_helpers.filter_child_elements(individual, tag=tags.GEDCOM_TAG_NAME)
         for element in elements_with_name_tag:
             self.assertEqual(element.get_tag(), tags.GEDCOM_TAG_NAME)
@@ -100,7 +100,7 @@ class GedcomTestCase(TestCase):
             self.assertIn(element.get_value(), ('', None))
 
     def test_get_names(self):
-        names = gedcom_helpers.get_names(gen_individual())
+        names = gedcom_helpers.get_names(gen_test_individual())
         name = next(names)
         expected = {'title': '', 'first': 'Some', 'middle': '', 'last': 'Guy', 'suffix': '', 'nickname': ''}
         self.assertDictEqual(name, expected)
@@ -140,7 +140,7 @@ class GedcomTestCase(TestCase):
         self.assertEqual(date, datetime.date(1998, 1, 12))
 
     def test_parse_individual(self):
-        individual = gen_individual()
+        individual = gen_test_individual()
 
         ptr, person = gedcom_parsing.parse_individual(individual, self.tree)
         self.assertEqual(person.legal_name.first_name, 'Some')
@@ -204,3 +204,36 @@ class GedcomTestCase(TestCase):
         with open("gedcom_examples/simple.ged") as f:
             tree = gedcom_parsing.parse_file(f.buffer, user)
             self.assertIsNotNone(tree)
+
+    def test_gen_individual(self):
+        birth_date = datetime.datetime(1980, 1, 1)
+        death_date = datetime.datetime(2040, 1, 1)
+        legal_name = LegalName(first_name="David", last_name="Schmidt")
+        legal_name.save()
+        birth_location = Location(city='New York', state='NY', country='US')
+        birth_location.save()
+        death_location = Location(city='Boston', state='MA', country='US')
+        death_location.save()
+        person = Person(
+            legal_name=legal_name,
+            gender="Male",
+            birth_date=birth_date,
+            birth_location=birth_location,
+            death_date=death_date,
+            death_location=death_location,
+        )
+        person.save()
+        alternate_name = AlternateName(first_name='Lance', last_name='Springer', person=person)
+        alternate_name.save()
+
+        ptr, individual = gedcom_generator.gen_individual(person)
+        expected = gedcom_helpers.create_individual(f"@PERSON_{person.id}@",
+                                                    name="David Schmidt",
+                                                    sex='M',
+                                                    birth_place='New York, NY, US',
+                                                    birth_date=birth_date.strftime("%d %b %Y").upper(),
+                                                    death_place='Boston, MA, US',
+                                                    death_date=death_date.strftime("%d %b %Y").upper())
+        expected.add_child_element(Element(1, '', tags.GEDCOM_TAG_NAME, 'Lance Springer'))
+
+        self.assertEqual(expected.to_gedcom_string(), individual.to_gedcom_string())
