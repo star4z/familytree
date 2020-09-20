@@ -37,17 +37,25 @@ class Name(models.Model):
 
     tree = models.ForeignKey('Tree', on_delete=models.CASCADE, null=True)
 
+    class Meta:
+        abstract = True
+
     def __str__(self):
         return f'{self.first_name} {self.last_name}'
 
     def __repr__(self):
         return f'[{self.id}] {self.first_name} {self.last_name}'
 
-    class Meta:
-        abstract = True
+    def __iter__(self):
+        yield self.prefix
+        yield self.first_name
+        yield self.middle_name
+        yield self.last_name
+        yield self.suffix
 
     def full_name(self):
-        return f'{self.prefix} {self.first_name} {self.middle_name} {self.last_name} {self.suffix}'
+        parts = tuple(part for part in iter(self) if part)
+        return parts[0] if len(parts) == 1 else ' '.join(parts)
 
 
 class LegalName(Name):
