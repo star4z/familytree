@@ -65,11 +65,11 @@ def gen_individual(person: Person):
 
     for partnership in Partnership.objects.filter(person=person):
         individual_element.add_child_element(
-            Element(1, '', tags.GEDCOM_TAG_FAMILY_SPOUSE, f'@PARTNERSHIP_{partnership.id}'))
+            Element(1, '', tags.GEDCOM_TAG_FAMILY_SPOUSE, f'@PARTNERSHIP_{partnership.id}@'))
 
     for partnership in Partnership.objects.filter(children=person):
         individual_element.add_child_element(
-            Element(1, '', tags.GEDCOM_TAG_FAMILY_CHILD, f'@PARTNERSHIP_{partnership.id}'))
+            Element(1, '', tags.GEDCOM_TAG_FAMILY_CHILD, f'@PARTNERSHIP_{partnership.id}@'))
 
     return ptr, individual_element
 
