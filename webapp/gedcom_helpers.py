@@ -1,3 +1,4 @@
+import sys
 from typing import Tuple
 
 from gedcom.element.element import Element
@@ -173,7 +174,37 @@ def create_family(ptr: str,
         for child_ptr in child_ptrs:
             family_element.add_child_element(Element(level + 1, '', tags.GEDCOM_TAG_CHILD, child_ptr))
     if marriage_date is not None or marriage_place is not None:
-        family_element.add_child_element(create_event(tags.GEDCOM_TAG_MARRIAGE, marriage_place, marriage_date, level + 1))
+        family_element.add_child_element(
+            create_event(tags.GEDCOM_TAG_MARRIAGE, marriage_place, marriage_date, level + 1))
     if divorce_place is not None or divorce_date is not None:
         family_element.add_child_element(create_event(tags.GEDCOM_TAG_DIVORCE, divorce_place, divorce_date, level + 1))
     return family_element
+
+
+def element_equals(element1: Element, element2: Element):
+    if not element_values_equals(element1, element2):
+        print(f'{element1.to_gedcom_string()} != {element2.to_gedcom_string()}', file=sys.stderr)
+        return False
+    if len(element1.get_child_elements()) != len(element2.get_child_elements()):
+        print(f'element1.len ({len(element1.get_child_elements())}) != '
+                                   f'element2.len ({len(element2.get_child_elements())})', file=sys.stderr)
+        return False
+    child_elements_2 = element2.get_child_elements().copy()
+    for e1 in element1.get_child_elements():
+        found_match = False
+        for e2 in child_elements_2:
+            if element_values_equals(e1, e2):
+                found_match = True
+                child_elements_2.remove(e2)
+                break
+        if not found_match:
+            print(f'No match found for element: {e1.to_gedcom_string()}', file=sys.stderr)
+            return False
+    return True
+
+
+def element_values_equals(element1: Element, element2: Element):
+    return element1.get_level() == element2.get_level() \
+           and element1.get_pointer() == element2.get_pointer() \
+           and element1.get_tag() == element2.get_tag() \
+           and element1.get_value() == element2.get_value()
