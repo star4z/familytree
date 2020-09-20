@@ -271,3 +271,19 @@ class GedcomHelpersTest(TestCase):
         self.assertFalse(gedcom_helpers.element_values_equals(element_2, element_6))
         element_7 = Element(2, 'pointer', 'tag', 'value')
         self.assertFalse(gedcom_helpers.element_values_equals(element_2, element_7))
+
+    def test_gen_pointer(self):
+        legal_name = LegalName(first_name="Chris")
+        legal_name.save()
+        legal_name_ptr = gedcom_helpers.gen_pointer(legal_name)
+        self.assertEqual(legal_name_ptr, f"@LEGALNAME_{legal_name.pk}@")
+
+        person = Person(legal_name=legal_name)
+        person.save()
+        person_ptr = gedcom_helpers.gen_pointer(person)
+        self.assertEqual(person_ptr, f"@PERSON_{person.pk}@")
+
+        partnership = Partnership()
+        partnership.save()
+        partnership_ptr = gedcom_helpers.gen_pointer(partnership)
+        self.assertEqual(partnership_ptr, f"@PARTNERSHIP_{partnership.pk}@")

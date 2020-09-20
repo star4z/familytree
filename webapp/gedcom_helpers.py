@@ -1,6 +1,7 @@
 import sys
 from typing import Tuple
 
+from django.db.models import Model
 from gedcom.element.element import Element
 from gedcom.element.family import FamilyElement
 from gedcom.element.individual import IndividualElement
@@ -187,7 +188,7 @@ def element_equals(element1: Element, element2: Element):
         return False
     if len(element1.get_child_elements()) != len(element2.get_child_elements()):
         print(f'element1.len ({len(element1.get_child_elements())}) != '
-                                   f'element2.len ({len(element2.get_child_elements())})', file=sys.stderr)
+              f'element2.len ({len(element2.get_child_elements())})', file=sys.stderr)
         return False
     child_elements_2 = element2.get_child_elements().copy()
     for e1 in element1.get_child_elements():
@@ -208,3 +209,7 @@ def element_values_equals(element1: Element, element2: Element):
            and element1.get_pointer() == element2.get_pointer() \
            and element1.get_tag() == element2.get_tag() \
            and element1.get_value() == element2.get_value()
+
+
+def gen_pointer(model: Model):
+    return f"@{type(model).__name__.upper()}_{model.pk}@"
