@@ -56,6 +56,14 @@ def gen_individual(person: Person):
         individual_element.add_child_element(
             gen_event(1, tags.GEDCOM_TAG_DEATH, person.death_date, person.death_location))
 
+    for partnership in Partnership.objects.filter(person=person):
+        individual_element.add_child_element(
+            Element(1, '', tags.GEDCOM_TAG_FAMILY_SPOUSE, f'@PARTNERSHIP_{partnership.id}'))
+
+    for partnership in Partnership.objects.filter(child=person):
+        individual_element.add_child_element(
+            Element(1, '', tags.GEDCOM_TAG_FAMILY_CHILD, f'@PARTNERSHIP_{partnership.id}'))
+
     return ptr, individual_element
 
 
@@ -77,12 +85,16 @@ def generate_file(tree: Tree):
     if submitter_element is not None:
         root.add_child_element(submitter_element)
 
-    individuals = dict()
+    # individuals = dict()
     for person in Person.objects.filter(tree=tree):
         ptr, individual = gen_individual(person)
-        individuals[ptr] = individual
+        # individuals[ptr] = individual
+        root.add_child_element(individual)
 
-    families = dict()
+    # families = dict()
     for partnership in Partnership.objects.filter(tree=tree):
         ptr, family = gen_family(partnership)
-        families[ptr] = family
+        # families[ptr] = family
+        root.add_child_element(family)
+
+    return root
