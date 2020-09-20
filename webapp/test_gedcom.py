@@ -154,7 +154,7 @@ class GedcomTestCase(TestCase):
         self.assertEqual(person.death_location.city, 'city')
         self.assertEqual(person.death_location.state, '')
         self.assertEqual(person.death_location.country, '')
-        self.assertEqual(person.living, 'Unknown')
+        self.assertEqual(person.living, 'Dead')
 
     def test_minimal_person(self):
         individual = gedcom_helpers.create_individual('@P1@', name='John Cho')
