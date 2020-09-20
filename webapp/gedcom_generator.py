@@ -40,8 +40,15 @@ def gen_individual(person: Person):
     ptr = f"@PERSON_{person.id}@"
     individual_element = IndividualElement(0, ptr, tags.GEDCOM_TAG_INDIVIDUAL, '')
 
-    legal_name = person.legal_name.full_name()
-    individual_element.add_child_element(Element(1, '', tags.GEDCOM_TAG_NAME, legal_name))
+    legal_name = person.legal_name
+    individual_element.add_child_element(Element(1, '', tags.GEDCOM_TAG_NAME, legal_name.full_name()))
+    if legal_name.prefix:
+        individual_element.add_child_element(Element(1, '', tags.GEDCOM_TAG_NAME_PREFIX, legal_name.prefix))
+    individual_element.add_child_element(Element(1, '', tags.GEDCOM_TAG_GIVEN_NAME, legal_name.first_name))
+    if legal_name.last_name:
+        individual_element.add_child_element(Element(1, '', tags.GEDCOM_TAG_SURNAME, legal_name.last_name))
+    if legal_name.suffix:
+        individual_element.add_child_element(Element(1, '', tags.GEDCOM_TAG_NAME_SUFFIX, legal_name.suffix))
 
     for name in person.alternate_name.all():
         individual_element.add_child_element(Element(1, '', tags.GEDCOM_TAG_NAME, name.full_name()))
