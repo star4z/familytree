@@ -226,6 +226,16 @@ class GedcomTestCase(TestCase):
         alternate_name = AlternateName(first_name='Lance', last_name='Springer', person=person)
         alternate_name.save()
 
+        partner_partnership = Partnership()
+        partner_partnership.save()
+
+        person_partnership = PersonPartnership(person=person, partnership=partner_partnership)
+        person_partnership.save()
+
+        child_partnership = Partnership()
+        child_partnership.save()
+        child_partnership.children.add(person)
+
         ptr, individual = gedcom_generator.gen_individual(person)
         expected = gedcom_helpers.create_individual(f"@PERSON_{person.id}@",
                                                     name="David Schmidt",
@@ -237,5 +247,9 @@ class GedcomTestCase(TestCase):
         expected.add_child_element(Element(1, '', tags.GEDCOM_TAG_NAME, 'Lance Springer'))
         expected.add_child_element(Element(1, '', tags.GEDCOM_TAG_GIVEN_NAME, 'David'))
         expected.add_child_element(Element(1, '', tags.GEDCOM_TAG_SURNAME, 'Schmidt'))
+        expected.add_child_element(Element(1, '', tags.GEDCOM_TAG_FAMILY_SPOUSE,
+                                           f'@PARTNERSHIP_{partner_partnership.id}@'))
+        expected.add_child_element(Element(1, '', tags.GEDCOM_TAG_FAMILY_CHILD,
+                                           f'@PARTNERSHIP_{child_partnership.id}@'))
 
         self.assertTrue(gedcom_helpers.element_equals(individual, expected))
