@@ -235,5 +235,7 @@ class GedcomTestCase(TestCase):
                                                     death_place='Boston, MA, US',
                                                     death_date=death_date.strftime("%d %b %Y").upper())
         expected.add_child_element(Element(1, '', tags.GEDCOM_TAG_NAME, 'Lance Springer'))
+        expected.add_child_element(Element(1, '', tags.GEDCOM_TAG_GIVEN_NAME, 'David'))
+        expected.add_child_element(Element(1, '', tags.GEDCOM_TAG_SURNAME, 'Schmidt'))
 
-        self.assertEqual(expected.to_gedcom_string(), individual.to_gedcom_string())
+        self.assertTrue(gedcom_helpers.element_equals(individual, expected))
