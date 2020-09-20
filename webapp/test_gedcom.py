@@ -253,3 +253,21 @@ class GedcomTestCase(TestCase):
                                            f'@PARTNERSHIP_{child_partnership.id}@'))
 
         self.assertTrue(gedcom_helpers.element_equals(individual, expected))
+
+
+class GedcomHelpersTest(TestCase):
+    def test_element_values_equals(self):
+        element_1 = Element(1, '', '', '')
+        element_2 = Element(2, '', '', '')
+        self.assertFalse(gedcom_helpers.element_values_equals(element_1, element_2))
+        element_3 = Element(1, '', '', '')
+        self.assertTrue(gedcom_helpers.element_values_equals(element_1, element_3))
+        self.assertFalse(gedcom_helpers.element_values_equals(element_2, element_3))
+        element_4 = Element(2, '', '', 'value')
+        self.assertFalse(gedcom_helpers.element_values_equals(element_2, element_4))
+        element_5 = Element(2, 'pointer', '', '')
+        self.assertFalse(gedcom_helpers.element_values_equals(element_2, element_5))
+        element_6 = Element(2, '', 'tag', '')
+        self.assertFalse(gedcom_helpers.element_values_equals(element_2, element_6))
+        element_7 = Element(2, 'pointer', 'tag', 'value')
+        self.assertFalse(gedcom_helpers.element_values_equals(element_2, element_7))
