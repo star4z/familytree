@@ -3,6 +3,7 @@ from gedcom.element.individual import IndividualElement
 from gedcom.parser import Parser
 
 import webapp.tags_ext as tags
+from webapp import gedcom_helpers
 from webapp.models import *
 
 
@@ -37,7 +38,7 @@ def gen_event(level, tag, date: datetime, location):
 
 
 def gen_individual(person: Person):
-    ptr = f"@PERSON_{person.id}@"
+    ptr = gedcom_helpers.gen_pointer(person)
     individual_element = IndividualElement(0, ptr, tags.GEDCOM_TAG_INDIVIDUAL, '')
 
     legal_name = person.legal_name
@@ -65,17 +66,17 @@ def gen_individual(person: Person):
 
     for partnership in Partnership.objects.filter(person=person):
         individual_element.add_child_element(
-            Element(1, '', tags.GEDCOM_TAG_FAMILY_SPOUSE, f'@PARTNERSHIP_{partnership.id}@'))
+            Element(1, '', tags.GEDCOM_TAG_FAMILY_SPOUSE, gedcom_helpers.gen_pointer(partnership)))
 
     for partnership in Partnership.objects.filter(children=person):
         individual_element.add_child_element(
-            Element(1, '', tags.GEDCOM_TAG_FAMILY_CHILD, f'@PARTNERSHIP_{partnership.id}@'))
+            Element(1, '', tags.GEDCOM_TAG_FAMILY_CHILD, gedcom_helpers.gen_pointer(partnership)))
 
     return ptr, individual_element
 
 
 def gen_family(partnership):
-    ptr = f"@PARTNERSHIP_{partnership.id}@"
+    ptr = gedcom_helpers.gen_pointer(partnership)
     family_element = Element(0, ptr, tags.GEDCOM_TAG_FAMILY, '')
 
     # todo
