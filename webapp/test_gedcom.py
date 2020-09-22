@@ -282,10 +282,10 @@ class GedcomTestCase(TestCase):
 
         ptr, family_element = gedcom_generator.gen_family(partnership)
 
-        expected = gedcom_helpers.create_family(gedcom_helpers.gen_pointer(partnership),
-                                                husb_ptrs=(gedcom_helpers.gen_pointer(spouse_2),),
-                                                wife_ptrs=(gedcom_helpers.gen_pointer(spouse_1),),
-                                                child_ptrs=(gedcom_helpers.gen_pointer(child),),
+        expected = gedcom_helpers.create_family(gedcom_helpers.gen_ptr(partnership),
+                                                husb_ptrs=(gedcom_helpers.gen_ptr(spouse_2),),
+                                                wife_ptrs=(gedcom_helpers.gen_ptr(spouse_1),),
+                                                child_ptrs=(gedcom_helpers.gen_ptr(child),),
                                                 marriage_date=gedcom_helpers.gedcom_date(marriage_date),
                                                 divorce_date=gedcom_helpers.gedcom_date(divorce_date))
 
@@ -312,15 +312,15 @@ class GedcomHelpersTest(TestCase):
     def test_gen_pointer(self):
         legal_name = LegalName(first_name="Chris")
         legal_name.save()
-        legal_name_ptr = gedcom_helpers.gen_pointer(legal_name)
+        legal_name_ptr = gedcom_helpers.gen_ptr(legal_name)
         self.assertEqual(legal_name_ptr, f"@LEGALNAME_{legal_name.pk}@")
 
         person = Person(legal_name=legal_name)
         person.save()
-        person_ptr = gedcom_helpers.gen_pointer(person)
+        person_ptr = gedcom_helpers.gen_ptr(person)
         self.assertEqual(person_ptr, f"@PERSON_{person.pk}@")
 
         partnership = Partnership()
         partnership.save()
-        partnership_ptr = gedcom_helpers.gen_pointer(partnership)
+        partnership_ptr = gedcom_helpers.gen_ptr(partnership)
         self.assertEqual(partnership_ptr, f"@PARTNERSHIP_{partnership.pk}@")

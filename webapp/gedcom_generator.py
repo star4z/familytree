@@ -38,7 +38,7 @@ def gen_event(level, tag, date: datetime, location):
 
 
 def gen_individual(person: Person):
-    ptr = gedcom_helpers.gen_pointer(person)
+    ptr = gedcom_helpers.gen_ptr(person)
     individual_element = IndividualElement(0, ptr, tags.GEDCOM_TAG_INDIVIDUAL, '')
 
     legal_name = person.legal_name
@@ -66,17 +66,17 @@ def gen_individual(person: Person):
 
     for partnership in Partnership.objects.filter(person=person):
         individual_element.add_child_element(
-            Element(1, '', tags.GEDCOM_TAG_FAMILY_SPOUSE, gedcom_helpers.gen_pointer(partnership)))
+            Element(1, '', tags.GEDCOM_TAG_FAMILY_SPOUSE, gedcom_helpers.gen_ptr(partnership)))
 
     for partnership in Partnership.objects.filter(children=person):
         individual_element.add_child_element(
-            Element(1, '', tags.GEDCOM_TAG_FAMILY_CHILD, gedcom_helpers.gen_pointer(partnership)))
+            Element(1, '', tags.GEDCOM_TAG_FAMILY_CHILD, gedcom_helpers.gen_ptr(partnership)))
 
     return ptr, individual_element
 
 
 def gen_family(partnership):
-    ptr = gedcom_helpers.gen_pointer(partnership)
+    ptr = gedcom_helpers.gen_ptr(partnership)
     family_element = Element(0, ptr, tags.GEDCOM_TAG_FAMILY, '')
 
     # todo

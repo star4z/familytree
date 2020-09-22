@@ -212,7 +212,7 @@ def element_values_equals(element1: Element, element2: Element):
            and element1.get_value() == element2.get_value()
 
 
-def gen_pointer(model: Model):
+def gen_ptr(model: Model):
     return f"@{type(model).__name__.upper()}_{model.pk}@"
 
 def gedcom_date(date: datetime):
