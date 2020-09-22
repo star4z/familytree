@@ -79,7 +79,26 @@ def gen_family(partnership):
     ptr = gedcom_helpers.gen_ptr(partnership)
     family_element = Element(0, ptr, tags.GEDCOM_TAG_FAMILY, '')
 
-    # todo
+    # Add spouses
+    for person in Person.objects.filter(partnerships=partnership):
+        if person.gender == Person.MALE:
+            tag = tags.GEDCOM_TAG_HUSBAND
+        elif person.gender == Person.FEMALE:
+            tag = tags.GEDCOM_TAG_WIFE
+        else:
+            # todo: determine better behavior in these cases.
+            raise ValueError(f"Not sure whether to call {person.gender} a husband or a wife")
+        family_element.add_child_element(Element(1, '', tag, gedcom_helpers.gen_ptr(person)))
+
+    # add children
+    for person in partnership.children.all():
+        family_element.add_child_element(Element(1, '', tags.GEDCOM_TAG_CHILD, gedcom_helpers.gen_ptr(person)))
+
+    if partnership.marriage_date:
+        family_element.add_child_element(gen_event(1, tags.GEDCOM_TAG_MARRIAGE, partnership.marriage_date, ''))
+
+    if partnership.divorce_date:
+        family_element.add_child_element(gen_event(1, tags.GEDCOM_TAG_DIVORCE, partnership.divorce_date, ''))
 
     return ptr, family_element
 
