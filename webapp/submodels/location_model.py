@@ -265,5 +265,11 @@ class Location(models.Model):
     class Meta:
         unique_together = ["city", "state", "country"]
 
+    def __iter__(self):
+        yield self.city
+        yield self.state
+        yield self.country
+
     def __str__(self):
-        return self.city + ', ' + self.state + ', ' + self.country
+        parts = tuple(part for part in iter(self) if part)
+        return parts[0] if len(parts) == 1 else ', '.join(parts)

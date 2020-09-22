@@ -28,7 +28,7 @@ def gen_head_and_submitter(tree):
         return head_element, None
 
 
-def gen_event(level, tag, date: datetime, location):
+def gen_event(level, tag, date: datetime, location: Location):
     event_element = Element(level, '', tag, '')
     if date:
         event_element.add_child_element(Element(level + 1, '', tags.GEDCOM_TAG_DATE, date.strftime("%d %b %Y").upper()))
