@@ -254,6 +254,43 @@ class GedcomTestCase(TestCase):
 
         self.assertTrue(gedcom_helpers.element_equals(individual, expected))
 
+    def test_gen_family(self):
+        spouse_1_legal_name = LegalName(first_name="Betty")
+        spouse_1_legal_name.save()
+        spouse_1 = Person(legal_name=spouse_1_legal_name, gender='Female')
+        spouse_1.save()
+        spouse_2_legal_name = LegalName(first_name="Kyle")
+        spouse_2_legal_name.save()
+        spouse_2 = Person(legal_name=spouse_2_legal_name, gender='Male')
+        spouse_2.save()
+        child_legal_name = LegalName(first_name="Symphony")
+        child_legal_name.save()
+        child = Person(legal_name=child_legal_name)
+        child.save()
+        marriage_date = datetime.datetime(2000, 12, 1)
+        divorce_date = datetime.datetime(2100, 12, 2)
+        partnership = Partnership(marriage_date=marriage_date,
+                                  divorce_date=divorce_date,
+                                  marital_status=Partnership.MaritalStatus.MARRIED)
+        partnership.save()
+        partnership.children.add(child)
+        partnership.save()
+        person_partnership_1 = PersonPartnership(person=spouse_1, partnership=partnership)
+        person_partnership_1.save()
+        person_partnership_2 = PersonPartnership(person=spouse_2, partnership=partnership)
+        person_partnership_2.save()
+
+        ptr, family_element = gedcom_generator.gen_family(partnership)
+
+        expected = gedcom_helpers.create_family(gedcom_helpers.gen_pointer(partnership),
+                                                husb_ptrs=(gedcom_helpers.gen_pointer(spouse_2),),
+                                                wife_ptrs=(gedcom_helpers.gen_pointer(spouse_1),),
+                                                child_ptrs=(gedcom_helpers.gen_pointer(child),),
+                                                marriage_date=gedcom_helpers.gedcom_date(marriage_date),
+                                                divorce_date=gedcom_helpers.gedcom_date(divorce_date))
+
+        self.assertTrue(gedcom_helpers.element_equals(family_element, expected))
+
 
 class GedcomHelpersTest(TestCase):
     def test_element_values_equals(self):

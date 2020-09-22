@@ -1,4 +1,5 @@
 import sys
+from datetime import datetime
 from typing import Tuple
 
 from django.db.models import Model
@@ -213,3 +214,6 @@ def element_values_equals(element1: Element, element2: Element):
 
 def gen_pointer(model: Model):
     return f"@{type(model).__name__.upper()}_{model.pk}@"
+
+def gedcom_date(date: datetime):
+    return date.strftime("%d %b %Y").upper()
