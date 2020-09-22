@@ -1,11 +1,12 @@
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.handlers.wsgi import WSGIRequest
-from django.http import Http404, HttpResponseRedirect
+from django.http import Http404, HttpResponseRedirect, HttpResponse
 from django.shortcuts import render, redirect, get_object_or_404
 from django.views import generic
-from django.views.decorators.http import require_POST
+from django.views.decorators.http import require_POST, require_GET
 
+from webapp import gedcom_generator
 from webapp.forms import AddPersonForm, AddNameForm, AddTreeForm, AddPartnershipForm, AlternateNameFormSet, \
     NewPartnerFormSet, PartnershipChildFormSet, UploadFileForm
 from webapp.gedcom_parsing import parse_file
@@ -422,3 +423,13 @@ def import_gedcom(request):
     else:
         form = UploadFileForm()
     return render(request, 'webapp/tree_import.html', {'form': form})
+
+
+@login_required
+@require_GET
+def export_gedcom(request, pk):
+    tree = Tree.objects.get(pk=pk, creator=request.user)
+    text_body = gedcom_generator.generate_file(tree).to_gedcom_string(recursive=True)
+    response = HttpResponse(text_body, content_type='text/plain')
+    response['Content-Disposition'] = f'attachment; filename="{tree.title}.ged"'
+    return response

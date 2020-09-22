@@ -14,6 +14,7 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from django.urls import path
+
 from . import views
 
 # Have to use tree_pk for some instead of pk to avoid overlapping names.
@@ -26,6 +27,7 @@ urlpatterns = [
     path('tree/<int:pk>/', views.TreeDetailView.as_view(), name='tree_detail'),
     path('tree/<int:pk>/edit/', views.edit_tree, name='edit_tree'),
     path('tree/<int:pk>/delete/', views.delete_tree, name="delete_tree"),
+    path('tree/<int:pk>/export/', views.export_gedcom, name='export_tree'),
     path('tree/<int:pk>/add_person/', views.add_person, name='add_person'),
     path('tree/<int:pk>/add_partnership/', views.add_partnership, name='add_partnership'),
     path('person/<int:pk>/', views.PersonDetailView.as_view(), name='person_detail'),
