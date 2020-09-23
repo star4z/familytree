@@ -158,9 +158,9 @@ def create_event(tag_type: str, place: str = None, date: str = None, level: int 
 
 def create_family(ptr: str,
                   level: int = 0,
-                  husb_ptrs: Tuple[str] = None,
-                  wife_ptrs: Tuple[str] = None,
-                  child_ptrs: Tuple[str] = None,
+                  husb_ptrs: Tuple[str, ...] = None,
+                  wife_ptrs: Tuple[str, ...] = None,
+                  child_ptrs: Tuple[str, ...] = None,
                   marriage_place: str = None,
                   marriage_date: str = None,
                   divorce_place: str = None,
