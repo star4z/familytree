@@ -1,5 +1,6 @@
 from django.test import TestCase
 from gedcom.element.element import Element
+from gedcom.parser import Parser
 
 import webapp.tags_ext as tags
 from webapp import gedcom_helpers, name_parser_ext, gedcom_generator
@@ -291,8 +292,6 @@ class GedcomTestCase(TestCase):
 
         self.assertTrue(gedcom_helpers.element_equals(family_element, expected))
 
-    # todo: tests for same-sex marriages, whole file, single parent families, min case
-
     def test_gen_same_sex_family(self):
         spouse_1_legal_name = LegalName(first_name="Betty")
         spouse_1_legal_name.save()
@@ -322,6 +321,88 @@ class GedcomTestCase(TestCase):
                                                 divorce_date=gedcom_helpers.gedcom_date(divorce_date))
 
         self.assertTrue(gedcom_helpers.element_equals(family_element, expected))
+
+    def test_gen_min_family(self):
+        partnership = Partnership()
+        partnership.save()
+        ptr, family_element = gedcom_generator.gen_family(partnership)
+
+        expected = gedcom_helpers.create_family(gedcom_helpers.gen_ptr(partnership))
+
+        self.assertTrue(gedcom_helpers.element_equals(family_element, expected))
+
+    def test_gen_head_and_submitter(self):
+        user = User(username="steve")
+        tree = Tree(title="Test", creator=user)
+
+        head, submitter = gedcom_generator.gen_head_and_submitter(tree)
+
+        expected_head = Element(0, '', tags.GEDCOM_TAG_HEAD, '')
+        charset_element = Element(1, '', tags.GEDCOM_TAG_CHARSET, tags.GEDCOM_CHARSET_UTF8)
+        expected_head.add_child_element(charset_element)
+        gedcom_element = Element(1, '', tags.GEDCOM_TAG_GEDCOM, '')
+        version_element = Element(2, '', tags.GEDCOM_TAG_VERSION, '5.5')
+        gedcom_element.add_child_element(version_element)
+        format_element = Element(2, '', tags.GEDCOM_TAG_FORM, 'Lineage-Linked')
+        gedcom_element.add_child_element(format_element)
+        expected_head.add_child_element(gedcom_element)
+        submitter_ptr = '@SUBMITTER@'
+        expected_head.add_child_element(Element(1, '', tags.GEDCOM_TAG_SUBMITTER, submitter_ptr))
+        expected_submitter = Element(0, submitter_ptr, tags.GEDCOM_TAG_SUBMITTER, '')
+        expected_submitter.add_child_element(Element(1, '', tags.GEDCOM_TAG_NAME, tree.creator.username))
+
+        self.assertTrue(gedcom_helpers.element_equals(head, expected_head))
+        self.assertTrue(gedcom_helpers.element_equals(submitter, expected_submitter))
+
+    def test_gen_file(self):
+        user = User(username="example")
+        user.save()
+        tree = Tree(title="Test", creator=user)
+        tree.save()
+        spouse_1_legal_name = LegalName(first_name="Betty", tree=tree)
+        spouse_1_legal_name.save()
+        spouse_1 = Person(legal_name=spouse_1_legal_name, gender='Female', tree=tree)
+        spouse_1.save()
+        spouse_2_legal_name = LegalName(first_name="Kyle", tree=tree)
+        spouse_2_legal_name.save()
+        spouse_2 = Person(legal_name=spouse_2_legal_name, gender='Male', tree=tree)
+        spouse_2.save()
+        child_legal_name = LegalName(first_name="Symphony", tree=tree)
+        child_legal_name.save()
+        child = Person(legal_name=child_legal_name, gender="Unknown", tree=tree)
+        child.save()
+        marriage_date = datetime.datetime(2000, 12, 1)
+        divorce_date = datetime.datetime(2100, 12, 2)
+        partnership = Partnership(marriage_date=marriage_date,
+                                  divorce_date=divorce_date,
+                                  marital_status=Partnership.MaritalStatus.MARRIED,
+                                  tree=tree)
+        partnership.save()
+        partnership.children.add(child)
+        partnership.save()
+        person_partnership_1 = PersonPartnership(person=spouse_1, partnership=partnership)
+        person_partnership_1.save()
+        person_partnership_2 = PersonPartnership(person=spouse_2, partnership=partnership)
+        person_partnership_2.save()
+
+        root = gedcom_generator.generate_file(tree)
+
+        parser = Parser()
+        parser.parse([])
+        expected = parser.get_root_element()
+        head_element, submitter_element = gedcom_generator.gen_head_and_submitter(tree)
+        expected.add_child_element(head_element)
+        expected.add_child_element(submitter_element)
+        ptr, spouse_1_element = gedcom_generator.gen_individual(spouse_1)
+        expected.add_child_element(spouse_1_element)
+        ptr, spouse_2_element = gedcom_generator.gen_individual(spouse_2)
+        expected.add_child_element(spouse_2_element)
+        ptr, child_element = gedcom_generator.gen_individual(child)
+        expected.add_child_element(child_element)
+        ptr, family = gedcom_generator.gen_family(partnership)
+        expected.add_child_element(family)
+
+        self.assertTrue(gedcom_helpers.element_equals(root, expected))
 
 
 class GedcomHelpersTest(TestCase):
