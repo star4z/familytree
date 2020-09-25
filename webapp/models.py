@@ -17,6 +17,9 @@ class Tree(models.Model):
     authorized_users = models.ManyToManyField(User, related_name='authorized_users', blank=True)
     notes = models.TextField(blank=True)
 
+    class Meta:
+        ordering = ['title']
+
     def __str__(self):
         return f'[{self.id}] {self.title}'
 
@@ -34,14 +37,25 @@ class Name(models.Model):
 
     tree = models.ForeignKey('Tree', on_delete=models.CASCADE, null=True)
 
+    class Meta:
+        abstract = True
+
     def __str__(self):
         return f'{self.first_name} {self.last_name}'
 
     def __repr__(self):
         return f'[{self.id}] {self.first_name} {self.last_name}'
 
-    class Meta:
-        abstract = True
+    def __iter__(self):
+        yield self.prefix
+        yield self.first_name
+        yield self.middle_name
+        yield self.last_name
+        yield self.suffix
+
+    def full_name(self):
+        parts = tuple(part for part in iter(self) if part)
+        return parts[0] if len(parts) == 1 else ' '.join(parts)
 
 
 class LegalName(Name):
@@ -53,11 +67,25 @@ class AlternateName(Name):
 
 
 class Person(models.Model):
+    ALIVE = 'Alive'
+    DEAD = 'Dead'
+    UNKNOWN = 'Unknown'
+    LIVING_CHOICES = [
+        (ALIVE, ALIVE),
+        (DEAD, DEAD),
+        (UNKNOWN, UNKNOWN)
+    ]
+
+    MALE = 'Male'
+    FEMALE = 'Female'
+    INTERSEX = 'Intersex'
+    OTHER = 'Other'
     GENDER_CHOICES = [
-        ('Male', 'Male'),
-        ('Female', 'Female'),
-        ('Intersex', 'Intersex'),
-        ('Other', 'Other'),
+        (MALE, MALE),
+        (FEMALE, FEMALE),
+        (INTERSEX, INTERSEX),
+        (OTHER, OTHER),
+        (UNKNOWN, UNKNOWN)
     ]
 
     legal_name = models.OneToOneField('LegalName', on_delete=models.CASCADE, related_name='legal_name', default='')
@@ -68,7 +96,7 @@ class Person(models.Model):
                                        blank=True)
     death_location = models.ForeignKey(Location, related_name="death_location", on_delete=models.DO_NOTHING, null=True,
                                        blank=True)
-    living = models.BooleanField(default=True)
+    living = models.TextField(choices=LIVING_CHOICES, default=UNKNOWN)
     gender = models.CharField(max_length=8, choices=GENDER_CHOICES)
     partnerships = models.ManyToManyField('Partnership', blank=True, through='PersonPartnership')
     notes = models.TextField(blank=True, default='')
@@ -131,20 +159,31 @@ class Person(models.Model):
         else:
             raise self.IllegalAgeError()
 
+    GEDCOM_SEX = {
+        MALE: 'M',
+        FEMALE: 'F',
+        UNKNOWN: 'U'
+    }
+
+    def gender_shorthand(self, gedcom_safe=False):
+        if gedcom_safe:
+            return self.GEDCOM_SEX.get(self.gender, 'U')
+        else:
+            return self.gender[0].upper()
+
 
 class Partnership(models.Model):
     children = models.ManyToManyField(Person, related_name='children', blank=True)
     marriage_date = models.DateField(null=True, blank=True)
     divorce_date = models.DateField(null=True, blank=True)
 
-    # TODO: remove MaritalStatus and rename
-    class MaritalStatuses(models.TextChoices):
+    class MaritalStatus(models.TextChoices):
         MARRIED = 'Married', _('Married')
         PARTNERED = 'Partnered', _('Partnered')
         LEGALLY_SEPARATED = 'Legally separated', _('Legally Separated')
         DIVORCED = 'Divorced', _('Divorced')
 
-    marital_status = models.CharField(max_length=25, choices=MaritalStatuses.choices, default=MaritalStatuses.MARRIED)
+    marital_status = models.CharField(max_length=25, choices=MaritalStatus.choices, default=MaritalStatus.MARRIED)
 
     notes = models.TextField(blank=True, default='')
 

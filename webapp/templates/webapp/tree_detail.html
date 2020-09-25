@@ -13,6 +13,7 @@
         <div class="btn-group" role="group" aria-label="Editor actions">
             <button type="button" class="btn btn-secondary" onclick="location.href='{% url 'edit_tree' tree.id %}'">Edit</button>
             <button type="button" class="btn btn-secondary" onclick="document.getElementById('Tree_{{ tree.id }}').style.display='block'">Delete</button>
+            <button type="button" class="btn btn-secondary" onclick="location.href='{% url 'export_tree' tree.id %}'">Export</button>
         </div>
     </div>
     

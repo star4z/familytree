@@ -119,7 +119,7 @@ NewPartnerFormSet = inlineformset_factory(Partnership, Person.partnerships.throu
                                           can_delete=True)
 
 # Formset for form that adds partner (Person) to Partnership.
-# Specifically for an Edit Partnership form, at least one slot is made avaiable
+# Specifically for an Edit Partnership form, at least one slot is made available
 # to add at least one additional person to the partnership
 AddPartnerFormSet = inlineformset_factory(Partnership, Person.partnerships.through, form=AddPersonPartnership, extra=1,
                                           can_delete=True)
@@ -127,3 +127,8 @@ AddPartnerFormSet = inlineformset_factory(Partnership, Person.partnerships.throu
 # Formset for form that adds child (Person) to Partnership
 PartnershipChildFormSet = inlineformset_factory(Partnership, Partnership.children.through, form=AddPartnershipChild,
                                                 extra=1, can_delete=True)
+
+
+class UploadFileForm(forms.Form):
+    title = forms.CharField()
+    file = forms.FileField()

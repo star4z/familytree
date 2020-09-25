@@ -4,7 +4,7 @@
     <p>
     {% load static %}
     <h3 style="display:inline">
-        <img src="{% static "webapp/svg/person_icon.svg" %}" class="page-icon" height=33 width=25>
+        <img src="{% static "webapp/svg/person_icon.svg" %}" class="page-icon" height=33 width=25 alt="Person">
         {{ person.legal_name.prefix }}
         {{ person.legal_name.first_name }}
         {{ person.legal_name.middle_name }}
@@ -46,11 +46,8 @@
     <p><strong>Gender:</strong> {{ person.gender }}</p>
     <p><strong>Birth date:</strong> {{ person.birth_date }}</p>
     <p><strong>Birth location:</strong> {{ person.birth_location }} </p>
-    <label><strong>Living:</strong>
-        &nbsp;
-        <input type="checkbox" {% if person.living %}checked{% endif %} disabled>
-    </label>
-    {% if not person.living %}
+    <p><strong>Living:</strong> {% if person.living == 'Alive' %}Yes{% elif person.living == 'Dead' %}No{% else %}Unknown{% endif %}</p>
+    {% if person.living == 'Dead' %}
         <p><strong>Death date:</strong> {{ person.death_date }}</p>
         <p><strong>Death location:</strong> {{ person.death_location }}</p>
     {% endif %}
