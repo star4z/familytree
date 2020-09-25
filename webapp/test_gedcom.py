@@ -1,4 +1,4 @@
-from datetime import datetime
+import datetime
 
 from django.contrib.auth.models import User
 from django.test import TestCase
@@ -142,7 +142,7 @@ class GedcomTestCase(TestCase):
     def test_parse_event_date(self):
         event = gedcom_helpers.create_event(tags.GEDCOM_TAG_BIRTH, 'city, state, US', '12 JAN 1998')
         date = gedcom_parsing.parse_event_date(event)
-        self.assertEqual(date, datetime(1998, 1, 12))
+        self.assertEqual(date, datetime.date(1998, 1, 12))
 
     def test_parse_individual(self):
         individual = gen_test_individual()
@@ -151,11 +151,11 @@ class GedcomTestCase(TestCase):
         self.assertEqual(person.legal_name.first_name, 'Some')
         self.assertEqual(person.legal_name.last_name, 'Guy')
         self.assertEqual(person.gender, 'Male')
-        self.assertEqual(person.birth_date, datetime(1899, 1, 1))
+        self.assertEqual(person.birth_date, datetime.date(1899, 1, 1))
         self.assertEqual(person.birth_location.city, 'city')
         self.assertEqual(person.birth_location.state, 'state')
         self.assertEqual(person.birth_location.country, 'US')
-        self.assertEqual(person.death_date, datetime(1990, 12, 31))
+        self.assertEqual(person.death_date, datetime.date(1990, 12, 31))
         self.assertEqual(person.death_location.city, 'city')
         self.assertEqual(person.death_location.state, '')
         self.assertEqual(person.death_location.country, '')
@@ -200,8 +200,8 @@ class GedcomTestCase(TestCase):
         self.assertEqual(partners, (person_1, person_2))
         children = tuple(c for c in partnership.children.all())
         self.assertEqual(children, (person_3,))
-        self.assertEqual(partnership.marriage_date, datetime(1900, 1, 13))
-        self.assertEqual(partnership.divorce_date, datetime(1911, 1, 14))
+        self.assertEqual(partnership.marriage_date, datetime.date(1900, 1, 13))
+        self.assertEqual(partnership.divorce_date, datetime.date(1911, 1, 14))
 
     def test_parse_file(self):
         user = User(username="test_user", password="test_password")
@@ -211,8 +211,8 @@ class GedcomTestCase(TestCase):
             self.assertIsNotNone(tree)
 
     def test_gen_individual(self):
-        birth_date = datetime(1980, 1, 1)
-        death_date = datetime(2040, 1, 1)
+        birth_date = datetime.datetime(1980, 1, 1)
+        death_date = datetime.datetime(2040, 1, 1)
         legal_name = LegalName(first_name="David", last_name="Schmidt")
         legal_name.save()
         birth_location = Location(city='New York', state='NY', country='US')
@@ -272,8 +272,8 @@ class GedcomTestCase(TestCase):
         child_legal_name.save()
         child = Person(legal_name=child_legal_name)
         child.save()
-        marriage_date = datetime(2000, 12, 1)
-        divorce_date = datetime(2100, 12, 2)
+        marriage_date = datetime.datetime(2000, 12, 1)
+        divorce_date = datetime.datetime(2100, 12, 2)
         partnership = Partnership(marriage_date=marriage_date,
                                   divorce_date=divorce_date,
                                   marital_status=Partnership.MaritalStatus.MARRIED)
@@ -305,8 +305,8 @@ class GedcomTestCase(TestCase):
         spouse_2_legal_name.save()
         spouse_2 = Person(legal_name=spouse_2_legal_name, gender='Female')
         spouse_2.save()
-        marriage_date = datetime(2000, 12, 1)
-        divorce_date = datetime(2100, 12, 2)
+        marriage_date = datetime.datetime(2000, 12, 1)
+        divorce_date = datetime.datetime(2100, 12, 2)
         partnership = Partnership(marriage_date=marriage_date,
                                   divorce_date=divorce_date,
                                   marital_status=Partnership.MaritalStatus.MARRIED)
@@ -375,8 +375,8 @@ class GedcomTestCase(TestCase):
         child_legal_name.save()
         child = Person(legal_name=child_legal_name, gender="Unknown", tree=tree)
         child.save()
-        marriage_date = datetime(2000, 12, 1)
-        divorce_date = datetime(2100, 12, 2)
+        marriage_date = datetime.datetime(2000, 12, 1)
+        divorce_date = datetime.datetime(2100, 12, 2)
         partnership = Partnership(marriage_date=marriage_date,
                                   divorce_date=divorce_date,
                                   marital_status=Partnership.MaritalStatus.MARRIED,
