@@ -1,10 +1,12 @@
+from datetime import datetime
+
 from gedcom.element.element import Element
 from gedcom.element.individual import IndividualElement
 from gedcom.parser import Parser
 
 import webapp.tags_ext as tags
 from webapp import gedcom_helpers
-from webapp.models import *
+from webapp.models import Person, Partnership, Tree
 
 
 def gen_head_and_submitter(tree):
@@ -28,7 +30,7 @@ def gen_head_and_submitter(tree):
         return head_element, None
 
 
-def gen_event(level, tag, date: datetime, location: Location):
+def gen_event(level, tag, date: datetime.date, location):
     event_element = Element(level, '', tag, '')
     if date:
         event_element.add_child_element(Element(level + 1, '', tags.GEDCOM_TAG_DATE, date.strftime("%d %b %Y").upper()))

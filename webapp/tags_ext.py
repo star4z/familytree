@@ -1,5 +1,5 @@
 # noinspection PyUnresolvedReferences
-from gedcom.tags import *
+from gedcom.tags import *  # noqa: F401,F403
 
 # Header tags
 GEDCOM_TAG_HEAD = 'HEAD'
