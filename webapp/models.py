@@ -66,6 +66,14 @@ class AlternateName(Name):
     person = models.ForeignKey('Person', on_delete=models.DO_NOTHING, related_name='alternate_name')
 
 
+class Event(models.Model):
+    date = models.DateField(null=True)
+    location = models.ForeignKey(Location, related_name="location", on_delete=models.DO_NOTHING, null=True)
+    cause = models.TextField(blank=True)
+    type = models.CharField(max_length=100)
+    notes = models.TextField(blank=True)
+
+
 class Person(models.Model):
     ALIVE = 'Alive'
     DEAD = 'Dead'
@@ -90,6 +98,7 @@ class Person(models.Model):
 
     legal_name = models.OneToOneField('LegalName', on_delete=models.CASCADE, related_name='legal_name', default='')
     preferred_name = models.TextField(blank=True, default='')
+
     birth_date = models.DateField(null=True, blank=True)
     death_date = models.DateField(null=True, blank=True)
     birth_location = models.ForeignKey(Location, related_name="birth_location", on_delete=models.DO_NOTHING, null=True,
@@ -172,6 +181,35 @@ class Person(models.Model):
             return self.gender[0].upper()
 
 
+class PersonEvent(models.Model):
+    person = models.ForeignKey(Person, on_delete=models.CASCADE, null=True)
+    event = models.ForeignKey(Event, on_delete=models.CASCADE, null=True)
+    role = models.TextField(blank=True)
+    age = models.TextField(blank=True)
+
+    class Type(models.TextChoices):
+        BAPTISM = 'Baptism'
+        BAR_MITZVAH = 'Bar Mitzvah'
+        BAS_MITZVAH = 'Bas Mitzvah'
+        BIRTH = 'Birth'
+        BLESSING = 'Blessing'
+        BURIAL = 'Burial'
+        CENSUS = 'Census'
+        CHRISTENING = 'Christening'
+        CONFIRMATION = 'Confirmation'
+        DEATH = 'Death'
+        EMIGRATION = 'Emigration'
+        ENDOWMENT = 'Endowment'
+        GRADUATION = 'Graduation'
+        IMMIGRATION = 'Immigration'
+        NATURALIZATION = 'Naturalization'
+        ORDINATION = 'Ordination'
+        PROBATE = 'Probate'
+        RETIREMENT = 'Retirement'
+        SEALING = 'Sealing'
+        WILL = 'Will'
+
+
 class Partnership(models.Model):
     children = models.ManyToManyField(Person, related_name='children', blank=True)
     marriage_date = models.DateField(null=True, blank=True)
@@ -205,6 +243,22 @@ class Partnership(models.Model):
         return Person.objects.exclude(pk=self.pk) \
             .filter(partnerships=self, death_date__isnull=False) \
             .aggregate(Max('death_date'))['death_date__max']
+
+
+class PartnershipEvent(models.Model):
+    partnership = models.ForeignKey(Partnership, on_delete=models.CASCADE, null=True)
+    event = models.ForeignKey(Event, on_delete=models.CASCADE, null=True)
+
+    class Type(models.TextChoices):
+        DIVORCE = 'Divorce'
+        DIVORCE_FILED = 'Divorce filed'
+        ENGAGEMENT = 'Engagement'
+        MARRIAGE_BANNS = 'Marriage Banns'
+        MARRIAGE_CONTRACT = 'Marriage Contract'
+        MARRIAGE_LICENSE = 'Marriage License'
+        MARRIAGE = 'Marriage'
+        MARRIAGE_SETTLEMENT = 'Marriage Settlement'
+        SEALING = 'Sealing'
 
 
 class PersonPartnership(models.Model):
