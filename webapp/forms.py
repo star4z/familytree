@@ -2,7 +2,7 @@ from django import forms
 from django.forms import ModelForm
 from django.forms import inlineformset_factory
 
-from webapp.models import Person, LegalName, Location, Partnership, AlternateName, Tree
+from webapp.models import Person, LegalName, Location, Partnership, AlternateName, Tree, PersonEvent, Event
 
 
 class AddNameForm(ModelForm):
@@ -132,3 +132,18 @@ PartnershipChildFormSet = inlineformset_factory(Partnership, Partnership.childre
 class UploadFileForm(forms.Form):
     title = forms.CharField()
     file = forms.FileField()
+
+
+class EventForm(ModelForm):
+    class Meta:
+        model = Event
+        fields = '__all__'
+
+
+class PersonEventForm(ModelForm):
+    class Meta:
+        model = PersonEvent
+        fields = '__all__'
+
+
+EventFormSet = inlineformset_factory(Event, PersonEvent, form=PersonEventForm, can_delete=True)

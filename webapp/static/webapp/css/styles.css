@@ -166,3 +166,16 @@ hr {
 .page-icon {
     vertical-align: middle;
 }
+
+.form-item {
+    margin-left: 0px;
+}
+
+.collapsing, .show, .hide {
+    transition: none !important;
+    transition-delay: 0s;
+}
+
+#content {
+    padding-bottom: 0;
+}

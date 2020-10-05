@@ -9,13 +9,50 @@
             {% csrf_token %}
             <table>
                 {{ name_form.as_table }}
+            </table>
+            <div id="events-container">
+                <a href="#" id="add-birth-event">+ Add new birth event</a>
+
+                <script>
+                    function addEventForm(afterId) {
+                        let container = document.getElementById("events-container");
+                        let previousChild = document.getElementById(afterId);
+                        let eventDiv = document.createElement("div");
+                        eventDiv.innerHTML = `<table>{{ event_form.as_table|escape }}</table>`;
+                        container.insertBefore(eventDiv, previousChild.nextSibling);
+                    }
+
+                    let addBirthEvent = document.getElementById("add-birth-event");
+                    addBirthEvent.addEventListener('click', function () {
+                        addEventForm("add-birth-event");
+                    });
+                </script>
+                <p></p>
+                <a href="#" data-toggle='collapse' data-target="#more-events" id="show-more-events-toggle"
+                   onclick="collapseFilters()">Show extra event options</a>
+
+                <div id="more-events" class="collapse out">
+                    Now you see me!
+                </div>
+
+                <script>
+                    function collapseFilters() {
+                        let filters = document.getElementById("show-more-events-toggle");
+                        if (filters.innerHTML === "Show extra event options") {
+                            filters.innerHTML = "Hide extra event options";
+                        } else {
+                            filters.innerHTML = "Show extra event options";
+                        }
+                    }
+                </script>
+            </div>
+            <table>
                 {{ person_form.as_table }}
             </table>
-
             <hr>
             <h2> Alternate Names </h2>
             <table class="table">
-                {{ alt_name_formset.management_form}}
+                {{ alt_name_formset.management_form }}
 
                 {% for form in alt_name_formset.forms %}
                     {% if forloop.first %}
@@ -48,7 +85,7 @@
     <!-- Include formset plugin - including jQuery dependency -->
     <script src="{% static 'webapp/js/jquery.formset.js' %}"></script>
     <script type="text/javascript">
-        $(document).ready(function(){
+        $(document).ready(function () {
             $('tr.formset_row').formset({
                 addText: 'add name',
                 deleteText: 'remove',

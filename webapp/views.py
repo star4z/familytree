@@ -8,7 +8,7 @@ from django.views.decorators.http import require_POST, require_GET
 
 from webapp import gedcom_generator
 from webapp.forms import AddPersonForm, AddNameForm, AddTreeForm, AddPartnershipForm, AlternateNameFormSet, \
-    NewPartnerFormSet, PartnershipChildFormSet, UploadFileForm
+    NewPartnerFormSet, PartnershipChildFormSet, UploadFileForm, EventFormSet, EventForm
 from webapp.gedcom_parsing import parse_file
 from webapp.graphs import Graph
 from webapp.models import Person, Partnership, Location, Tree
@@ -70,6 +70,8 @@ def save_person(request, current_tree, template_name, current_person: Person = N
         name_form = None
         person_form = None
         alt_name_formset = None
+        event_form = None
+        event_formset = None
 
         if request.method == 'POST':
             # if this is a POST request we need to process the form data
@@ -166,6 +168,8 @@ def save_person(request, current_tree, template_name, current_person: Person = N
             'name_form': name_form,
             'person_form': person_form,
             'alt_name_formset': alt_name_formset,
+            'event_form': event_form or EventForm(),
+            'event_formset': event_formset or EventFormSet()
         }
 
         return render(request, template_name, context)
