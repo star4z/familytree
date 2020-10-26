@@ -4,9 +4,9 @@ from gedcom.element.element import Element
 from gedcom.element.individual import IndividualElement
 from gedcom.parser import Parser
 
-import webapp.tags_ext as tags
-from webapp import gedcom_helpers
-from webapp.models import Person, Partnership, Tree
+import commons.gedcom.tags_ext as tags
+from commons.gedcom import gedcom_helpers
+from commons.models import Tree, Person, Partnership
 
 
 def gen_head_and_submitter(tree):

@@ -1,7 +1,7 @@
 from gedcom.element.element import Element
 
-import webapp.tags_ext as tags
-import webapp.gedcom_helpers as helpers
+import commons.gedcom.gedcom_helpers as helpers
+import commons.gedcom.tags_ext as tags
 
 
 class GedcomElement(Element):

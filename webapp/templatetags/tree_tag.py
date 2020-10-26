@@ -1,6 +1,8 @@
 from django import template
-from webapp.models import Tree
 from django.core.paginator import Paginator
+
+from commons.models import Tree
+
 register = template.Library()
 
 

@@ -7,8 +7,8 @@ from gedcom.element.element import Element
 from gedcom.element.family import FamilyElement
 from gedcom.element.individual import IndividualElement
 
-import webapp.tags_ext as tags
-from webapp.name_parser_ext import GedcomName
+import commons.gedcom.tags_ext as tags
+from commons.gedcom.name_parser_ext import GedcomName
 
 
 def get_next_child_element(self: Element, tag=None, pointer=None, value=None):

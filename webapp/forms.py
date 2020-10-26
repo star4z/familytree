@@ -2,7 +2,8 @@ from django import forms
 from django.forms import ModelForm
 from django.forms import inlineformset_factory
 
-from webapp.models import Person, LegalName, Location, Partnership, AlternateName, Tree, PersonEvent, Event
+from commons.models import Tree, LegalName, AlternateName, Event, Person, PersonEvent, Partnership
+from webapp.models import Location
 
 
 class AddNameForm(ModelForm):

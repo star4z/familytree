@@ -1,6 +1,6 @@
 from django.db.models import Model
 
-from webapp.models import Person
+from commons.models import Person
 
 
 class Graph:

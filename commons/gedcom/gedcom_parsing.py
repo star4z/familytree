@@ -5,10 +5,10 @@ from gedcom.element.family import FamilyElement
 from gedcom.element.individual import IndividualElement
 from gedcom.parser import Parser
 
-import webapp.tags_ext as tags
-from webapp.gedcom_helpers import get_value, get_names, get_next_child_element, filter_child_elements
-from webapp.models import Tree, Person, LegalName, AlternateName, Name, Partnership, PersonPartnership
-from webapp.submodels.location_model import Location
+import commons.gedcom.tags_ext as tags
+from commons.gedcom.gedcom_helpers import get_value, get_names, get_next_child_element, filter_child_elements
+from commons.models import Tree, Name, LegalName, AlternateName, Person, Partnership, PersonPartnership
+from commons.submodels.location_model import Location
 
 
 def parse_file(f, user, title):

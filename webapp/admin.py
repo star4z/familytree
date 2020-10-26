@@ -2,7 +2,8 @@ from django.contrib import admin
 from django.db import models
 from django.forms import TextInput
 
-from .models import AlternateName, LegalName, Location, Partnership, Person, Tree
+from commons.models import Tree, LegalName, AlternateName, Person, Partnership
+from .models import Location
 
 text_input_size = 40
 

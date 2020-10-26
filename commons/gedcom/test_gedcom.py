@@ -5,11 +5,10 @@ from django.test import TestCase
 from gedcom.element.element import Element
 from gedcom.parser import Parser
 
-import webapp.tags_ext as tags
-from webapp import gedcom_helpers, name_parser_ext, gedcom_generator
-from webapp import gedcom_parsing
-from webapp.models import Tree, LegalName, Person, AlternateName, Partnership, PersonPartnership
-from webapp.submodels.location_model import Location
+import commons.gedcom.tags_ext as tags
+from commons.gedcom import gedcom_generator, gedcom_helpers, name_parser_ext, gedcom_parsing
+from commons.models import Tree, LegalName, AlternateName, Person, Partnership, PersonPartnership
+from commons.submodels.location_model import Location
 
 
 def gen_test_individual():

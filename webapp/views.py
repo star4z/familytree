@@ -6,12 +6,13 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.views import generic
 from django.views.decorators.http import require_POST, require_GET
 
-from webapp import gedcom_generator
+from commons.gedcom import gedcom_generator
+from commons.gedcom.gedcom_parsing import parse_file
+from commons.models import Tree, Person, Partnership
 from webapp.forms import AddPersonForm, AddNameForm, AddTreeForm, AddPartnershipForm, AlternateNameFormSet, \
     NewPartnerFormSet, PartnershipChildFormSet, UploadFileForm, EventFormSet, EventForm
-from webapp.gedcom_parsing import parse_file
 from webapp.graphs import Graph
-from webapp.models import Person, Partnership, Location, Tree
+from webapp.models import Location
 
 
 @login_required
@@ -362,6 +363,7 @@ class PartnershipListView(LoginRequiredMixin, generic.ListView):
 
 class TreeDetailView(LoginRequiredMixin, generic.DetailView):
     model = Tree
+    template_name = 'webapp/tree_detail.html'
 
     # This is to get Person list under the specific tree to show. PersonListView class is replaced with this.
     def get_context_data(self, **kwargs):
@@ -379,6 +381,7 @@ class TreeDetailView(LoginRequiredMixin, generic.DetailView):
 
 class PersonDetailView(LoginRequiredMixin, generic.DetailView):
     model = Person
+    template_name = 'webapp/person_detail.html'
 
     # Users can only access their own person_detail page they created
     def get_object(self, **kwargs):
