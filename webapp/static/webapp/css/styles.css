@@ -1,12 +1,3 @@
-html, body {
-    height: 100%;
-}
-
-.container-fluid {
-    height: 100%;
-    overflow-y: hidden;
-}
-
 .row {
     height: 100%;
     overflow: hidden;
@@ -19,7 +10,6 @@ html, body {
 }
 
 .sidebar-nav {
-    /*height: 100%;*/
     overflow-y: auto;
     margin-top: 20px;
     padding: 0;
@@ -168,7 +158,7 @@ hr {
 }
 
 .form-item {
-    margin-left: 0px;
+    margin-left: 0;
 }
 
 .collapsing, .show, .hide {
