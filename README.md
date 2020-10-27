@@ -65,9 +65,19 @@ In the admin page (`/admin`):
 and your Secret key in the appropriate boxes. Add the site you added in step 1 to the Choses sites.
 
 ### Fixes for common issues during installation
-If the application does not work, please check to see if there is `migrations` folder inside the `webapp` folder.  
+- If the application does not work, please check to see if there is `migrations` folder inside the `webapp` folder.  
 If there isn't, please make a `migrations` folder inside the `webapp` folder.  
-Then, create a file called `__init__.py` and place it inside the `migrations` folder.  
+Then, create a file called `__init__.py` and place it inside the `migrations` folder.
+
+- If attempting to link a social account raises a "SocialApp matching query does not exist" error, and you have configured
+the auth provider properly, then SITE_ID in `settings.py` might be wrong. You can check the correct site id by running 
+the following in a Python console:
+
+```python
+from django.contrib.sites.models import Site
+print([(site.name, site.pk) for site in Site.objects.all()])
+```
+
 
 ## Authors
 * Ben Philips
