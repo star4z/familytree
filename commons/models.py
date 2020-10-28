@@ -68,10 +68,10 @@ class AlternateName(Name):
 
 
 class Event(models.Model):
+    type = models.CharField(max_length=100)
     date = models.DateField(null=True)
     location = models.ForeignKey(Location, related_name="location", on_delete=models.DO_NOTHING, null=True)
     cause = models.TextField(blank=True)
-    type = models.CharField(max_length=100)
     notes = models.TextField(blank=True)
 
 

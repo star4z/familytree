@@ -14,18 +14,52 @@
                 <a href="#" id="add-birth-event">+ Add new birth event</a>
 
                 <script>
-                    function addEventForm(afterId) {
-                        let container = document.getElementById("events-container");
-                        let previousChild = document.getElementById(afterId);
-                        let eventDiv = document.createElement("div");
-                        eventDiv.innerHTML = `<table>{{ event_form.as_table|escape }}</table>`;
-                        container.insertBefore(eventDiv, previousChild.nextSibling);
+                    // declare elements in order to maintain their state
+                    let birthEventToggle;
+
+                    // delay assignment until other elements are loaded
+                    $(document).ready(function () {
+                        birthEventToggle = document.getElementById("add-birth-event");
+                        birthEventToggle.toggled = false;
+                        birthEventToggle.event = undefined;
+
+                        birthEventToggle.addEventListener('click', function () {
+                            toggleBirthEvent();
+                        });
+                    });
+
+                    function toggleBirthEvent() {
+                        {#console.log("Birth event toggled. toggled=" + birthEventToggle.toggled);#}
+                        if (!birthEventToggle.toggled) {
+                            birthEventToggle.innerHTML = "- Remove birth event";
+
+                            addEventForm(birthEventToggle);
+                        } else {
+                            birthEventToggle.innerHTML = "+ Add new birth event";
+                            if (birthEventToggle.event !== undefined) {
+                                $(birthEventToggle.event).remove();
+                            }
+                        }
+                        birthEventToggle.toggled = !birthEventToggle.toggled;
                     }
 
-                    let addBirthEvent = document.getElementById("add-birth-event");
-                    addBirthEvent.addEventListener('click', function () {
-                        addEventForm("add-birth-event");
-                    });
+                    function addEventForm(element) {
+                        let container = document.getElementById("events-container");
+                        let eventDiv = document.createElement("div");
+                        eventDiv.id = genId();
+                        let header = `<h3>Birth</h3>`
+                        let eventFormTable = `<table>{{ event_form.as_table|escape }}</table>\n`;
+                        eventDiv.innerHTML = header + eventFormTable;
+                        let typeEl = eventDiv.querySelector("#id_type")
+                        typeEl.value = "Birth"
+                        typeEl.disabled = true;
+                        container.insertBefore(eventDiv, element.nextSibling);
+                        element.event = eventDiv
+                    }
+
+                    function genId() {
+                          return '_' + Math.random().toString(36).substring(2, 12);
+                    }
                 </script>
                 <p></p>
                 <a href="#" data-toggle='collapse' data-target="#more-events" id="show-more-events-toggle"
