@@ -11,47 +11,54 @@
                 {{ name_form.as_table }}
             </table>
             <div id="events-container">
-                <a href="#" id="add-birth-event">+ Add new birth event</a>
+                <p id="add-birth-event">+ Add new birth event</p>
+                <p id="add-death-event">+ Add new death event</p>
 
                 <script>
                     // declare elements in order to maintain their state
                     let birthEventToggle;
+                    let deathEventToggle;
 
                     // delay assignment until other elements are loaded
                     $(document).ready(function () {
-                        birthEventToggle = document.getElementById("add-birth-event");
-                        birthEventToggle.toggled = false;
-                        birthEventToggle.event = undefined;
-
-                        birthEventToggle.addEventListener('click', function () {
-                            toggleBirthEvent();
-                        });
+                        birthEventToggle = initEventToggle("add-birth-event", "Birth");
+                        deathEventToggle = initEventToggle("add-death-event", "Death");
                     });
 
-                    function toggleBirthEvent() {
-                        {#console.log("Birth event toggled. toggled=" + birthEventToggle.toggled);#}
-                        if (!birthEventToggle.toggled) {
-                            birthEventToggle.innerHTML = "- Remove birth event";
+                    function initEventToggle(eid, eventType) {
+                        let el = document.getElementById(eid);
+                        el.toggled = false;
+                        el.event = undefined;
+                        el.eventType = eventType;
+                        el.addEventListener('click', function (event) {
+                            toggleEvent(event.target);
+                        })
+                        return el;
+                    }
 
-                            addEventForm(birthEventToggle);
+                    function toggleEvent(element) {
+                        {#console.log("Birth event toggled. toggled=" + birthEventToggle.toggled);#}
+                        if (!element.toggled) {
+                            element.innerHTML = "- Remove " + element.eventType.toLowerCase() + " event";
+                            addEventForm(element);
                         } else {
-                            birthEventToggle.innerHTML = "+ Add new birth event";
-                            if (birthEventToggle.event !== undefined) {
-                                $(birthEventToggle.event).remove();
+                            element.innerHTML = "+ Add new " + element.eventType.toLowerCase() + " event";
+                            if (element.event !== undefined) {
+                                $(element.event).remove();
                             }
                         }
-                        birthEventToggle.toggled = !birthEventToggle.toggled;
+                        element.toggled = !element.toggled;
                     }
 
                     function addEventForm(element) {
                         let container = document.getElementById("events-container");
                         let eventDiv = document.createElement("div");
                         eventDiv.id = genId();
-                        let header = `<h3>Birth</h3>`
+                        let header = `<h3>` + element.eventType + `</h3>`
                         let eventFormTable = `<table>{{ event_form.as_table|escape }}</table>\n`;
                         eventDiv.innerHTML = header + eventFormTable;
                         let typeEl = eventDiv.querySelector("#id_type")
-                        typeEl.value = "Birth"
+                        typeEl.value = element.eventType;
                         typeEl.disabled = true;
                         container.insertBefore(eventDiv, element.nextSibling);
                         element.event = eventDiv
