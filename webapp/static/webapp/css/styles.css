@@ -169,3 +169,24 @@ hr {
 #content {
     padding-bottom: 0;
 }
+
+@font-face {
+    font-family: poppins;
+    src: url("http://fonts.gstatic.com/s/poppins/v13/pxiEyp8kv8JHgFVrFJDUc1NECPY.ttf");
+}
+
+.event-toggle {
+    font-family: poppins, sans-serif;
+    color: black;
+    background-color: cornflowerblue;
+    border-radius: 15px;
+    padding: 4px 8px;
+}
+
+.event-toggle:hover {
+    color: white;
+}
+
+#events-container {
+
+}
