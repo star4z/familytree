@@ -75,8 +75,8 @@
                 return '_' + Math.random().toString(36).substring(2, 12);
             }
         </script>
-        <div>
-          <p id="show-more-events-toggle" class="event-toggle event-toggle-add">Show extra event options</p>
+        <div class="event-container">
+          <p id="show-more-events-toggle" class="event-toggle event-toggle-add">+ Show extra event options</p>
         </div>
         <div id="more-events" hidden>
           Now you see me!
@@ -90,11 +90,15 @@
 
             function toggleMoreEventTypes() {
                 if (!showMoreEventsToggle.toggled) {
-                    showMoreEventsToggle.innerHTML = "Hide extra event options";
+                    showMoreEventsToggle.innerHTML = "- Hide extra event options";
                     moreEvents.hidden = false;
+                    showMoreEventsToggle.classList.add("event-toggle-remove");
+                    showMoreEventsToggle.classList.remove("event-toggle-add");
                 } else {
-                    showMoreEventsToggle.innerHTML = "Show extra event options";
+                    showMoreEventsToggle.innerHTML = "+ Show extra event options";
                     moreEvents.hidden = true;
+                    showMoreEventsToggle.classList.remove("event-toggle-remove");
+                    showMoreEventsToggle.classList.add("event-toggle-add");
                 }
                 showMoreEventsToggle.toggled = !showMoreEventsToggle.toggled;
             }
