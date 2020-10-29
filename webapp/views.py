@@ -8,7 +8,7 @@ from django.views.decorators.http import require_POST, require_GET
 
 from commons.gedcom import gedcom_generator
 from commons.gedcom.gedcom_parsing import parse_file
-from commons.models import Tree, Person, Partnership
+from commons.models import Tree, Person, Partnership, PersonEvent
 from webapp.forms import AddPersonForm, AddNameForm, AddTreeForm, AddPartnershipForm, AlternateNameFormSet, \
     NewPartnerFormSet, PartnershipChildFormSet, UploadFileForm, EventFormSet, EventForm
 from webapp.graphs import Graph
@@ -170,7 +170,8 @@ def save_person(request, current_tree, template_name, current_person: Person = N
             'person_form': person_form,
             'alt_name_formset': alt_name_formset,
             'event_form': event_form or EventForm(),
-            'event_formset': event_formset or EventFormSet()
+            'event_formset': event_formset or EventFormSet(),
+            'event_types': [choice[0] for choice in PersonEvent.Type.choices]
         }
 
         return render(request, template_name, context)

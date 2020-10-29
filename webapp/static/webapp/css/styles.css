@@ -195,5 +195,26 @@ hr {
 #events-container {
     background-color: lightgrey;
     border-radius: 15px;
-    padding: 6px;
+    padding: 6px 6px 1px;
+}
+
+.reveal-toggle-container {
+    background-color: aquamarine;
+    border-radius: 15px;
+    padding: 4px 16px 0;
+    margin-top: 4px;
+}
+
+.group-toggle {
+    font-family: poppins, sans-serif;
+    color: #202020;
+    user-select: none;
+}
+
+.group-toggle:hover {
+    color: darkgrey;
+}
+
+#more-events {
+    margin-bottom: 0;
 }
