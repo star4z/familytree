@@ -1,7 +1,3 @@
-.row {
-    height: 100%;
-    overflow: hidden;
-}
 
 .sidebar {
     height: 100%;
@@ -167,7 +163,7 @@ hr {
 }
 
 #content {
-    padding-bottom: 0;
+    padding: 8px;
 }
 
 @font-face {
@@ -175,18 +171,29 @@ hr {
     src: url("http://fonts.gstatic.com/s/poppins/v13/pxiEyp8kv8JHgFVrFJDUc1NECPY.ttf");
 }
 
-.event-toggle {
-    font-family: poppins, sans-serif;
-    color: black;
-    background-color: cornflowerblue;
+.event-container {
+    background-color: lightslategrey;
     border-radius: 15px;
-    padding: 4px 8px;
+    padding: 4px 16px 0;
+    margin-top: 4px;
 }
 
-.event-toggle:hover {
+.event-toggle {
+    font-family: poppins, sans-serif;
     color: white;
+    user-select: none;
+}
+
+.event-toggle-add:hover {
+    color: lawngreen;
+}
+
+.event-toggle-remove:hover {
+    color: #ffb5a5;
 }
 
 #events-container {
-
+    background-color: lightgrey;
+    border-radius: 15px;
+    padding: 6px;
 }

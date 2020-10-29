@@ -11,9 +11,12 @@
                 {{ name_form.as_table }}
             </table>
             <div id="events-container">
-                <p id="add-birth-event" class="event-toggle">+ Add new birth event</p>
-                <p id="add-death-event" class="event-toggle">+ Add new death event</p>
-
+                <div class="event-container">
+                    <p id="add-birth-event" class="event-toggle event-toggle-add">+ Add new birth event</p>
+                </div>
+                <div class="event-container">
+                    <p id="add-death-event" class="event-toggle event-toggle-add">+ Add new death event</p>
+                </div>
                 <script>
                     // declare elements in order to maintain their state
                     let birthEventToggle;
@@ -40,9 +43,13 @@
                         {#console.log("Birth event toggled. toggled=" + birthEventToggle.toggled);#}
                         if (!element.toggled) {
                             element.innerHTML = "- Remove " + element.eventType.toLowerCase() + " event";
+                            element.classList.remove("event-toggle-add");
+                            element.classList.add("event-toggle-remove");
                             addEventForm(element);
                         } else {
                             element.innerHTML = "+ Add new " + element.eventType.toLowerCase() + " event";
+                             element.classList.remove("event-toggle-remove");
+                            element.classList.add("event-toggle-add");
                             if (element.event !== undefined) {
                                 $(element.event).remove();
                             }
@@ -51,7 +58,7 @@
                     }
 
                     function addEventForm(element) {
-                        let container = document.getElementById("events-container");
+                        let container = element.parentElement;
                         let eventDiv = document.createElement("div");
                         eventDiv.id = genId();
                         let header = `<h3>` + element.eventType + `</h3>`
@@ -65,10 +72,10 @@
                     }
 
                     function genId() {
-                          return '_' + Math.random().toString(36).substring(2, 12);
+                        return '_' + Math.random().toString(36).substring(2, 12);
                     }
                 </script>
-                <p></p>
+                <p id="add-death-event" class="event-toggle event-toggle-add">Show extra event options</p>
                 <a href="#" data-toggle='collapse' data-target="#more-events" id="show-more-events-toggle"
                    onclick="collapseFilters()">Show extra event options</a>
 
