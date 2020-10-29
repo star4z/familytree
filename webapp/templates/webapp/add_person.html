@@ -2,143 +2,149 @@
 {% load static %}
 
 {% block content %}
-    <div class="person-form">
-        <h1>Add Person</h1>
-        <hr>
-        <form action="" method="POST">
-            {% csrf_token %}
-            <table>
-                {{ name_form.as_table }}
-            </table>
-            <div id="events-container">
-                <div class="event-container">
-                    <p id="add-birth-event" class="event-toggle event-toggle-add">+ Add new birth event</p>
-                </div>
-                <div class="event-container">
-                    <p id="add-death-event" class="event-toggle event-toggle-add">+ Add new death event</p>
-                </div>
-                <script>
-                    // declare elements in order to maintain their state
-                    let birthEventToggle;
-                    let deathEventToggle;
+  <div class="person-form">
+    <h1>Add Person</h1>
+    <hr>
+    <form action="" method="POST">
+      {% csrf_token %}
+      <table>
+        {{ name_form.as_table }}
+      </table>
+      <div id="events-container">
+        <div class="event-container">
+          <p id="add-birth-event" class="event-toggle event-toggle-add">+ Add new birth event</p>
+        </div>
+        <div class="event-container">
+          <p id="add-death-event" class="event-toggle event-toggle-add">+ Add new death event</p>
+        </div>
+        <script>
+            // declare elements in order to maintain their state
+            let birthEventToggle;
+            let deathEventToggle;
 
-                    // delay assignment until other elements are loaded
-                    $(document).ready(function () {
-                        birthEventToggle = initEventToggle("add-birth-event", "Birth");
-                        deathEventToggle = initEventToggle("add-death-event", "Death");
-                    });
-
-                    function initEventToggle(eid, eventType) {
-                        let el = document.getElementById(eid);
-                        el.toggled = false;
-                        el.event = undefined;
-                        el.eventType = eventType;
-                        el.addEventListener('click', function (event) {
-                            toggleEvent(event.target);
-                        })
-                        return el;
-                    }
-
-                    function toggleEvent(element) {
-                        {#console.log("Birth event toggled. toggled=" + birthEventToggle.toggled);#}
-                        if (!element.toggled) {
-                            element.innerHTML = "- Remove " + element.eventType.toLowerCase() + " event";
-                            element.classList.remove("event-toggle-add");
-                            element.classList.add("event-toggle-remove");
-                            addEventForm(element);
-                        } else {
-                            element.innerHTML = "+ Add new " + element.eventType.toLowerCase() + " event";
-                             element.classList.remove("event-toggle-remove");
-                            element.classList.add("event-toggle-add");
-                            if (element.event !== undefined) {
-                                $(element.event).remove();
-                            }
-                        }
-                        element.toggled = !element.toggled;
-                    }
-
-                    function addEventForm(element) {
-                        let container = element.parentElement;
-                        let eventDiv = document.createElement("div");
-                        eventDiv.id = genId();
-                        let header = `<h3>` + element.eventType + `</h3>`
-                        let eventFormTable = `<table>{{ event_form.as_table|escape }}</table>\n`;
-                        eventDiv.innerHTML = header + eventFormTable;
-                        let typeEl = eventDiv.querySelector("#id_type")
-                        typeEl.value = element.eventType;
-                        typeEl.disabled = true;
-                        container.insertBefore(eventDiv, element.nextSibling);
-                        element.event = eventDiv
-                    }
-
-                    function genId() {
-                        return '_' + Math.random().toString(36).substring(2, 12);
-                    }
-                </script>
-                <p id="add-death-event" class="event-toggle event-toggle-add">Show extra event options</p>
-                <a href="#" data-toggle='collapse' data-target="#more-events" id="show-more-events-toggle"
-                   onclick="collapseFilters()">Show extra event options</a>
-
-                <div id="more-events" class="collapse out">
-                    Now you see me!
-                </div>
-
-                <script>
-                    function collapseFilters() {
-                        let filters = document.getElementById("show-more-events-toggle");
-                        if (filters.innerHTML === "Show extra event options") {
-                            filters.innerHTML = "Hide extra event options";
-                        } else {
-                            filters.innerHTML = "Show extra event options";
-                        }
-                    }
-                </script>
-            </div>
-            <table>
-                {{ person_form.as_table }}
-            </table>
-            <hr>
-            <h2> Alternate Names </h2>
-            <table class="table">
-                {{ alt_name_formset.management_form }}
-
-                {% for form in alt_name_formset.forms %}
-                    {% if forloop.first %}
-                        <thead>
-                        <tr>
-                            {% for field in form.visible_fields %}
-                                <th>{{ field.label_tag }}</th>
-                            {% endfor %}
-                        </tr>
-                        </thead>
-                    {% endif %}
-                    <tr class="{% cycle 'row1' 'row2' %} formset_row">
-                        {% for field in form.visible_fields %}
-                            <td>
-                                {% if forloop.first %}
-                                    {% for hidden in form.hidden_fields %}
-                                        {{ hidden }}
-                                    {% endfor %}
-                                {% endif %}
-                                {{ field.errors.as_ul }}
-                                {{ field }}
-                            </td>
-                        {% endfor %}
-                    </tr>
-                {% endfor %}
-            </table>
-            <input type="submit" value="Submit"/>
-        </form>
-    </div>
-    <!-- Include formset plugin - including jQuery dependency -->
-    <script src="{% static 'webapp/js/jquery.formset.js' %}"></script>
-    <script type="text/javascript">
-        $(document).ready(function () {
-            $('tr.formset_row').formset({
-                addText: 'add name',
-                deleteText: 'remove',
-                prefix: 'alternate_name'
+            // delay assignment until other elements are loaded
+            $(document).ready(function () {
+                birthEventToggle = initEventToggle("add-birth-event", "Birth");
+                deathEventToggle = initEventToggle("add-death-event", "Death");
             });
-        });
-    </script>
+
+            function initEventToggle(eid, eventType) {
+                let el = document.getElementById(eid);
+                el.toggled = false;
+                el.event = undefined;
+                el.eventType = eventType;
+                el.addEventListener('click', function (event) {
+                    toggleEvent(event.target);
+                })
+                return el;
+            }
+
+            function toggleEvent(element) {
+                {#console.log("Birth event toggled. toggled=" + birthEventToggle.toggled);#}
+                if (!element.toggled) {
+                    element.innerHTML = "- Remove " + element.eventType.toLowerCase() + " event";
+                    element.classList.remove("event-toggle-add");
+                    element.classList.add("event-toggle-remove");
+                    addEventForm(element);
+                } else {
+                    element.innerHTML = "+ Add new " + element.eventType.toLowerCase() + " event";
+                    element.classList.remove("event-toggle-remove");
+                    element.classList.add("event-toggle-add");
+                    if (element.event !== undefined) {
+                        $(element.event).remove();
+                    }
+                }
+                element.toggled = !element.toggled;
+            }
+
+            function addEventForm(element) {
+                let container = element.parentElement;
+                let eventDiv = document.createElement("div");
+                eventDiv.id = genId();
+                let header = `<h3>` + element.eventType + `</h3>`
+                let eventFormTable = `<table>{{ event_form.as_table|escape }}</table>\n`;
+                eventDiv.innerHTML = header + eventFormTable;
+                let typeEl = eventDiv.querySelector("#id_type")
+                typeEl.value = element.eventType;
+                typeEl.disabled = true;
+                container.insertBefore(eventDiv, element.nextSibling);
+                element.event = eventDiv
+            }
+
+            function genId() {
+                return '_' + Math.random().toString(36).substring(2, 12);
+            }
+        </script>
+        <div>
+          <p id="show-more-events-toggle" class="event-toggle event-toggle-add">Show extra event options</p>
+        </div>
+        <div id="more-events" hidden>
+          Now you see me!
+        </div>
+
+        <script>
+            let showMoreEventsToggle = document.getElementById("show-more-events-toggle");
+            let moreEvents = document.getElementById("more-events");
+            showMoreEventsToggle.toggled = false;
+            showMoreEventsToggle.addEventListener('click', toggleMoreEventTypes);
+
+            function toggleMoreEventTypes() {
+                if (!showMoreEventsToggle.toggled) {
+                    showMoreEventsToggle.innerHTML = "Hide extra event options";
+                    moreEvents.hidden = false;
+                } else {
+                    showMoreEventsToggle.innerHTML = "Show extra event options";
+                    moreEvents.hidden = true;
+                }
+                showMoreEventsToggle.toggled = !showMoreEventsToggle.toggled;
+            }
+        </script>
+      </div>
+      <table>
+        {{ person_form.as_table }}
+      </table>
+      <hr>
+      <h2> Alternate Names </h2>
+      <table class="table">
+        {{ alt_name_formset.management_form }}
+
+        {% for form in alt_name_formset.forms %}
+          {% if forloop.first %}
+            <thead>
+            <tr>
+              {% for field in form.visible_fields %}
+                <th>{{ field.label_tag }}</th>
+              {% endfor %}
+            </tr>
+            </thead>
+          {% endif %}
+          <tr class="{% cycle 'row1' 'row2' %} formset_row">
+            {% for field in form.visible_fields %}
+              <td>
+                {% if forloop.first %}
+                  {% for hidden in form.hidden_fields %}
+                    {{ hidden }}
+                  {% endfor %}
+                {% endif %}
+                {{ field.errors.as_ul }}
+                {{ field }}
+              </td>
+            {% endfor %}
+          </tr>
+        {% endfor %}
+      </table>
+      <input type="submit" value="Submit"/>
+    </form>
+  </div>
+  <!-- Include formset plugin - including jQuery dependency -->
+  <script src="{% static 'webapp/js/jquery.formset.js' %}"></script>
+  <script type="text/javascript">
+      $(document).ready(function () {
+          $('tr.formset_row').formset({
+              addText: 'add name',
+              deleteText: 'remove',
+              prefix: 'alternate_name'
+          });
+      });
+  </script>
 {% endblock %}
