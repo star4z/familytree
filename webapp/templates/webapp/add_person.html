@@ -11,45 +11,57 @@
         {{ name_form.as_table }}
       </table>
       <div id="events-container">
-        <div class="event-container">
-          <p id="add-birth-event" class="event-toggle event-toggle-add">+ Add new birth event</p>
-        </div>
-        <div class="event-container">
-          <p id="add-death-event" class="event-toggle event-toggle-add">+ Add new death event</p>
-        </div>
         <script>
+            let eventsContainer;
             // declare elements in order to maintain their state
             let birthEventToggle;
             let deathEventToggle;
 
             // delay assignment until other elements are loaded
             $(document).ready(function () {
-                birthEventToggle = initEventToggle("add-birth-event", "Birth");
-                deathEventToggle = initEventToggle("add-death-event", "Death");
+                eventsContainer = document.getElementById("events-container");
+                addEventToggle(eventsContainer, "Birth", 0);
+                addEventToggle(eventsContainer, "Death", 1);
             });
 
-            function initEventToggle(eid, eventType) {
-                let el = document.getElementById(eid);
-                el.toggled = false;
-                el.event = undefined;
-                el.eventType = eventType;
-                el.addEventListener('click', function (event) {
-                    toggleEvent(event.target);
-                })
-                return el;
+            function addEventToggle(container, eventType, pos) {
+                let eventContainer = document.createElement("div");
+                eventContainer.classList.add("event-container");
+                container.insertBefore(eventContainer, container.children[pos]);
+
+                let eventToggleContainer = document.createElement("div");
+                eventToggleContainer.classList.add("event-toggle-container", "event-toggle-add");
+                eventContainer.appendChild(eventToggleContainer);
+
+                let eventToggle = document.createElement("p");
+                eventToggle.innerText = "+ Add new " + eventType + " event";
+                eventToggle.classList.add("event-toggle");
+                eventToggleContainer.appendChild(eventToggle);
+
+                let eventBody = document.createElement("div");
+                eventBody.classList.add("event-body");
+                eventContainer.appendChild(eventBody);
+                initEventToggle(eventToggle, eventType);
+            }
+
+            function initEventToggle(element, eventType) {
+                element.toggled = false;
+                element.event = undefined;
+                element.eventType = eventType;
+                element.addEventListener('click', event => toggleEvent(event.target));
+                return element;
             }
 
             function toggleEvent(element) {
-                {#console.log("Birth event toggled. toggled=" + birthEventToggle.toggled);#}
                 if (!element.toggled) {
                     element.innerHTML = "- Remove " + element.eventType.toLowerCase() + " event";
-                    element.classList.remove("event-toggle-add");
-                    element.classList.add("event-toggle-remove");
+                    element.parentElement.classList.remove("event-toggle-add");
+                    element.parentElement.classList.add("event-toggle-remove");
                     addEventForm(element);
                 } else {
                     element.innerHTML = "+ Add new " + element.eventType.toLowerCase() + " event";
-                    element.classList.remove("event-toggle-remove");
-                    element.classList.add("event-toggle-add");
+                    element.parentElement.classList.remove("event-toggle-remove");
+                    element.parentElement.classList.add("event-toggle-add");
                     if (element.event !== undefined) {
                         $(element.event).remove();
                     }
@@ -58,16 +70,15 @@
             }
 
             function addEventForm(element) {
-                let container = element.parentElement;
+                let container = element.parentElement.parentElement.getElementsByClassName("event-body")[0];
                 let eventDiv = document.createElement("div");
-                eventDiv.id = genId();
                 let header = `<h3>` + element.eventType + `</h3>`
                 let eventFormTable = `<table>{{ event_form.as_table|escape }}</table>\n`;
                 eventDiv.innerHTML = header + eventFormTable;
                 let typeEl = eventDiv.querySelector("#id_type")
                 typeEl.value = element.eventType;
                 typeEl.disabled = true;
-                container.insertBefore(eventDiv, element.nextSibling);
+                container.appendChild(eventDiv);
                 element.event = eventDiv
             }
 

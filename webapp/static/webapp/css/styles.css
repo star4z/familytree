@@ -172,24 +172,32 @@ hr {
 }
 
 .event-container {
-    background-color: lightslategrey;
+    background-color: white;
     border-radius: 15px;
-    padding: 4px 16px 0;
     margin-top: 4px;
 }
 
 .event-toggle {
     font-family: poppins, sans-serif;
-    color: white;
+    color: #202020;
     user-select: none;
 }
 
+.event-toggle-container {
+    padding: 4px 16px 0;
+    border-radius: 15px;
+}
+
+.event-body {
+    padding: 0 16px;
+}
+
 .event-toggle-add:hover {
-    color: lawngreen;
+    background-color: lawngreen;
 }
 
 .event-toggle-remove:hover {
-    color: #ffb5a5;
+    background-color: #ffb5a5;
 }
 
 #events-container {
