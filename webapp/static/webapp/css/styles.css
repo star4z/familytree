@@ -193,7 +193,7 @@ hr {
 }
 
 .event-toggle-add:hover {
-    background-color: lawngreen;
+    background-color: palegreen;
 }
 
 .event-toggle-remove:hover {
@@ -207,7 +207,7 @@ hr {
 }
 
 .reveal-toggle-container {
-    background-color: aquamarine;
+    background-color: lightblue;
     border-radius: 15px;
     padding: 4px 16px 0;
     margin-top: 4px;
@@ -219,8 +219,8 @@ hr {
     user-select: none;
 }
 
-.group-toggle:hover {
-    color: darkgrey;
+.reveal-toggle-container:hover {
+    background-color: cornflowerblue;
 }
 
 #more-events {
