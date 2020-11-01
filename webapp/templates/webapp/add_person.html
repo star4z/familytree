@@ -13,15 +13,19 @@
       <div id="events-container">
         <script>
             let eventsContainer;
-            // declare elements in order to maintain their state
-            let birthEventToggle;
-            let deathEventToggle;
 
             // delay assignment until other elements are loaded
             $(document).ready(function () {
                 eventsContainer = document.getElementById("events-container");
                 addEventToggle(eventsContainer, "Birth", 0);
                 addEventToggle(eventsContainer, "Death", 1);
+                {% autoescape off %}
+                let eventTypes = {{event_types}};
+                {% endautoescape %}
+                for (let i = 0; i < eventTypes.length; i++) {
+                  let element  = document.getElementById("add-" + eventTypes[i]);
+                  initEventToggle(element, eventTypes[i]);
+                }
             });
 
             function addEventToggle(container, eventType, pos) {
@@ -91,10 +95,16 @@
         </div>
         <div id="more-events" hidden>
           {% for event_type in event_types %}
-            <div class="event-container">
-              <p id="add-{{ event_type }}" class="event-toggle event-toggle-add">+ Add new {{ event_type }} event</p>
+          <div class="event-container">
+            <div class="event-toggle-container event-toggle-add">
+              <p id="add-{{ event_type }}" class="event-toggle">+ Add new {{ event_type }} event</p>
             </div>
+            <div class="event-body"></div>
+          </div>
           {% endfor %}
+          <div class="event-container">
+            <p id="add-custom-event" class="event-toggle event-toggle-add">+ Add new custom event</p>
+          </div>
         </div>
 
         <script>
