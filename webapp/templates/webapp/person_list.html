@@ -36,8 +36,7 @@
                 <td>{{ person.birth_location }}</td>
                 <td>{{ person.living }}</td>
                 <td>
-                    <button onclick="location.href='{% url 'edit_person' person.id %}'">edit</button>
-                </td>
+                  <a class="nav-fill" href="{% url 'edit_person' person.id %}">edit</a>
                 <td> {% include "webapp/delete_confirmationbox.html" with type='Person' id=person.id str=person.legal_name delete_function='delete_person' %} </td>
             {% endfor %}
             </tr>

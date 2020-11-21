@@ -43,7 +43,7 @@
                     {% endwith %}
                 </td>
                 <td>
-                    <button onclick="location.href='{% url 'edit_partnership' partnership.id %}'">edit</button>
+                    <a href='{% url 'edit_partnership' partnership.id %}'>edit</a>
                 </td>
                 <td> {% include "webapp/delete_confirmationbox.html" with type='Partnership' id=partnership.id str=partnership delete_function='delete_partnership' %} </td>
             {% endfor %}

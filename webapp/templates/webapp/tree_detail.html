@@ -3,23 +3,41 @@
 {% load static %}
 
 {% block content %}
-    <h3 style = "display:inline">
-        <img src="{% static "webapp/svg/tree_icon.svg" %}" class="page-icon" height=33 width=25>
-        {{ tree.title }}
-    </h3>
-    <p style="display:inline;color:grey;font-size:x-large;">#{{ tree.id }}</p>
-    {% include "webapp/delete_modal.html" with type='Tree' id=tree.id str=tree.title delete_function='delete_tree' %}
-     <div class="btn-toolbar" role="toolbar" aria-label="Toolbar">
-        <div class="btn-group" role="group" aria-label="Editor actions">
-            <button type="button" class="btn btn-secondary" onclick="location.href='{% url 'edit_tree' tree.id %}'">Edit</button>
-            <button type="button" class="btn btn-secondary" onclick="document.getElementById('Tree_{{ tree.id }}').style.display='block'">Delete</button>
-            <button type="button" class="btn btn-secondary" onclick="location.href='{% url 'export_tree' tree.id %}'">Export</button>
-        </div>
-    </div>
-    
-    <p><strong>Notes:</strong> {{ tree.notes }}</p>
+  <h3 style="display:inline">
+    <img src="{% static "webapp/svg/tree_icon.svg" %}" class="page-icon" height=33 width=25 alt="">
+    {{ tree.title }}
+  </h3>
+  <p style="display:inline;color:grey;font-size:x-large;">#{{ tree.id }}</p>
 
-    <!--Display the people list in the tree-->
-    {% include "webapp/person_list.html" %}
-    {% include "webapp/partnership_list.html" %}
+{#  Delete box #}
+  {% include "webapp/delete_modal.html" with type='Tree' id=tree.id str=tree.title delete_function='delete_tree' %}
+
+  <div class="btn-toolbar" role="toolbar" aria-label="Toolbar">
+    <div class="btn-group" role="group" aria-label="Editor actions">
+      <a href="{% url 'edit_tree' tree.id %}" class="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm"><i
+          class="fas fa-edit fa-sm text-white-50"></i> Edit</a>
+      <a class="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm" id="delete_tree"><i
+          class="fas fa-trash fa-sm text-white-50"></i> Delete</a>
+      <a href="{% url 'export_tree' tree.id %}" class="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm"><i
+          class="fas fa-file-export fa-sm text-white-50"></i> Export</a>
+    </div>
+  </div>
+
+  <p><strong>Notes:</strong> {{ tree.notes }}</p>
+
+  <!--Display the people list in the tree-->
+  {% include "webapp/person_list.html" %}
+  {% include "webapp/partnership_list.html" %}
+
+
 {% endblock %}
+
+{% block scripts %}
+  <script>
+  $(document).ready(() => {
+      let deleteButton = document.getElementById("delete_tree");
+      deleteButton.addEventListener("click", () => document.getElementById('Tree_{{ tree.id }}').style.display = 'block');
+  });
+  </script>
+{% endblock %}
+
