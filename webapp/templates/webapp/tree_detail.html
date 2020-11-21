@@ -7,12 +7,12 @@
     <img src="{% static "webapp/svg/tree_icon.svg" %}" class="page-icon" height=33 width=25 alt="">
     {{ tree.title }}
   </h3>
-  <p style="display:inline;color:grey;font-size:x-large;">#{{ tree.id }}</p>
+  <p style="display:inline;color:grey;font-size:x-large;" class="mb-4">#{{ tree.id }}</p>
 
-{#  Delete box #}
+  {#  Delete box #}
   {% include "webapp/delete_modal.html" with type='Tree' id=tree.id str=tree.title delete_function='delete_tree' %}
 
-  <div class="btn-toolbar" role="toolbar" aria-label="Toolbar">
+  <div class="btn-toolbar mb-4" role="toolbar" aria-label="Toolbar">
     <div class="btn-group" role="group" aria-label="Editor actions">
       <a href="{% url 'edit_tree' tree.id %}" class="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm"><i
           class="fas fa-edit fa-sm text-white-50"></i> Edit</a>
@@ -23,7 +23,14 @@
     </div>
   </div>
 
-  <p><strong>Notes:</strong> {{ tree.notes }}</p>
+  <div class="card shadow mb-4">
+    <div class="card-header py-3">
+      <h6 class="m-0 font-weight-bold text-primary">Notes</h6>
+    </div>
+    <div class="card-body">
+      <p>{{ tree.notes }}</p>
+    </div>
+  </div>
 
   <!--Display the people list in the tree-->
   {% include "webapp/person_list.html" %}
@@ -34,10 +41,10 @@
 
 {% block scripts %}
   <script>
-  $(document).ready(() => {
-      let deleteButton = document.getElementById("delete_tree");
-      deleteButton.addEventListener("click", () => document.getElementById('Tree_{{ tree.id }}').style.display = 'block');
-  });
+      $(document).ready(() => {
+          let deleteButton = document.getElementById("delete_tree");
+          deleteButton.addEventListener("click", () => document.getElementById('Tree_{{ tree.id }}').style.display = 'block');
+      });
   </script>
 {% endblock %}
 
