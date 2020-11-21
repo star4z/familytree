@@ -354,7 +354,7 @@ class TreeListView(LoginRequiredMixin, generic.ListView):
 # Have not integrate the partnership yet.
 class PartnershipListView(LoginRequiredMixin, generic.ListView):
     model = Partnership
-    paginate_by = 10
+    paginate_by = 100
     ordering = ['id']
 
     def get_queryset(self):
