@@ -38,10 +38,8 @@
 
 <!-- Page Wrapper -->
 <div id="wrapper">
-
   <!-- Sidebar -->
   <div class="navbar-nav bg-gradient-primary sidebar sidebar-dark accordion" id="accordionSidebar">
-
     <!-- Sidebar - Brand -->
     <a href="{% url 'index' %}" class="sidebar-brand d-flex align-items-center justify-content-center">
       <div class="sidebar-brand-icon">
@@ -49,7 +47,7 @@
       </div>
       <div class="sidebar-brand-text mx-3">Family Tree</div>
     </a>
-
+    <hr class="sidebar-divider my-0">
     <div class="list-group list-group-flush">
       {% if user.is_authenticated %}
         {% load tree_tag %}
@@ -67,11 +65,8 @@
         </div>
       {% endif %}
     </div>
-
     <!-- Divider -->
     <hr class="sidebar-divider my-0">
-
-
   </div>
   <!-- End of Sidebar -->
 

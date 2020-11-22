@@ -7,7 +7,7 @@
   <div id="collapseTwo" class="collapse show" aria-labelledby="headingTwo" data-parent="#accordionSidebar">
     <div class="bg-white py-2 collapse-inner rounded">
       {% if trees %}
-        <h6 class="collapse-header">Trees</h6>
+        {#        <h6 class="collapse-header">Trees</h6>#}
         {% for tree in trees %}
           <a class="collapse-item" href="{{ tree.get_absolute_url }}">{{ tree.title }}</a>
         {% endfor %}
@@ -16,8 +16,15 @@
         {% endif %}
       {% endif %}
       <div class="collapse-divider"></div>
-      <h6 class="collapse-header">Actions</h6>
-      <a href="{% url 'add_tree' %}" class="collapse-item">Add Tree</a>
+
     </div>
   </div>
+</div>
+{#<hr class="sidebar-divider">#}
+{#<div class="sidebar-heading">Actions</div>#}
+<div class="nav-item">
+  <a href="{% url 'add_tree' %}" class="nav-link"><i class="fas fa-plus fa-sm"></i> Add Tree</a>
+</div>
+<div class="nav-item">
+  <a href="{% url 'tree' %}" class="nav-link"><i class="fas fa-list fa-sm"></i> View All Trees</a>
 </div>
