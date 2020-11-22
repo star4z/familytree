@@ -4,6 +4,7 @@
     <p>
     {% load static %}
     <h3 style="display:inline">
+{#    <i class="fas fa-user"></i>#}
         <img src="{% static "webapp/svg/person_icon.svg" %}" class="page-icon" height=33 width=25 alt="Person">
         {{ person.legal_name.prefix }}
         {{ person.legal_name.first_name }}
@@ -15,12 +16,16 @@
 
     <div class="btn-toolbar" role="toolbar" aria-label="Toolbar">
         <div class="btn-group mr-2" role="group" aria-label="Navigation">
-            <button type="button" class="btn btn-secondary" onclick="location.href='{% url 'tree_detail' person.tree.id %}'">Back to Tree</button>
+            <a type="button" class="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm" href='{% url 'tree_detail' person.tree.id %}'><i
+            class="fas fa-chevron-left fa-sm text-white-50"></i> Back to Tree</a>
         </div>
         <div class="btn-group" role="group" aria-label="Editor actions">
-            <button type="button" class="btn btn-secondary" onclick="location.href='{% url 'edit_person' person.id %}'">Edit</button>
-            <button type="button" class="btn btn-secondary" onclick="document.getElementById('Person_{{ person.id }}').style.display='block'">Delete</button>
-            <button type="button" class="btn btn-secondary" onclick="location.href='{{ request.path }}graph/'">View Graph</button>
+            <a type="button" class="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm" href='{% url 'edit_person' person.id %}'><i
+            class="fas fa-edit fa-sm text-white-50"></i> Edit</a>
+            <a type="button" class="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm" onclick="document.getElementById('Person_{{ person.id }}').style.display='block'"><i
+            class="fas fa-trash fa-sm text-white-50"></i> Delete</a>
+            <a type="button" class="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm" href='{{ request.path }}graph/'><i
+            class="fas fa-project-diagram fa-sm text-white-50"></i> View Graph</a>
         </div>
     </div>
 
