@@ -1,20 +1,23 @@
 <div class="nav-item">
-  <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseTwo"
+  <a class="nav-link" href="#" data-toggle="collapse" data-target="#collapseTwo"
      aria-expanded="true" aria-controls="collapseTwo">
     <i class="fas fa-fw fa-tree"></i>
     <span>My Trees</span>
   </a>
-  {% if trees %}
-    <div id="collapseTwo" class="collapse" aria-labelledby="headingTwo" data-parent="#accordionSidebar">
-      <div class="bg-white py-2 collapse-inner rounded">
-        {#      <h6 class="collapse-header">Custom Components:</h6>#}
+  <div id="collapseTwo" class="collapse show" aria-labelledby="headingTwo" data-parent="#accordionSidebar">
+    <div class="bg-white py-2 collapse-inner rounded">
+      {% if trees %}
+        <h6 class="collapse-header">Trees</h6>
         {% for tree in trees %}
           <a class="collapse-item" href="{{ tree.get_absolute_url }}">{{ tree.title }}</a>
         {% endfor %}
         {% if trees.has_next %}
           <a href="{% url 'tree' %}" class="collapse-item">View All</a>
         {% endif %}
-      </div>
+      {% endif %}
+      <div class="collapse-divider"></div>
+      <h6 class="collapse-header">Actions</h6>
+      <a href="{% url 'add_tree' %}" class="collapse-item">Add Tree</a>
     </div>
-  {% endif %}
+  </div>
 </div>
