@@ -1,7 +1,7 @@
 {% extends "base_generic.html" %}
 {% block styles %}
   {% load static %}
-  <link href="{% static "webapp/vendor/datatables/dataTables.bootstrap4.min.css" %}" rel="stylesheet">
+  <link href="{% static "webapp/vendor/datatables/jquery.dataTables.min.css" %}" rel="stylesheet">
 {% endblock %}
 
 {% block content %}
@@ -22,11 +22,10 @@
     <div class="card-body">
       {% if tree_list %}
         <div class="table-responsive">
-          <table class="table table-bordered table-striped table-sm" id="dataTable">
+          <table class="table table-striped table-sm" id="dataTable">
             <thead>
             <tr>
               <th class="">Name</th>
-              <th class="sorting_asc_disabled sorting_desc_disabled"></th>
               <th class="sorting_asc_disabled sorting_desc_disabled"></th>
             </tr>
             </thead>
@@ -34,15 +33,23 @@
             <tr>
               <th>Name</th>
               <th></th>
-              <th></th>
             </tr>
             </tfoot>
             <tbody>
             {% for tree in tree_list %}
               <tr>
                 <td><a href="{{ tree.get_absolute_url }}">{{ tree.title }}</a></td>
-                <td><a href="{% url 'edit_tree' tree.id %}" class="nav-fill ">edit</a></td>
-                <td>{% include "webapp/delete_confirmationbox.html" with type='Tree' id=tree.id str=tree.title delete_function='delete_tree' %}</td>
+                <td class="dt-body-right">
+                  <a href="{% url 'edit_tree' tree.id %}" class="btn btn-primary btn-icon-split btn-sm">
+                    <span class="icon text-white-50"><i class="fas fa-edit"></i></span>
+                    <span class="text">Edit</span>
+                  </a>
+                  <a onclick="document.getElementById('Tree_{{ tree.id }}').style.display='block'" class="btn btn-danger btn-icon-split btn-sm">
+                    <span class="icon text-white-50"><i class="fas fa-trash"></i></span>
+                    <span class="text">Delete</span>
+                  </a>
+                  {% include "webapp/delete_modal.html" with type='Tree' id=tree.id str=tree.title delete_function='delete_tree' %}
+                </td>
               </tr>
             {% endfor %}
             </tbody>
@@ -74,6 +81,6 @@
 
 {% block scripts %}
   <script src="{% static "webapp/vendor/datatables/jquery.dataTables.min.js" %}"></script>
-  <script src="{% static "webapp/vendor/datatables/dataTables.bootstrap4.min.js" %}"></script>
+{#  <script src="{% static "webapp/vendor/datatables/dataTables.bootstrap4.min.js" %}"></script>#}
   <script src="{% static "webapp/js/tree_list.js" %}"></script>
 {% endblock %}
