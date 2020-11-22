@@ -4,6 +4,7 @@ $(document).ready(function() {
     "columnDefs": [
       {"width": "5%", "targets": [1, 2]}
     ],
-    "paging": false
+    "paging": false,
+    "bInfo": false
   });
 });
