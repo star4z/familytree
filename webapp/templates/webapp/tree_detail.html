@@ -2,6 +2,10 @@
 
 {% load static %}
 
+{% block styles %}
+  <link href="{% static "webapp/vendor/datatables/jquery.dataTables.min.css" %}" rel="stylesheet">
+{% endblock %}
+
 {% block content %}
   <h3 style="display:inline">
     <img src="{% static "webapp/svg/tree_icon.svg" %}" class="page-icon" height=33 width=25 alt="">
@@ -46,5 +50,7 @@
           deleteButton.addEventListener("click", () => document.getElementById('Tree_{{ tree.id }}').style.display = 'block');
       });
   </script>
+    <script src="{% static "webapp/vendor/datatables/jquery.dataTables.min.js" %}"></script>
+  <script src="{% static "webapp/js/person_list.js" %}"></script>
 {% endblock %}
 

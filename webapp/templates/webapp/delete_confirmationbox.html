@@ -1,3 +1,6 @@
-<a class="nav-fill" onclick="document.getElementById('{{ type }}_{{ id }}').style.display='block'">delete</a>
-
+<a class="d-none d-sm-inline-block btn btn-sm btn-danger shadow-sm btn-icon-split"
+   onclick="document.getElementById('{{ type }}_{{ id }}').style.display='block'">
+  <span class="icon text-white-50"><i class="fas fa-trash"></i></span>
+  <span class="text"> Delete</span>
+</a>
 {% include "webapp/delete_modal.html" %}
